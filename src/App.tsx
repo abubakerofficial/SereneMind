@@ -1,9 +1,11 @@
 /**
  * SereneMind AI - Mental Wellness & Voice Mindfulness Coach
- * Voice-First, Empathetic Interactive Coaching with Real-Time Mindset Insights & Practices
+ * Front: Breathing Practice (سانسوں کی پریکٹس)
+ * Middle: Mindfulness Exercises & Comprehensive Books Library on Overthinking & Meditation
+ * Bottom: Live Voice Coach & Interactive Speech Assistant
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Sparkles,
   Volume2,
@@ -13,10 +15,12 @@ import {
   Eye,
   Zap,
   SlidersHorizontal,
-  Download,
   Play,
   Square,
   HelpCircle,
+  BookOpen,
+  Mic,
+  MessageSquare,
 } from 'lucide-react';
 import { ChatMessage, CoachAssessment, ExerciseType } from './types';
 import { useVoiceInput } from './hooks/useVoiceInput';
@@ -27,9 +31,10 @@ import { WellnessInsights } from './components/WellnessInsights';
 import { BreathingExercise } from './components/BreathingExercise';
 import { GroundingExercise } from './components/GroundingExercise';
 import { ThoughtDefusion } from './components/ThoughtDefusion';
+import { BooksLibrary } from './components/BooksLibrary';
 
 const INITIAL_ASSESSMENT: CoachAssessment = {
-  spokenResponse: "Ready. Tap the microphone to speak, ask for a 2-minute reset, or choose a practice below.",
+  spokenResponse: "Ready. Tap the microphone below to speak, ask for a 2-minute reset, or choose a practice or book from above.",
   detectedArchetype: 'Mindful Companion',
   stressLevel: 2,
   overthinkingTendency: 'Balanced',
@@ -43,7 +48,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: 'msg-welcome',
     role: 'assistant',
-    content: "Ready. Tap the microphone to speak, ask for a 2-minute reset, or choose a practice below.",
+    content: "Ready. Tap the microphone below to speak, ask for a 2-minute reset, or choose a practice or book from above.",
     timestamp: Date.now(),
     assessment: INITIAL_ASSESSMENT,
   },
@@ -58,6 +63,10 @@ export default function App() {
   const [showInsightsDrawer, setShowInsightsDrawer] = useState(false);
   const [currentAssessment, setCurrentAssessment] = useState<CoachAssessment>(INITIAL_ASSESSMENT);
   const [lastUserSpoken, setLastUserSpoken] = useState<string>('');
+
+  const breathSectionRef = useRef<HTMLDivElement>(null);
+  const booksSectionRef = useRef<HTMLDivElement>(null);
+  const voiceSectionRef = useRef<HTMLDivElement>(null);
 
   // Stop speaking audio helper
   const handleStopAudio = () => {
@@ -216,15 +225,19 @@ export default function App() {
     resetTranscript();
   };
 
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement | null>) => {
+    ref.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans relative selection:bg-emerald-500 selection:text-stone-950">
-      {/* Serene Ambient Gradient Orbs */}
-      <div className="fixed top-[-10%] left-[20%] w-[500px] h-[500px] bg-emerald-600/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="fixed bottom-[-10%] right-[15%] w-[450px] h-[450px] bg-teal-600/10 rounded-full blur-[130px] pointer-events-none" />
-      <div className="fixed top-[40%] right-[5%] w-[350px] h-[350px] bg-sky-600/8 rounded-full blur-[120px] pointer-events-none" />
+      {/* Serene Ambient Background Gradients */}
+      <div className="fixed top-[-10%] left-[20%] w-[550px] h-[550px] bg-emerald-600/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="fixed top-[45%] right-[10%] w-[500px] h-[500px] bg-teal-600/10 rounded-full blur-[130px] pointer-events-none" />
+      <div className="fixed bottom-[-10%] left-[10%] w-[450px] h-[450px] bg-sky-600/8 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-30 bg-stone-950/80 backdrop-blur-md border-b border-stone-800/80 px-4 sm:px-8 py-3.5">
+      <header className="sticky top-0 z-40 bg-stone-950/85 backdrop-blur-md border-b border-stone-800/80 px-4 sm:px-8 py-3.5">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo & Brand */}
           <div className="flex items-center gap-3">
@@ -239,42 +252,42 @@ export default function App() {
                   SereneMind <span className="text-emerald-400 font-light">AI</span>
                 </h1>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
-                  Voice Coach
+                  سانس اور ذہنی سکون
                 </span>
               </div>
               <p className="text-[11px] text-stone-400 hidden sm:block">
-                Empathetic guidance • Overthinking relief • Gentle mindfulness
+                4-7-8 Breathwork • Overthinking &amp; Meditation Books • Live Voice
               </p>
             </div>
           </div>
 
-          {/* Header Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Quick Practice Shortcuts */}
-            <div className="hidden md:flex items-center gap-1.5 p-1 bg-stone-900/90 rounded-2xl border border-stone-800">
-              <button
-                onClick={() => setActiveExercise('breathing')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-stone-300 hover:text-emerald-300 hover:bg-stone-800/80 transition-all"
-              >
-                <Wind className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Breathe (4-7-8)</span>
-              </button>
-              <button
-                onClick={() => setActiveExercise('grounding')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-stone-300 hover:text-sky-300 hover:bg-stone-800/80 transition-all"
-              >
-                <Eye className="w-3.5 h-3.5 text-sky-400" />
-                <span>5-4-3-2-1</span>
-              </button>
-              <button
-                onClick={() => setActiveExercise('defusion')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-stone-300 hover:text-purple-300 hover:bg-stone-800/80 transition-all"
-              >
-                <Zap className="w-3.5 h-3.5 text-purple-400" />
-                <span>Release Loop</span>
-              </button>
-            </div>
+          {/* Quick Section Navigation Links */}
+          <nav className="hidden lg:flex items-center gap-1 p-1 bg-stone-900/90 rounded-2xl border border-stone-800 text-xs">
+            <button
+              onClick={() => scrollToSection(breathSectionRef)}
+              className="px-3 py-1.5 rounded-xl font-medium text-stone-300 hover:text-emerald-300 hover:bg-stone-800/80 transition-all flex items-center gap-1.5"
+            >
+              <Wind className="w-3.5 h-3.5 text-emerald-400" />
+              <span>سانسوں کی پریکٹس (Breath)</span>
+            </button>
+            <button
+              onClick={() => scrollToSection(booksSectionRef)}
+              className="px-3 py-1.5 rounded-xl font-medium text-stone-300 hover:text-emerald-300 hover:bg-stone-800/80 transition-all flex items-center gap-1.5"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
+              <span>کتب خانہ (Books)</span>
+            </button>
+            <button
+              onClick={() => scrollToSection(voiceSectionRef)}
+              className="px-3 py-1.5 rounded-xl font-medium text-stone-300 hover:text-emerald-300 hover:bg-stone-800/80 transition-all flex items-center gap-1.5"
+            >
+              <Mic className="w-3.5 h-3.5 text-emerald-400" />
+              <span>لائیو وائس (Live Voice)</span>
+            </button>
+          </nav>
 
+          {/* Header Controls */}
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Auto-Voice Speak Toggle */}
             <button
               onClick={() => {
@@ -293,15 +306,6 @@ export default function App() {
               <span className="hidden sm:inline">{autoSpeakVoice ? 'Voice Active' : 'Muted'}</span>
             </button>
 
-            {/* Mobile Insight Toggle */}
-            <button
-              onClick={() => setShowInsightsDrawer(!showInsightsDrawer)}
-              className="lg:hidden p-2 rounded-2xl bg-stone-900 border border-stone-800 text-stone-300 hover:text-emerald-400 transition-colors"
-              title="Toggle Mindset Insights"
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-            </button>
-
             {/* Reset Session */}
             <button
               onClick={handleResetSession}
@@ -310,51 +314,155 @@ export default function App() {
             >
               <RotateCcw className="w-4 h-4" />
             </button>
-
-            {/* Download Project ZIP */}
-            <a
-              href="/serenemind-ai.zip"
-              download="serenemind-ai.zip"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-semibold bg-emerald-950/70 hover:bg-emerald-900/80 border border-emerald-500/40 text-emerald-300 hover:text-emerald-100 transition-all shadow-sm shadow-emerald-950/40"
-              title="Download Full Project ZIP File"
-            >
-              <Download className="w-4 h-4 text-emerald-400" />
-              <span className="hidden sm:inline">Download ZIP</span>
-            </a>
           </div>
         </div>
       </header>
 
-      {/* Main Two-Column Layout */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-6 overflow-y-auto">
-        {/* Left Column: Voice Coach Sanctuary & Practice Hub (No Chat Input) */}
-        <section className="flex-1 flex flex-col gap-6">
-          {/* Practice Shortcuts on Mobile */}
-          <div className="flex md:hidden items-center justify-around p-2.5 bg-stone-900/70 border border-stone-800/80 rounded-2xl text-xs">
-            <button
-              onClick={() => setActiveExercise('breathing')}
-              className="flex items-center gap-1 text-emerald-400 font-medium"
-            >
-              <Wind className="w-3.5 h-3.5" /> 4-7-8 Breath
-            </button>
-            <button
-              onClick={() => setActiveExercise('grounding')}
-              className="flex items-center gap-1 text-sky-400 font-medium"
-            >
-              <Eye className="w-3.5 h-3.5" /> 5-4-3-2-1
-            </button>
-            <button
-              onClick={() => setActiveExercise('defusion')}
-              className="flex items-center gap-1 text-purple-400 font-medium"
-            >
-              <Zap className="w-3.5 h-3.5" /> Release Loop
-            </button>
+      {/* Main Content Area */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-10">
+        
+        {/* ========================================================================= */}
+        {/* 1. FRONT & CENTER: BREATHING PRACTICE (سانسوں کی پریکٹس فرنٹ پر) */}
+        {/* ========================================================================= */}
+        <section ref={breathSectionRef} className="scroll-mt-24 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
+                <Wind className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-stone-100 tracking-tight">
+                  Guided Breathwork Sanctuary <span className="text-emerald-400 font-light">(سانسوں کی پریکٹس)</span>
+                </h2>
+                <p className="text-xs text-stone-400">
+                  Direct somatic vagus nerve reset to instantly break acute overthinking and anxiety.
+                </p>
+              </div>
+            </div>
+            <span className="text-xs px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/30 self-start sm:self-auto font-medium">
+              Front &amp; Interactive
+            </span>
           </div>
 
-          {/* Voice Coach Centerpiece Orb */}
-          <div className="bg-stone-900/40 border border-stone-800/80 rounded-3xl p-6 sm:p-8 backdrop-blur-sm relative overflow-hidden flex flex-col items-center text-center shadow-xl">
+          {/* Embedded Full-Featured Breathing Sanctuary */}
+          <div className="w-full flex justify-center">
+            <BreathingExercise embedded={true} initialPattern="4-7-8" />
+          </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* 2. MINDFULNESS PRACTICES & NERVOUS SYSTEM INSIGHTS */}
+        {/* ========================================================================= */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2.5 px-1">
+            <div className="p-2 rounded-xl bg-teal-500/20 text-teal-400">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-stone-100 tracking-tight">
+                Somatic Anchors &amp; Mindset Profile <span className="text-teal-400 font-light">(دیگر مشقیں)</span>
+              </h2>
+              <p className="text-xs text-stone-400">
+                Sensory grounding, cognitive defusion, and live tension assessment.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            {/* Exercise 1: 5-4-3-2-1 Sensory Grounding */}
+            <div className="p-6 rounded-3xl bg-stone-900/60 border border-stone-800/90 backdrop-blur-md flex flex-col justify-between h-full shadow-xl">
+              <div>
+                <div className="w-10 h-10 rounded-2xl bg-sky-950/80 border border-sky-500/30 flex items-center justify-center text-sky-400 mb-4">
+                  <Eye className="w-5 h-5" />
+                </div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-base font-bold text-stone-100">5-4-3-2-1 Sensory Grounding</h3>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-950 text-sky-300 border border-sky-500/30">
+                    حسی اینکر
+                  </span>
+                </div>
+                <p className="text-xs text-stone-400 leading-relaxed mt-2">
+                  Anchor attention to 5 sight, 4 touch, 3 sound, 2 smell, and 1 taste objects to physically interrupt the brain's alarm center.
+                </p>
+              </div>
+              <button
+                onClick={() => setActiveExercise('grounding')}
+                className="mt-6 w-full py-2.5 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/40 text-sky-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>Launch 5-4-3-2-1 Practice</span>
+              </button>
+            </div>
+
+            {/* Exercise 2: Thought Defusion (Release Loop) */}
+            <div className="p-6 rounded-3xl bg-stone-900/60 border border-stone-800/90 backdrop-blur-md flex flex-col justify-between h-full shadow-xl">
+              <div>
+                <div className="w-10 h-10 rounded-2xl bg-purple-950/80 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-4">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-base font-bold text-stone-100">Thought Defusion</h3>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-500/30">
+                    خیالات کی رہائی
+                  </span>
+                </div>
+                <p className="text-xs text-stone-400 leading-relaxed mt-2">
+                  Visualize obsessive thought balloons detaching from your mind and floating gently away into the wide open sky.
+                </p>
+              </div>
+              <button
+                onClick={() => setActiveExercise('defusion')}
+                className="mt-6 w-full py-2.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>Launch Release Loop</span>
+              </button>
+            </div>
+
+            {/* Live Profile & Stress Load */}
+            <div className="h-full">
+              <WellnessInsights
+                assessment={currentAssessment}
+                onOpenExercise={(type) => setActiveExercise(type)}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* 3. BOOKS LIBRARY: OVERTHINKING, MEDITATION & MENTAL CLARITY (کتب خانہ) */}
+        {/* ========================================================================= */}
+        <div ref={booksSectionRef} className="scroll-mt-24">
+          <BooksLibrary />
+        </div>
+
+        {/* ========================================================================= */}
+        {/* 4. LIVE VOICE COACH & ASSISTANT (لائیو چیٹ / وائس کا ائیکن نیچے لے جاؤ) */}
+        {/* ========================================================================= */}
+        <section ref={voiceSectionRef} className="scroll-mt-24 space-y-6 pt-6 border-t border-stone-800/80">
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
+                <Mic className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-stone-100 tracking-tight">
+                  Live Voice Coach &amp; Spoken Support <span className="text-emerald-400 font-light">(لائیو وائس اسسٹنٹ)</span>
+                </h2>
+                <p className="text-xs text-stone-400">
+                  Tap microphone below to speak naturally. Empathetic guidance spoken back immediately.
+                </p>
+              </div>
+            </div>
+            <span className="text-[11px] px-3 py-1 rounded-full bg-stone-900 border border-stone-800 text-stone-400">
+              Live Voice Station
+            </span>
+          </div>
+
+          {/* Central Voice Resonance Box */}
+          <div className="bg-stone-900/50 border border-stone-800/90 rounded-3xl p-6 sm:p-8 backdrop-blur-md relative overflow-hidden flex flex-col items-center text-center shadow-2xl">
             {/* Status Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-stone-950/70 border border-stone-800 text-xs text-stone-300 mb-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-stone-950/80 border border-stone-800 text-xs text-stone-300 mb-6 shadow-sm">
               <span
                 className={`w-2.5 h-2.5 rounded-full ${
                   currentStatus === 'Listening...'
@@ -366,20 +474,19 @@ export default function App() {
                     : 'bg-emerald-500'
                 }`}
               />
-              <span className="font-medium">
+              <span className="font-semibold">
                 {currentStatus === 'Listening...'
-                  ? 'Listening to you... Speak now'
+                  ? 'Listening to your voice... (سن رہا ہوں)'
                   : currentStatus === 'Thinking...'
-                  ? 'Thinking & formulating direct answer...'
+                  ? 'Thinking & formulating clear answer...'
                   : currentStatus === 'Speaking...'
-                  ? 'Coach Speaking...'
-                  : 'Voice Coach Ready'}
+                  ? 'Coach Speaking... (بول رہا ہے)'
+                  : 'Voice Coach Ready (مائیکروفون پر بولیں)'}
               </span>
             </div>
 
-            {/* Glowing Interactive Voice Resonance Circle */}
+            {/* Glowing Resonance Circle & Large Voice Mic */}
             <div className="relative my-4 flex items-center justify-center">
-              {/* Outer Animated Glow Ring */}
               <div
                 className={`absolute w-44 h-44 rounded-full transition-all duration-700 pointer-events-none ${
                   isListening
@@ -402,7 +509,6 @@ export default function App() {
                 }`}
               />
 
-              {/* Large Voice Microphone Action Button */}
               <div className="relative z-10 p-2">
                 <VoiceMicButton
                   isListening={isListening}
@@ -415,24 +521,21 @@ export default function App() {
             <p className="text-xs text-stone-400 mt-2 max-w-sm">
               {isListening
                 ? 'Tap the red button when finished speaking to submit your voice'
-                : 'Tap microphone to speak naturally. Answers are spoken aloud immediately.'}
+                : 'Tap microphone to speak your question or thoughts. Zero typing needed.'}
             </p>
 
-            {/* Voice Error notice if any */}
             {voiceError && (
               <div className="mt-3 p-2.5 rounded-2xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs">
                 {voiceError}
               </div>
             )}
 
-            {/* Live interim spoken transcript preview */}
             {isListening && interimTranscript && (
               <div className="mt-4 w-full max-w-lg p-3 rounded-2xl bg-emerald-950/50 border border-emerald-500/30 text-emerald-200 text-sm italic animate-fade-in">
                 "{interimTranscript}..."
               </div>
             )}
 
-            {/* Last User Spoken Bubble if exists */}
             {lastUserSpoken && !isListening && (
               <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-stone-950/60 border border-stone-800/80 text-xs text-stone-400">
                 <span className="text-emerald-400 font-medium">You asked:</span>
@@ -477,138 +580,23 @@ export default function App() {
               </div>
             </div>
 
-            {/* Response Text */}
             <blockquote className="text-stone-100 text-base sm:text-lg font-normal leading-relaxed my-2">
               "{currentAssessment.spokenResponse}"
             </blockquote>
-
-            {/* Suggested Practice Action if available */}
-            {currentAssessment.suggestedExercise && currentAssessment.suggestedExercise !== 'None' && (
-              <div className="mt-5 p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
-                    <Wind className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <span className="text-xs font-semibold text-emerald-200 block">
-                      Recommended Practice: {currentAssessment.suggestedExercise}
-                    </span>
-                    <span className="text-[11px] text-stone-400">
-                      {currentAssessment.exerciseInstruction || 'Follow the guided interactive rhythm'}
-                    </span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => {
-                    const ex = currentAssessment.suggestedExercise.toLowerCase();
-                    if (ex.includes('breath') || ex.includes('4-7-8')) setActiveExercise('breathing');
-                    else if (ex.includes('ground') || ex.includes('5-4-3-2-1')) setActiveExercise('grounding');
-                    else if (ex.includes('defusion') || ex.includes('loop')) setActiveExercise('defusion');
-                    else setActiveExercise('breathing');
-                  }}
-                  className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 text-xs font-bold transition-all shadow-md shrink-0"
-                >
-                  Start Practice Now
-                </button>
-              </div>
-            )}
           </div>
 
-          {/* Quick Voice Starters & Common Questions */}
-          <div className="bg-stone-900/30 border border-stone-800/80 rounded-3xl p-5 backdrop-blur-sm">
+          {/* Quick Voice Starters */}
+          <div className="bg-stone-900/40 border border-stone-800/80 rounded-3xl p-5 backdrop-blur-sm">
             <QuickPrompts
               onSelectPrompt={(text) => handleSendPrompt(text)}
               disabled={isLoading}
             />
           </div>
-
-          {/* Interactive Practices Suite */}
-          <div className="bg-stone-900/30 border border-stone-800/80 rounded-3xl p-5 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-400 mb-3.5">
-              <Sparkles className="w-4 h-4 text-emerald-400" />
-              <span>Interactive Mindfulness Exercises</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {/* Card 1: 4-7-8 Breathing */}
-              <button
-                onClick={() => setActiveExercise('breathing')}
-                className="flex flex-col text-left p-4 rounded-2xl bg-stone-900/70 hover:bg-stone-850 border border-stone-800 hover:border-emerald-500/40 transition-all group shadow-sm"
-              >
-                <div className="w-9 h-9 rounded-xl bg-emerald-950/80 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-3 group-hover:scale-105 transition-transform">
-                  <Wind className="w-5 h-5" />
-                </div>
-                <h4 className="text-sm font-semibold text-stone-100 group-hover:text-emerald-300">
-                  4-7-8 Breathing
-                </h4>
-                <p className="text-xs text-stone-400 mt-1 line-clamp-2">
-                  Slow the heart rate and calm the autonomic nervous system in 2 minutes.
-                </p>
-                <span className="text-[11px] text-emerald-400 font-semibold mt-3 flex items-center gap-1">
-                  Launch Exercise →
-                </span>
-              </button>
-
-              {/* Card 2: 5-4-3-2-1 Sensory Grounding */}
-              <button
-                onClick={() => setActiveExercise('grounding')}
-                className="flex flex-col text-left p-4 rounded-2xl bg-stone-900/70 hover:bg-stone-850 border border-stone-800 hover:border-sky-500/40 transition-all group shadow-sm"
-              >
-                <div className="w-9 h-9 rounded-xl bg-sky-950/80 border border-sky-500/30 flex items-center justify-center text-sky-400 mb-3 group-hover:scale-105 transition-transform">
-                  <Eye className="w-5 h-5" />
-                </div>
-                <h4 className="text-sm font-semibold text-stone-100 group-hover:text-sky-300">
-                  5-4-3-2-1 Grounding
-                </h4>
-                <p className="text-xs text-stone-400 mt-1 line-clamp-2">
-                  Anchor attention to sight, touch, sound, and smell to halt mental panic.
-                </p>
-                <span className="text-[11px] text-sky-400 font-semibold mt-3 flex items-center gap-1">
-                  Launch Exercise →
-                </span>
-              </button>
-
-              {/* Card 3: Thought Defusion */}
-              <button
-                onClick={() => setActiveExercise('defusion')}
-                className="flex flex-col text-left p-4 rounded-2xl bg-stone-900/70 hover:bg-stone-850 border border-stone-800 hover:border-purple-500/40 transition-all group shadow-sm"
-              >
-                <div className="w-9 h-9 rounded-xl bg-purple-950/80 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-3 group-hover:scale-105 transition-transform">
-                  <Zap className="w-5 h-5" />
-                </div>
-                <h4 className="text-sm font-semibold text-stone-100 group-hover:text-purple-300">
-                  Release Loop
-                </h4>
-                <p className="text-xs text-stone-400 mt-1 line-clamp-2">
-                  Visualize obsessive thought balloons floating gently away into clear open space.
-                </p>
-                <span className="text-[11px] text-purple-400 font-semibold mt-3 flex items-center gap-1">
-                  Launch Exercise →
-                </span>
-              </button>
-            </div>
-          </div>
         </section>
 
-        {/* Right Column: Mindset & Nervous System Profile */}
-        <aside className="w-full lg:w-80 xl:w-96 flex flex-col gap-4">
-          <WellnessInsights
-            assessment={currentAssessment}
-            onOpenExercise={(type) => setActiveExercise(type)}
-          />
-
-          {/* Quick Help Card */}
-          <div className="p-4 rounded-2xl bg-stone-900/40 border border-stone-800/60 text-xs text-stone-400 flex items-start gap-2.5">
-            <HelpCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-            <p>
-              SereneMind AI is 100% voice-driven. Tap the microphone anytime to speak, or tap any prompt to trigger guidance instantly.
-            </p>
-          </div>
-        </aside>
       </main>
 
-      {/* Interactive Mindfulness Modals */}
+      {/* Interactive Mindfulness Modals (if launched from buttons) */}
       {activeExercise === 'breathing' && (
         <BreathingExercise onClose={() => setActiveExercise('none')} />
       )}

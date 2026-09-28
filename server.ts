@@ -322,17 +322,6 @@ app.post('/api/tts', async (req: Request, res: Response) => {
   }
 });
 
-// Endpoint: Download project source code as ZIP file
-app.get('/api/download-zip', (_req: Request, res: Response) => {
-  const zipPath = path.resolve(__dirname, 'public', 'serenemind-ai.zip');
-  if (fs.existsSync(zipPath)) {
-    res.setHeader('Content-Type', 'application/zip');
-    res.setHeader('Content-Disposition', 'attachment; filename="serenemind-ai.zip"');
-    return res.sendFile(zipPath);
-  }
-  return res.status(404).json({ error: 'Zip file not found' });
-});
-
 // Serve frontend
 async function startServer() {
   if (process.env.NODE_ENV === 'production') {

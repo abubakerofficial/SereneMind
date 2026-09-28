@@ -31,3 +31,19 @@ export interface BreathingPatternConfig {
   cycles: number;
   benefits: string;
 }
+
+export interface BookItem {
+  id: string;
+  title: string;
+  author: string;
+  category: 'overthinking' | 'meditation' | 'clarity';
+  categoryLabel: string;
+  readTime: string;
+  gradient: string;
+  badge: string;
+  tagline: string;
+  corePhilosophy: string;
+  actionableExercises: string[];
+  goldenQuote: string;
+}
+

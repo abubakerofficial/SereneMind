@@ -42,13 +42,15 @@ const BREATH_PATTERNS: BreathingPatternConfig[] = [
 type BreathPhase = 'inhale' | 'hold' | 'exhale' | 'holdPost' | 'ready' | 'completed';
 
 interface BreathingExerciseProps {
-  onClose: () => void;
+  onClose?: () => void;
   initialPattern?: '4-7-8' | 'box' | 'calm';
+  embedded?: boolean;
 }
 
 export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
   onClose,
   initialPattern = '4-7-8',
+  embedded = false,
 }) => {
   const [selectedPattern, setSelectedPattern] = useState<BreathingPatternConfig>(() => {
     return BREATH_PATTERNS.find((p) => p.id === initialPattern) || BREATH_PATTERNS[0];
@@ -215,163 +217,178 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
 
   const orb = getOrbState();
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-lg bg-stone-900/95 border border-emerald-500/20 rounded-3xl p-6 sm:p-8 shadow-2xl text-stone-100 flex flex-col items-center overflow-hidden">
-        {/* Ambient background glow */}
-        <div className="absolute -top-24 -left-24 w-64 h-64 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+  const content = (
+    <div className={`relative w-full ${embedded ? 'max-w-2xl' : 'max-w-lg'} bg-stone-900/95 border border-emerald-500/25 rounded-3xl p-6 sm:p-8 shadow-2xl text-stone-100 flex flex-col items-center overflow-hidden backdrop-blur-md`}>
+      {/* Ambient background glow */}
+      <div className="absolute -top-24 -left-24 w-64 h-64 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Header */}
-        <div className="w-full flex items-center justify-between pb-4 border-b border-stone-800 z-10">
-          <div className="flex items-center gap-2.5">
-            <span className="p-2 rounded-xl bg-emerald-950/60 text-emerald-300 border border-emerald-500/20">
-              <Sparkles className="w-4 h-4" />
-            </span>
-            <div>
-              <h3 className="font-semibold text-stone-100 text-lg">Mindful Breath Oasis</h3>
-              <p className="text-xs text-stone-400">Step-by-step nervous system reset</p>
+      {/* Header */}
+      <div className="w-full flex items-center justify-between pb-4 border-b border-stone-800 z-10">
+        <div className="flex items-center gap-2.5">
+          <span className="p-2 rounded-xl bg-emerald-950/60 text-emerald-300 border border-emerald-500/20">
+            <Sparkles className="w-4 h-4" />
+          </span>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-bold text-stone-100 text-base sm:text-lg">Mindful Breath Oasis</h3>
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/30">
+                سانسوں کی پریکٹس
+              </span>
             </div>
+            <p className="text-xs text-stone-400">Step-by-step vagus nerve reset &amp; acute overthinking relief</p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setSoundEnabled(!soundEnabled)}
-              title={soundEnabled ? 'Mute ambient bell' : 'Unmute ambient bell'}
-              className="p-2 rounded-xl bg-stone-800/80 hover:bg-stone-800 text-stone-300 transition-colors"
-            >
-              {soundEnabled ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4" />}
-            </button>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            title={soundEnabled ? 'Mute ambient chime' : 'Unmute ambient chime'}
+            className="p-2 rounded-xl bg-stone-800/80 hover:bg-stone-800 text-stone-300 transition-colors"
+          >
+            {soundEnabled ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4" />}
+          </button>
+          {!embedded && onClose && (
             <button
               onClick={onClose}
               className="p-2 rounded-xl bg-stone-800/80 hover:bg-stone-800 text-stone-400 hover:text-stone-200 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
-          </div>
+          )}
         </div>
+      </div>
 
-        {/* Pattern Selector Tabs */}
-        <div className="w-full flex gap-1.5 p-1 my-5 bg-stone-950/70 rounded-2xl border border-stone-800 z-10">
-          {BREATH_PATTERNS.map((pattern) => {
-            const isSelected = selectedPattern.id === pattern.id;
-            return (
-              <button
-                key={pattern.id}
-                onClick={() => {
-                  setSelectedPattern(pattern);
-                  setIsActive(false);
-                  setPhase('ready');
-                  setCurrentCycle(1);
-                  setSecondsRemaining(pattern.inhale);
-                }}
-                className={`flex-1 py-2 px-2 text-xs font-medium rounded-xl transition-all ${
-                  isSelected
-                    ? 'bg-emerald-600/30 text-emerald-200 border border-emerald-500/40 shadow-sm'
-                    : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800/40'
-                }`}
-              >
-                {pattern.name.split(' ')[0]}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Central Breathing Orb */}
-        <div className="relative my-8 flex items-center justify-center w-64 h-64 z-10">
-          {/* Outer Pulsing Aura */}
-          <div
-            className={`absolute inset-0 rounded-full bg-gradient-to-br ${orb.color} blur-xl opacity-60 transition-all ${orb.scale}`}
-          />
-
-          {/* Main Breathing Orb */}
-          <div
-            className={`relative w-48 h-48 rounded-full border-2 bg-stone-900/80 flex flex-col items-center justify-center shadow-lg transition-all ${orb.scale} ${orb.color}`}
-          >
-            {phase === 'completed' ? (
-              <div className="flex flex-col items-center text-center p-3 animate-fade-in">
-                <CheckCircle2 className="w-12 h-12 text-emerald-400 mb-1" />
-                <span className="text-sm font-semibold text-emerald-200">Refreshed</span>
-              </div>
-            ) : (
-              <>
-                <span className="text-4xl font-light tracking-tight text-stone-100 font-mono">
-                  {phase === 'ready' ? selectedPattern.inhale : secondsRemaining}
-                </span>
-                <span className="text-xs uppercase font-semibold tracking-wider text-emerald-300/90 mt-1">
-                  {phase === 'ready' ? 'SEC' : phase}
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Verbal Instruction */}
-        <div className="text-center min-h-[4rem] z-10 px-4">
-          <h4 className="text-lg font-medium text-stone-100 transition-all">
-            {orb.title}
-          </h4>
-          <p className="text-xs text-stone-400 mt-1 max-w-sm mx-auto">
-            {orb.subtitle}
-          </p>
-        </div>
-
-        {/* Cycle Progress Dots */}
-        <div className="flex items-center gap-2 my-4 z-10">
-          <span className="text-xs text-stone-400 mr-1">
-            Cycle {currentCycle} of {selectedPattern.cycles}
-          </span>
-          {Array.from({ length: selectedPattern.cycles }).map((_, i) => (
-            <div
-              key={i}
-              className={`w-2 h-2 rounded-full transition-all ${
-                i + 1 < currentCycle
-                  ? 'bg-emerald-400 scale-100'
-                  : i + 1 === currentCycle
-                  ? 'bg-emerald-400 ring-2 ring-emerald-400/40 scale-125'
-                  : 'bg-stone-700'
+      {/* Pattern Selector Tabs */}
+      <div className="w-full flex gap-1.5 p-1 my-5 bg-stone-950/70 rounded-2xl border border-stone-800 z-10">
+        {BREATH_PATTERNS.map((pattern) => {
+          const isSelected = selectedPattern.id === pattern.id;
+          return (
+            <button
+              key={pattern.id}
+              onClick={() => {
+                setSelectedPattern(pattern);
+                setIsActive(false);
+                setPhase('ready');
+                setCurrentCycle(1);
+                setSecondsRemaining(pattern.inhale);
+              }}
+              className={`flex-1 py-2 px-2 text-xs font-semibold rounded-xl transition-all ${
+                isSelected
+                  ? 'bg-emerald-600/30 text-emerald-200 border border-emerald-500/40 shadow-sm'
+                  : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800/40'
               }`}
-            />
-          ))}
+            >
+              {pattern.name.split(' ')[0]} {pattern.id === '4-7-8' ? '(Deep Calm)' : ''}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Central Breathing Orb */}
+      <div className="relative my-6 sm:my-8 flex items-center justify-center w-60 h-60 sm:w-64 sm:h-64 z-10">
+        {/* Outer Pulsing Aura */}
+        <div
+          className={`absolute inset-0 rounded-full bg-gradient-to-br ${orb.color} blur-xl opacity-60 transition-all ${orb.scale}`}
+        />
+
+        {/* Main Breathing Orb */}
+        <div
+          className={`relative w-44 h-44 sm:w-48 sm:h-48 rounded-full border-2 bg-stone-900/80 flex flex-col items-center justify-center shadow-lg transition-all ${orb.scale} ${orb.color}`}
+        >
+          {phase === 'completed' ? (
+            <div className="flex flex-col items-center text-center p-3 animate-fade-in">
+              <CheckCircle2 className="w-12 h-12 text-emerald-400 mb-1" />
+              <span className="text-sm font-semibold text-emerald-200">Refreshed</span>
+            </div>
+          ) : (
+            <>
+              <span className="text-4xl font-light tracking-tight text-stone-100 font-mono">
+                {phase === 'ready' ? selectedPattern.inhale : secondsRemaining}
+              </span>
+              <span className="text-xs uppercase font-semibold tracking-wider text-emerald-300/90 mt-1">
+                {phase === 'ready' ? 'SEC' : phase}
+              </span>
+            </>
+          )}
         </div>
+      </div>
 
-        {/* Controls */}
-        <div className="w-full flex items-center justify-center gap-4 mt-2 z-10">
-          <button
-            onClick={handleReset}
-            className="p-3 rounded-2xl bg-stone-800/80 hover:bg-stone-800 text-stone-400 hover:text-stone-200 transition-all"
-            title="Reset exercise"
-          >
-            <RotateCcw className="w-5 h-5" />
-          </button>
-
-          <button
-            onClick={handleStartPause}
-            className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl font-medium shadow-lg transition-all ${
-              isActive
-                ? 'bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700'
-                : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-stone-950 font-semibold shadow-emerald-500/20'
-            }`}
-          >
-            {isActive ? (
-              <>
-                <Pause className="w-5 h-5" /> Pause
-              </>
-            ) : phase === 'completed' ? (
-              <>
-                <RotateCcw className="w-5 h-5" /> Breathe Again
-              </>
-            ) : (
-              <>
-                <Play className="w-5 h-5 fill-current" /> Begin Breathing
-              </>
-            )}
-          </button>
-        </div>
-
-        <p className="text-[11px] text-stone-500 mt-5 text-center max-w-xs z-10">
-          {selectedPattern.benefits}
+      {/* Verbal Instruction */}
+      <div className="text-center min-h-[4rem] z-10 px-4">
+        <h4 className="text-lg font-medium text-stone-100 transition-all">
+          {orb.title}
+        </h4>
+        <p className="text-xs text-stone-400 mt-1 max-w-sm mx-auto">
+          {orb.subtitle}
         </p>
       </div>
+
+      {/* Cycle Progress Dots */}
+      <div className="flex items-center gap-2 my-4 z-10">
+        <span className="text-xs text-stone-400 mr-1">
+          Cycle {currentCycle} of {selectedPattern.cycles}
+        </span>
+        {Array.from({ length: selectedPattern.cycles }).map((_, i) => (
+          <div
+            key={i}
+            className={`w-2 h-2 rounded-full transition-all ${
+              i + 1 < currentCycle
+                ? 'bg-emerald-400 scale-100'
+                : i + 1 === currentCycle
+                ? 'bg-emerald-400 ring-2 ring-emerald-400/40 scale-125'
+                : 'bg-stone-700'
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* Controls */}
+      <div className="w-full flex items-center justify-center gap-4 mt-2 z-10">
+        <button
+          onClick={handleReset}
+          className="p-3 rounded-2xl bg-stone-800/80 hover:bg-stone-800 text-stone-400 hover:text-stone-200 transition-all"
+          title="Reset exercise"
+        >
+          <RotateCcw className="w-5 h-5" />
+        </button>
+
+        <button
+          onClick={handleStartPause}
+          className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl font-medium shadow-lg transition-all ${
+            isActive
+              ? 'bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700'
+              : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-stone-950 font-semibold shadow-emerald-500/20'
+          }`}
+        >
+          {isActive ? (
+            <>
+              <Pause className="w-5 h-5" /> Pause
+            </>
+          ) : phase === 'completed' ? (
+            <>
+              <RotateCcw className="w-5 h-5" /> Breathe Again
+            </>
+          ) : (
+            <>
+              <Play className="w-5 h-5 fill-current" /> Begin Breathing (شروع کریں)
+            </>
+          )}
+        </button>
+      </div>
+
+      <p className="text-[11px] text-stone-500 mt-5 text-center max-w-sm z-10">
+        {selectedPattern.benefits}
+      </p>
+    </div>
+  );
+
+  if (embedded) {
+    return content;
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
+      {content}
     </div>
   );
 };
