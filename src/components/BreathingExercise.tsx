@@ -96,7 +96,9 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
             if (currentCycle >= selectedPattern.cycles) {
               setIsActive(false);
               setPhase('completed');
-              if (soundEnabled) soundEngine.playCalmChime('finish');
+              if (soundEnabled) {
+                soundEngine.playCompletionMusic();
+              }
               return 0;
             } else {
               setCurrentCycle((c) => c + 1);
@@ -105,7 +107,9 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
             if (currentCycle >= selectedPattern.cycles) {
               setIsActive(false);
               setPhase('completed');
-              if (soundEnabled) soundEngine.playCalmChime('finish');
+              if (soundEnabled) {
+                soundEngine.playCompletionMusic();
+              }
               return 0;
             } else {
               setCurrentCycle((c) => c + 1);

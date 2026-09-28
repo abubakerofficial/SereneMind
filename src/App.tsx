@@ -1,8 +1,11 @@
 /**
  * SereneMind AI - Mental Wellness & Voice Mindfulness Coach
- * Front: Breathing Practice (سانسوں کی پریکٹس)
- * Middle: Mindfulness Exercises & Comprehensive Books Library on Overthinking & Meditation
- * Bottom: Live Voice Coach & Interactive Speech Assistant
+ * 1. Front: Breathing Practice (سانسوں کی پریکٹس) - with completion celebration music!
+ * 2. Calming Soundscapes & Music (پرسکون موسیقی) - 432Hz, Tibetan Bowls, Rain, Ocean
+ * 3. Guided Videos (ویڈیوز) - Certified Breathing & Meditation video lessons
+ * 4. Mindfulness Exercises & Stress Profile
+ * 5. Comprehensive Books Library on Overthinking & Meditation (کتب خانہ)
+ * 6. Bottom: Live Voice Coach & Spoken Assistant (لائیو وائس اسسٹنٹ)
  */
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -20,7 +23,8 @@ import {
   HelpCircle,
   BookOpen,
   Mic,
-  MessageSquare,
+  Music,
+  Video,
 } from 'lucide-react';
 import { ChatMessage, CoachAssessment, ExerciseType } from './types';
 import { useVoiceInput } from './hooks/useVoiceInput';
@@ -32,9 +36,11 @@ import { BreathingExercise } from './components/BreathingExercise';
 import { GroundingExercise } from './components/GroundingExercise';
 import { ThoughtDefusion } from './components/ThoughtDefusion';
 import { BooksLibrary } from './components/BooksLibrary';
+import { AmbientMusicPlayer } from './components/AmbientMusicPlayer';
+import { MindfulVideos } from './components/MindfulVideos';
 
 const INITIAL_ASSESSMENT: CoachAssessment = {
-  spokenResponse: "Ready. Tap the microphone below to speak, ask for a 2-minute reset, or choose a practice or book from above.",
+  spokenResponse: "Ready. Tap the microphone below to speak, start 4-7-8 breathing on front, or explore meditation videos, soundscapes, and books above.",
   detectedArchetype: 'Mindful Companion',
   stressLevel: 2,
   overthinkingTendency: 'Balanced',
@@ -48,7 +54,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: 'msg-welcome',
     role: 'assistant',
-    content: "Ready. Tap the microphone below to speak, ask for a 2-minute reset, or choose a practice or book from above.",
+    content: "Ready. Tap the microphone below to speak, start 4-7-8 breathing on front, or explore meditation videos, soundscapes, and books above.",
     timestamp: Date.now(),
     assessment: INITIAL_ASSESSMENT,
   },
@@ -65,6 +71,9 @@ export default function App() {
   const [lastUserSpoken, setLastUserSpoken] = useState<string>('');
 
   const breathSectionRef = useRef<HTMLDivElement>(null);
+  const musicSectionRef = useRef<HTMLDivElement>(null);
+  const videosSectionRef = useRef<HTMLDivElement>(null);
+  const exercisesSectionRef = useRef<HTMLDivElement>(null);
   const booksSectionRef = useRef<HTMLDivElement>(null);
   const voiceSectionRef = useRef<HTMLDivElement>(null);
 
@@ -218,6 +227,7 @@ export default function App() {
 
   const handleResetSession = () => {
     soundEngine.stopPlayback();
+    soundEngine.stopAmbientSound();
     setIsSpeaking(false);
     setMessages(INITIAL_MESSAGES);
     setCurrentAssessment(INITIAL_ASSESSMENT);
@@ -252,23 +262,39 @@ export default function App() {
                   SereneMind <span className="text-emerald-400 font-light">AI</span>
                 </h1>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
-                  سانس اور ذہنی سکون
+                  سانس، موسیقی اور کتب
                 </span>
               </div>
-              <p className="text-[11px] text-stone-400 hidden sm:block">
-                4-7-8 Breathwork • Overthinking &amp; Meditation Books • Live Voice
-              </p>
+              <div className="flex items-center gap-1.5 text-[11px] text-stone-400 mt-0.5">
+                <span className="font-semibold text-emerald-400">By Abubakar</span>
+                <span className="text-stone-600">•</span>
+                <span className="text-stone-400">Mental Wellness &amp; Mindfulness</span>
+              </div>
             </div>
           </div>
 
           {/* Quick Section Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1 p-1 bg-stone-900/90 rounded-2xl border border-stone-800 text-xs">
+          <nav className="hidden xl:flex items-center gap-1 p-1 bg-stone-900/90 rounded-2xl border border-stone-800 text-xs">
             <button
               onClick={() => scrollToSection(breathSectionRef)}
               className="px-3 py-1.5 rounded-xl font-medium text-stone-300 hover:text-emerald-300 hover:bg-stone-800/80 transition-all flex items-center gap-1.5"
             >
               <Wind className="w-3.5 h-3.5 text-emerald-400" />
-              <span>سانسوں کی پریکٹس (Breath)</span>
+              <span>سانس (Breath)</span>
+            </button>
+            <button
+              onClick={() => scrollToSection(musicSectionRef)}
+              className="px-3 py-1.5 rounded-xl font-medium text-stone-300 hover:text-emerald-300 hover:bg-stone-800/80 transition-all flex items-center gap-1.5"
+            >
+              <Music className="w-3.5 h-3.5 text-emerald-400" />
+              <span>موسیقی (Music)</span>
+            </button>
+            <button
+              onClick={() => scrollToSection(videosSectionRef)}
+              className="px-3 py-1.5 rounded-xl font-medium text-stone-300 hover:text-emerald-300 hover:bg-stone-800/80 transition-all flex items-center gap-1.5"
+            >
+              <Video className="w-3.5 h-3.5 text-emerald-400" />
+              <span>ویڈیوز (Videos)</span>
             </button>
             <button
               onClick={() => scrollToSection(booksSectionRef)}
@@ -319,7 +345,7 @@ export default function App() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-10">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-12">
         
         {/* ========================================================================= */}
         {/* 1. FRONT & CENTER: BREATHING PRACTICE (سانسوں کی پریکٹس فرنٹ پر) */}
@@ -335,7 +361,7 @@ export default function App() {
                   Guided Breathwork Sanctuary <span className="text-emerald-400 font-light">(سانسوں کی پریکٹس)</span>
                 </h2>
                 <p className="text-xs text-stone-400">
-                  Direct somatic vagus nerve reset to instantly break acute overthinking and anxiety.
+                  Direct somatic vagus nerve reset to instantly break acute overthinking and anxiety. Celebratory calm music plays upon completion!
                 </p>
               </div>
             </div>
@@ -351,9 +377,23 @@ export default function App() {
         </section>
 
         {/* ========================================================================= */}
-        {/* 2. MINDFULNESS PRACTICES & NERVOUS SYSTEM INSIGHTS */}
+        {/* 2. CALMING SOUNDSCAPES & AMBIENT MUSIC (پرسکون موسیقی) */}
         {/* ========================================================================= */}
-        <section className="space-y-4">
+        <div ref={musicSectionRef} className="scroll-mt-24">
+          <AmbientMusicPlayer />
+        </div>
+
+        {/* ========================================================================= */}
+        {/* 3. GUIDED BREATHING & MEDITATION VIDEOS (ویڈیوز) */}
+        {/* ========================================================================= */}
+        <div ref={videosSectionRef} className="scroll-mt-24">
+          <MindfulVideos />
+        </div>
+
+        {/* ========================================================================= */}
+        {/* 4. MINDFULNESS PRACTICES & NERVOUS SYSTEM INSIGHTS */}
+        {/* ========================================================================= */}
+        <section ref={exercisesSectionRef} className="scroll-mt-24 space-y-4">
           <div className="flex items-center gap-2.5 px-1">
             <div className="p-2 rounded-xl bg-teal-500/20 text-teal-400">
               <Sparkles className="w-5 h-5" />
@@ -430,14 +470,14 @@ export default function App() {
         </section>
 
         {/* ========================================================================= */}
-        {/* 3. BOOKS LIBRARY: OVERTHINKING, MEDITATION & MENTAL CLARITY (کتب خانہ) */}
+        {/* 5. BOOKS LIBRARY: OVERTHINKING, MEDITATION & MENTAL CLARITY (کتب خانہ) */}
         {/* ========================================================================= */}
         <div ref={booksSectionRef} className="scroll-mt-24">
           <BooksLibrary />
         </div>
 
         {/* ========================================================================= */}
-        {/* 4. LIVE VOICE COACH & ASSISTANT (لائیو چیٹ / وائس کا ائیکن نیچے لے جاؤ) */}
+        {/* 6. LIVE VOICE COACH & ASSISTANT (لائیو چیٹ / وائس کا ائیکن نیچے لے جاؤ) */}
         {/* ========================================================================= */}
         <section ref={voiceSectionRef} className="scroll-mt-24 space-y-6 pt-6 border-t border-stone-800/80">
           <div className="flex items-center justify-between px-1">
@@ -595,6 +635,17 @@ export default function App() {
         </section>
 
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-stone-850/80 bg-stone-950/90 py-6 px-4 text-center text-xs text-stone-500">
+        <p className="flex items-center justify-center gap-2 text-stone-400">
+          <span className="font-medium text-stone-300">SereneMind AI</span>
+          <span className="text-stone-600">•</span>
+          <span className="text-emerald-400 font-semibold">Crafted by Abubakar</span>
+          <span className="text-stone-600">•</span>
+          <span>Peace &amp; Mindfulness Sanctuary</span>
+        </p>
+      </footer>
 
       {/* Interactive Mindfulness Modals (if launched from buttons) */}
       {activeExercise === 'breathing' && (
