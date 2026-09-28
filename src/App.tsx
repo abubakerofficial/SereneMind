@@ -1,28 +1,26 @@
 /**
- * SereneMind AI - Mental Wellness & Mindfulness Coach
- * Voice-First, Empathetic Interactive Coaching with Real-Time Personality Insights
+ * SereneMind AI - Mental Wellness & Voice Mindfulness Coach
+ * Voice-First, Empathetic Interactive Coaching with Real-Time Mindset Insights & Practices
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Sparkles,
   Volume2,
   VolumeX,
-  Send,
   RotateCcw,
   Wind,
   Eye,
   Zap,
-  Heart,
   SlidersHorizontal,
-  ChevronDown,
-  Info,
-  Mic,
+  Download,
+  Play,
+  Square,
+  HelpCircle,
 } from 'lucide-react';
 import { ChatMessage, CoachAssessment, ExerciseType } from './types';
 import { useVoiceInput } from './hooks/useVoiceInput';
 import { soundEngine } from './utils/audio';
-import { ChatMessageItem } from './components/ChatMessageItem';
 import { VoiceMicButton } from './components/VoiceMicButton';
 import { QuickPrompts } from './components/QuickPrompts';
 import { WellnessInsights } from './components/WellnessInsights';
@@ -31,11 +29,11 @@ import { GroundingExercise } from './components/GroundingExercise';
 import { ThoughtDefusion } from './components/ThoughtDefusion';
 
 const INITIAL_ASSESSMENT: CoachAssessment = {
-  spokenResponse: "Ready. Ask a question, request a joke, or ask for a 2-minute reset.",
+  spokenResponse: "Ready. Tap the microphone to speak, ask for a 2-minute reset, or choose a practice below.",
   detectedArchetype: 'Mindful Companion',
   stressLevel: 2,
   overthinkingTendency: 'Balanced',
-  mindfulObservation: 'Ready to execute immediately on any request.',
+  mindfulObservation: 'Ready to execute immediately on any request via voice.',
   suggestedExercise: 'None',
   exerciseInstruction: '',
   soothingAffirmation: 'One clear step at a time.',
@@ -45,7 +43,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: 'msg-welcome',
     role: 'assistant',
-    content: "Ready. Ask a question, request a joke, or ask for a 2-minute reset.",
+    content: "Ready. Tap the microphone to speak, ask for a 2-minute reset, or choose a practice below.",
     timestamp: Date.now(),
     assessment: INITIAL_ASSESSMENT,
   },
@@ -53,16 +51,13 @@ const INITIAL_MESSAGES: ChatMessage[] = [
 
 export default function App() {
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
-  const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [autoSpeakVoice, setAutoSpeakVoice] = useState(true);
   const [activeExercise, setActiveExercise] = useState<ExerciseType>('none');
   const [showInsightsDrawer, setShowInsightsDrawer] = useState(false);
   const [currentAssessment, setCurrentAssessment] = useState<CoachAssessment>(INITIAL_ASSESSMENT);
-
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [lastUserSpoken, setLastUserSpoken] = useState<string>('');
 
   // Stop speaking audio helper
   const handleStopAudio = () => {
@@ -76,50 +71,40 @@ export default function App() {
     transcript,
     interimTranscript,
     error: voiceError,
-    isSupported: isVoiceSupported,
     startListening,
     stopListening,
     resetTranscript,
   } = useVoiceInput();
 
   // Determine current system status
-  const currentStatus: 'Idle' | 'Listening to you...' | 'Thinking (Fetching AI response)...' | 'Speaking...' = isListening
-    ? 'Listening to you...'
+  const currentStatus: 'Idle' | 'Listening...' | 'Thinking...' | 'Speaking...' = isListening
+    ? 'Listening...'
     : isLoading
-    ? 'Thinking (Fetching AI response)...'
+    ? 'Thinking...'
     : isSpeaking
     ? 'Speaking...'
     : 'Idle';
 
-  // Scroll to bottom when messages update
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
+  // When speech transcript finalizes, send to coach
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, isLoading, interimTranscript, isSpeaking]);
-
-  // Sync voice transcript with input field when speaking
-  useEffect(() => {
-    if (transcript) {
-      setInputText((prev) => (prev ? `${prev} ${transcript}` : transcript));
+    if (transcript && transcript.trim()) {
+      handleSendPrompt(transcript.trim());
       resetTranscript();
     }
   }, [transcript, resetTranscript]);
 
-  // Handle user submission
-  const handleSendMessage = async (textToSend?: string) => {
-    const text = (textToSend || inputText).trim();
+  // Handle prompt submission (voice or quick button)
+  const handleSendPrompt = async (textToSend: string) => {
+    const text = textToSend.trim();
     if (!text || isLoading) return;
 
-    // Interrupt/stop any speech playing if user speaks or sends
     handleStopAudio();
 
-    // Stop listening if user is currently speaking
     if (isListening) {
       stopListening();
     }
+
+    setLastUserSpoken(text);
 
     const userMessage: ChatMessage = {
       id: `user-${Date.now()}`,
@@ -130,7 +115,6 @@ export default function App() {
 
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
-    setInputText('');
     setIsLoading(true);
 
     try {
@@ -178,8 +162,7 @@ export default function App() {
       const fallbackMsg: ChatMessage = {
         id: `fallback-${Date.now()}`,
         role: 'assistant',
-        content:
-          "Could you repeat that? I'm ready to answer directly.",
+        content: "Could you repeat that? I'm ready to answer directly.",
         timestamp: Date.now(),
         assessment: {
           ...currentAssessment,
@@ -198,25 +181,39 @@ export default function App() {
   };
 
   const handleToggleVoice = () => {
-    // If audio is currently speaking, user interrupting stops audio
     if (isSpeaking) {
       handleStopAudio();
     }
 
     if (isListening) {
       stopListening();
-      if (inputText.trim()) {
-        handleSendMessage();
+      const spoken = (interimTranscript || transcript).trim();
+      if (spoken) {
+        handleSendPrompt(spoken);
+        resetTranscript();
       }
     } else {
+      resetTranscript();
       startListening();
+    }
+  };
+
+  const handleReplayCurrentResponse = () => {
+    if (currentAssessment.spokenResponse) {
+      setIsSpeaking(true);
+      soundEngine.speakFallback(currentAssessment.spokenResponse, () => {
+        setIsSpeaking(false);
+      });
     }
   };
 
   const handleResetSession = () => {
     soundEngine.stopPlayback();
+    setIsSpeaking(false);
     setMessages(INITIAL_MESSAGES);
     setCurrentAssessment(INITIAL_ASSESSMENT);
+    setLastUserSpoken('');
+    resetTranscript();
   };
 
   return (
@@ -313,233 +310,307 @@ export default function App() {
             >
               <RotateCcw className="w-4 h-4" />
             </button>
+
+            {/* Download Project ZIP */}
+            <a
+              href="/serenemind-ai.zip"
+              download="serenemind-ai.zip"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-semibold bg-emerald-950/70 hover:bg-emerald-900/80 border border-emerald-500/40 text-emerald-300 hover:text-emerald-100 transition-all shadow-sm shadow-emerald-950/40"
+              title="Download Full Project ZIP File"
+            >
+              <Download className="w-4 h-4 text-emerald-400" />
+              <span className="hidden sm:inline">Download ZIP</span>
+            </a>
           </div>
         </div>
       </header>
 
-      {/* Main Two-Column View */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex gap-6 overflow-hidden">
-        {/* Left Column: Chat Conversation & Voice Interaction */}
-        <section className="flex-1 flex flex-col h-[calc(100vh-130px)] bg-stone-900/40 border border-stone-800/80 rounded-3xl overflow-hidden backdrop-blur-sm relative">
-          {/* Quick Practice Bar (Mobile only) */}
-          <div className="flex md:hidden items-center justify-around p-2 bg-stone-950/50 border-b border-stone-800 text-xs">
+      {/* Main Two-Column Layout */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-6 overflow-y-auto">
+        {/* Left Column: Voice Coach Sanctuary & Practice Hub (No Chat Input) */}
+        <section className="flex-1 flex flex-col gap-6">
+          {/* Practice Shortcuts on Mobile */}
+          <div className="flex md:hidden items-center justify-around p-2.5 bg-stone-900/70 border border-stone-800/80 rounded-2xl text-xs">
             <button
               onClick={() => setActiveExercise('breathing')}
-              className="flex items-center gap-1 text-emerald-400"
+              className="flex items-center gap-1 text-emerald-400 font-medium"
             >
-              <Wind className="w-3.5 h-3.5" /> Breath
+              <Wind className="w-3.5 h-3.5" /> 4-7-8 Breath
             </button>
             <button
               onClick={() => setActiveExercise('grounding')}
-              className="flex items-center gap-1 text-sky-400"
+              className="flex items-center gap-1 text-sky-400 font-medium"
             >
-              <Eye className="w-3.5 h-3.5" /> Grounding
+              <Eye className="w-3.5 h-3.5" /> 5-4-3-2-1
             </button>
             <button
               onClick={() => setActiveExercise('defusion')}
-              className="flex items-center gap-1 text-purple-400"
+              className="flex items-center gap-1 text-purple-400 font-medium"
             >
-              <Zap className="w-3.5 h-3.5" /> Thought Float
+              <Zap className="w-3.5 h-3.5" /> Release Loop
             </button>
           </div>
 
-          {/* Messages Scroll Area */}
-          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-2">
-            {messages.map((msg) => (
-              <ChatMessageItem
-                key={msg.id}
-                message={msg}
-                onOpenExercise={(type) => setActiveExercise(type)}
-                autoSpeak={autoSpeakVoice}
+          {/* Voice Coach Centerpiece Orb */}
+          <div className="bg-stone-900/40 border border-stone-800/80 rounded-3xl p-6 sm:p-8 backdrop-blur-sm relative overflow-hidden flex flex-col items-center text-center shadow-xl">
+            {/* Status Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-stone-950/70 border border-stone-800 text-xs text-stone-300 mb-6">
+              <span
+                className={`w-2.5 h-2.5 rounded-full ${
+                  currentStatus === 'Listening...'
+                    ? 'bg-rose-400 animate-ping'
+                    : currentStatus === 'Thinking...'
+                    ? 'bg-amber-400 animate-pulse'
+                    : currentStatus === 'Speaking...'
+                    ? 'bg-emerald-400 animate-bounce'
+                    : 'bg-emerald-500'
+                }`}
               />
-            ))}
+              <span className="font-medium">
+                {currentStatus === 'Listening...'
+                  ? 'Listening to you... Speak now'
+                  : currentStatus === 'Thinking...'
+                  ? 'Thinking & formulating direct answer...'
+                  : currentStatus === 'Speaking...'
+                  ? 'Coach Speaking...'
+                  : 'Voice Coach Ready'}
+              </span>
+            </div>
 
-            {/* User Voice Interim Bubble while speaking */}
+            {/* Glowing Interactive Voice Resonance Circle */}
+            <div className="relative my-4 flex items-center justify-center">
+              {/* Outer Animated Glow Ring */}
+              <div
+                className={`absolute w-44 h-44 rounded-full transition-all duration-700 pointer-events-none ${
+                  isListening
+                    ? 'bg-rose-500/20 scale-125 animate-pulse'
+                    : isSpeaking
+                    ? 'bg-emerald-500/25 scale-120 animate-ping'
+                    : isLoading
+                    ? 'bg-amber-500/20 scale-110 animate-spin'
+                    : 'bg-emerald-500/10 scale-100'
+                }`}
+              />
+
+              <div
+                className={`absolute w-32 h-32 rounded-full border border-dashed transition-all duration-500 pointer-events-none ${
+                  isListening
+                    ? 'border-rose-400/50 animate-spin'
+                    : isSpeaking
+                    ? 'border-emerald-400/60 animate-pulse'
+                    : 'border-emerald-500/20'
+                }`}
+              />
+
+              {/* Large Voice Microphone Action Button */}
+              <div className="relative z-10 p-2">
+                <VoiceMicButton
+                  isListening={isListening}
+                  onToggle={handleToggleVoice}
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+
+            <p className="text-xs text-stone-400 mt-2 max-w-sm">
+              {isListening
+                ? 'Tap the red button when finished speaking to submit your voice'
+                : 'Tap microphone to speak naturally. Answers are spoken aloud immediately.'}
+            </p>
+
+            {/* Voice Error notice if any */}
+            {voiceError && (
+              <div className="mt-3 p-2.5 rounded-2xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs">
+                {voiceError}
+              </div>
+            )}
+
+            {/* Live interim spoken transcript preview */}
             {isListening && interimTranscript && (
-              <div className="flex justify-end my-3 animate-pulse">
-                <div className="max-w-[75%] rounded-3xl p-4 bg-emerald-900/40 border border-emerald-500/30 text-emerald-200 text-sm italic">
-                  "{interimTranscript}..."
-                </div>
+              <div className="mt-4 w-full max-w-lg p-3 rounded-2xl bg-emerald-950/50 border border-emerald-500/30 text-emerald-200 text-sm italic animate-fade-in">
+                "{interimTranscript}..."
               </div>
             )}
 
-            {/* AI Coach Thinking Pulse */}
-            {isLoading && (
-              <div className="flex items-center gap-3 my-4 animate-fade-in">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-950/60 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-md animate-pulse">
-                  <Sparkles className="w-5 h-5 animate-spin" />
-                </div>
-                <div className="px-4 py-3 rounded-2xl bg-stone-900/80 border border-stone-800 text-stone-400 text-xs flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                  <span>Listening empathetically &amp; formulating mindful response...</span>
-                </div>
+            {/* Last User Spoken Bubble if exists */}
+            {lastUserSpoken && !isListening && (
+              <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-stone-950/60 border border-stone-800/80 text-xs text-stone-400">
+                <span className="text-emerald-400 font-medium">You asked:</span>
+                <span className="text-stone-200 truncate max-w-xs">"{lastUserSpoken}"</span>
               </div>
             )}
-
-            <div ref={messagesEndRef} />
           </div>
 
-          {/* Voice status error banner if mic error */}
-          {voiceError && (
-            <div className="mx-4 mb-2 p-2.5 rounded-2xl bg-rose-950/50 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between">
-              <span>{voiceError}</span>
-              <button
-                onClick={() => startListening()}
-                className="underline font-semibold ml-2 hover:text-white"
-              >
-                Try Again
-              </button>
-            </div>
-          )}
-
-          {/* Quick Starters if conversation is fresh */}
-          {messages.length <= 2 && !isLoading && (
-            <div className="px-4 sm:px-6 pt-1">
-              <QuickPrompts
-                onSelectPrompt={(text) => handleSendMessage(text)}
-                disabled={isLoading}
-              />
-            </div>
-          )}
-
-          {/* Voice & Text Input Bar */}
-          <div className="p-4 sm:p-5 bg-stone-950/70 border-t border-stone-800/80 backdrop-blur-md">
-            {/* Status & Audio Control Banner */}
-            <div className="flex items-center justify-between mb-3 px-1">
-              <div className="flex items-center gap-2">
-                <span
-                  className={`w-2.5 h-2.5 rounded-full ${
-                    currentStatus === 'Listening to you...'
-                      ? 'bg-rose-400 animate-ping'
-                      : currentStatus === 'Thinking (Fetching AI response)...'
-                      ? 'bg-amber-400 animate-pulse'
-                      : currentStatus === 'Speaking...'
-                      ? 'bg-emerald-400 animate-bounce'
-                      : 'bg-stone-500'
-                  }`}
-                />
-                <span className="text-xs font-medium text-stone-300">
-                  Status: <strong className="text-stone-100">{currentStatus}</strong>
-                </span>
+          {/* Active Spoken Guidance Card */}
+          <div className="bg-stone-900/60 border border-stone-800/90 rounded-3xl p-6 sm:p-7 backdrop-blur-md relative shadow-xl">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-800/80 mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-950/80 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-stone-200">Coach Spoken Guidance</h3>
+                  <span className="text-[11px] text-stone-400">Direct response &amp; mindful clarity</span>
+                </div>
               </div>
 
-              {isSpeaking && (
-                <button
-                  type="button"
-                  onClick={handleStopAudio}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-950/60 text-rose-300 border border-rose-500/40 text-xs font-medium hover:bg-rose-900/60 transition-colors animate-pulse"
-                >
-                  <VolumeX className="w-3.5 h-3.5" />
-                  <span>Stop Audio</span>
-                </button>
-              )}
+              {/* Audio Controls */}
+              <div className="flex items-center gap-2">
+                {isSpeaking ? (
+                  <button
+                    onClick={handleStopAudio}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-950/60 text-rose-300 border border-rose-500/40 text-xs font-medium hover:bg-rose-900/60 transition-colors animate-pulse"
+                  >
+                    <Square className="w-3.5 h-3.5 fill-current" />
+                    <span>Stop Audio</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleReplayCurrentResponse}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-800 hover:bg-stone-700/80 text-stone-300 hover:text-emerald-300 border border-stone-700/60 text-xs font-medium transition-colors"
+                    title="Listen to response again"
+                  >
+                    <Play className="w-3.5 h-3.5 fill-current" />
+                    <span>Listen</span>
+                  </button>
+                )}
+              </div>
             </div>
 
-            {/* Live Voice Banner while active */}
-            {isListening && (
-              <div className="mb-3 p-3 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex items-center justify-between animate-fade-in">
+            {/* Response Text */}
+            <blockquote className="text-stone-100 text-base sm:text-lg font-normal leading-relaxed my-2">
+              "{currentAssessment.spokenResponse}"
+            </blockquote>
+
+            {/* Suggested Practice Action if available */}
+            {currentAssessment.suggestedExercise && currentAssessment.suggestedExercise !== 'None' && (
+              <div className="mt-5 p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                  <span className="text-xs font-semibold text-emerald-200">
-                    Listening to you... Speak your thought
-                  </span>
+                  <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
+                    <Wind className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-semibold text-emerald-200 block">
+                      Recommended Practice: {currentAssessment.suggestedExercise}
+                    </span>
+                    <span className="text-[11px] text-stone-400">
+                      {currentAssessment.exerciseInstruction || 'Follow the guided interactive rhythm'}
+                    </span>
+                  </div>
                 </div>
+
                 <button
-                  onClick={handleToggleVoice}
-                  className="text-xs px-3 py-1 rounded-xl bg-emerald-500 text-stone-950 font-bold hover:bg-emerald-400"
+                  onClick={() => {
+                    const ex = currentAssessment.suggestedExercise.toLowerCase();
+                    if (ex.includes('breath') || ex.includes('4-7-8')) setActiveExercise('breathing');
+                    else if (ex.includes('ground') || ex.includes('5-4-3-2-1')) setActiveExercise('grounding');
+                    else if (ex.includes('defusion') || ex.includes('loop')) setActiveExercise('defusion');
+                    else setActiveExercise('breathing');
+                  }}
+                  className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 text-xs font-bold transition-all shadow-md shrink-0"
                 >
-                  Send Spoken Input
+                  Start Practice Now
                 </button>
               </div>
             )}
+          </div>
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSendMessage();
-              }}
-              className="flex items-center gap-3"
-            >
-              {/* Voice Push to Talk Mic Button */}
-              <VoiceMicButton
-                isListening={isListening}
-                onToggle={handleToggleVoice}
-                disabled={isLoading}
-              />
+          {/* Quick Voice Starters & Common Questions */}
+          <div className="bg-stone-900/30 border border-stone-800/80 rounded-3xl p-5 backdrop-blur-sm">
+            <QuickPrompts
+              onSelectPrompt={(text) => handleSendPrompt(text)}
+              disabled={isLoading}
+            />
+          </div>
 
-              {/* Text Input with send button */}
-              <div className="relative flex-1">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  placeholder={
-                    isListening
-                      ? 'Listening to your voice...'
-                      : 'Speak via microphone or type your thoughts...'
-                  }
-                  disabled={isLoading}
-                  className="w-full pl-4 pr-12 py-4 rounded-2xl bg-stone-900/90 border border-stone-800 focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/40 text-stone-100 placeholder-stone-500 text-sm outline-none transition-all"
-                />
+          {/* Interactive Practices Suite */}
+          <div className="bg-stone-900/30 border border-stone-800/80 rounded-3xl p-5 backdrop-blur-sm">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-400 mb-3.5">
+              <Sparkles className="w-4 h-4 text-emerald-400" />
+              <span>Interactive Mindfulness Exercises</span>
+            </div>
 
-                <button
-                  type="submit"
-                  disabled={!inputText.trim() || isLoading}
-                  aria-label="Send message"
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-30 disabled:hover:bg-emerald-500 text-stone-950 transition-all"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </div>
-            </form>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Card 1: 4-7-8 Breathing */}
+              <button
+                onClick={() => setActiveExercise('breathing')}
+                className="flex flex-col text-left p-4 rounded-2xl bg-stone-900/70 hover:bg-stone-850 border border-stone-800 hover:border-emerald-500/40 transition-all group shadow-sm"
+              >
+                <div className="w-9 h-9 rounded-xl bg-emerald-950/80 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-3 group-hover:scale-105 transition-transform">
+                  <Wind className="w-5 h-5" />
+                </div>
+                <h4 className="text-sm font-semibold text-stone-100 group-hover:text-emerald-300">
+                  4-7-8 Breathing
+                </h4>
+                <p className="text-xs text-stone-400 mt-1 line-clamp-2">
+                  Slow the heart rate and calm the autonomic nervous system in 2 minutes.
+                </p>
+                <span className="text-[11px] text-emerald-400 font-semibold mt-3 flex items-center gap-1">
+                  Launch Exercise →
+                </span>
+              </button>
 
-            <div className="flex items-center justify-between text-[11px] text-stone-500 mt-2.5 px-1">
-              <span>Push mic to speak naturally • Responses are voice-optimized</span>
-              <span className="hidden sm:inline">Press Enter to send</span>
+              {/* Card 2: 5-4-3-2-1 Sensory Grounding */}
+              <button
+                onClick={() => setActiveExercise('grounding')}
+                className="flex flex-col text-left p-4 rounded-2xl bg-stone-900/70 hover:bg-stone-850 border border-stone-800 hover:border-sky-500/40 transition-all group shadow-sm"
+              >
+                <div className="w-9 h-9 rounded-xl bg-sky-950/80 border border-sky-500/30 flex items-center justify-center text-sky-400 mb-3 group-hover:scale-105 transition-transform">
+                  <Eye className="w-5 h-5" />
+                </div>
+                <h4 className="text-sm font-semibold text-stone-100 group-hover:text-sky-300">
+                  5-4-3-2-1 Grounding
+                </h4>
+                <p className="text-xs text-stone-400 mt-1 line-clamp-2">
+                  Anchor attention to sight, touch, sound, and smell to halt mental panic.
+                </p>
+                <span className="text-[11px] text-sky-400 font-semibold mt-3 flex items-center gap-1">
+                  Launch Exercise →
+                </span>
+              </button>
+
+              {/* Card 3: Thought Defusion */}
+              <button
+                onClick={() => setActiveExercise('defusion')}
+                className="flex flex-col text-left p-4 rounded-2xl bg-stone-900/70 hover:bg-stone-850 border border-stone-800 hover:border-purple-500/40 transition-all group shadow-sm"
+              >
+                <div className="w-9 h-9 rounded-xl bg-purple-950/80 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-3 group-hover:scale-105 transition-transform">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <h4 className="text-sm font-semibold text-stone-100 group-hover:text-purple-300">
+                  Release Loop
+                </h4>
+                <p className="text-xs text-stone-400 mt-1 line-clamp-2">
+                  Visualize obsessive thought balloons floating gently away into clear open space.
+                </p>
+                <span className="text-[11px] text-purple-400 font-semibold mt-3 flex items-center gap-1">
+                  Launch Exercise →
+                </span>
+              </button>
             </div>
           </div>
         </section>
 
-        {/* Right Column: Mindset & Nervous System Profile (Desktop) */}
-        <aside className="w-80 xl:w-96 hidden lg:flex flex-col gap-4">
+        {/* Right Column: Mindset & Nervous System Profile */}
+        <aside className="w-full lg:w-80 xl:w-96 flex flex-col gap-4">
           <WellnessInsights
             assessment={currentAssessment}
             onOpenExercise={(type) => setActiveExercise(type)}
           />
+
+          {/* Quick Help Card */}
+          <div className="p-4 rounded-2xl bg-stone-900/40 border border-stone-800/60 text-xs text-stone-400 flex items-start gap-2.5">
+            <HelpCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <p>
+              SereneMind AI is 100% voice-driven. Tap the microphone anytime to speak, or tap any prompt to trigger guidance instantly.
+            </p>
+          </div>
         </aside>
       </main>
 
-      {/* Mobile Drawer for Insights */}
-      {showInsightsDrawer && (
-        <div className="fixed inset-0 z-40 bg-stone-950/80 backdrop-blur-sm lg:hidden flex justify-end">
-          <div className="w-full max-w-md h-full bg-stone-900 p-6 overflow-y-auto border-l border-stone-800 animate-slide-left">
-            <div className="flex items-center justify-between pb-4 border-b border-stone-800 mb-4">
-              <h3 className="font-semibold text-stone-100">Mindset Assessment</h3>
-              <button
-                onClick={() => setShowInsightsDrawer(false)}
-                className="text-stone-400 hover:text-stone-200 text-sm px-2 py-1 bg-stone-800 rounded-lg"
-              >
-                Close
-              </button>
-            </div>
-            <WellnessInsights
-              assessment={currentAssessment}
-              onOpenExercise={(type) => {
-                setActiveExercise(type);
-                setShowInsightsDrawer(false);
-              }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Interactive Mindfulness Overlays */}
+      {/* Interactive Mindfulness Modals */}
       {activeExercise === 'breathing' && (
-        <BreathingExercise
-          onClose={() => setActiveExercise('none')}
-          initialPattern="4-7-8"
-        />
+        <BreathingExercise onClose={() => setActiveExercise('none')} />
       )}
 
       {activeExercise === 'grounding' && (
