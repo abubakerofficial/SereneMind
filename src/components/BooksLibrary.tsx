@@ -19,7 +19,7 @@ import { MINDFUL_BOOKS } from '../data/books';
 import { soundEngine } from '../utils/audio';
 
 export const BooksLibrary: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'overthinking' | 'meditation' | 'clarity'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'overthinking' | 'meditation' | 'clarity' | 'psychology'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeBook, setActiveBook] = useState<BookItem | null>(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
@@ -136,6 +136,17 @@ export const BooksLibrary: React.FC = () => {
         >
           <Lightbulb className="w-3.5 h-3.5" />
           <span>Mental Clarity &amp; Peace</span>
+        </button>
+        <button
+          onClick={() => setSelectedCategory('psychology')}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            selectedCategory === 'psychology'
+              ? 'bg-emerald-500 text-stone-950 shadow-md shadow-emerald-500/20'
+              : 'bg-stone-950/60 border border-stone-800 text-stone-400 hover:text-stone-200 hover:bg-stone-850'
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Clinical Psychology (نفسیات)</span>
         </button>
       </div>
 

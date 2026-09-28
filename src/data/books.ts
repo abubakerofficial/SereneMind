@@ -246,4 +246,87 @@ export const MINDFUL_BOOKS: BookItem[] = [
     goldenQuote:
       '“Small moments of awareness, repeated throughout the day, transform how you experience your entire life.”',
   },
+
+  // --- PSYCHOLOGY & COGNITIVE SCIENCE BOOKS ---
+  {
+    id: 'feeling-good',
+    title: 'Feeling Good: The New Mood Therapy',
+    author: 'David D. Burns, M.D.',
+    category: 'psychology',
+    categoryLabel: 'Clinical Psychology & CBT',
+    readTime: '8 min summary',
+    gradient: 'from-amber-950 via-stone-900 to-yellow-950 border-amber-500/30',
+    badge: 'Clinical CBT Gold Standard',
+    tagline: 'The clinically proven drug-free treatment for depression, anxiety, and cognitive distortions.',
+    corePhilosophy:
+      'Our feelings are not caused by external events; they are produced exclusively by our cognitions (internal dialogue). When we systematically identify and refute cognitive distortions (all-or-nothing thinking, catastrophizing, emotional reasoning), emotional distress lifts naturally.',
+    actionableExercises: [
+      'The Triple-Column Technique: Divide a page into: 1) Automatic Negative Thought, 2) Cognitive Distortion, and 3) Rational Response.',
+      'Daily Mood Log: Rate your distress from 0-100%, write the triggering event, dismantle the negative beliefs, and re-rate the emotion.',
+      'Examine the Evidence: Treat negative predictions as hypotheses in a laboratory rather than established truth.',
+    ],
+    goldenQuote:
+      '“You feel the way you think. Change the perception, and you immediately change the emotional biochemistry.”',
+  },
+  {
+    id: 'thinking-fast-and-slow',
+    title: 'Thinking, Fast and Slow',
+    author: 'Daniel Kahneman',
+    category: 'psychology',
+    categoryLabel: 'Behavioral Psychology',
+    readTime: '8 min summary',
+    gradient: 'from-teal-950 via-stone-900 to-stone-900 border-teal-500/30',
+    badge: 'Nobel Prize in Economics',
+    tagline: 'Two systems drive the way we think: System 1 (fast, intuitive, emotional) and System 2 (slow, deliberative, logical).',
+    corePhilosophy:
+      'System 1 operates automatically and involuntarily, generating intuitive impressions, fear reactions, and cognitive biases like loss aversion and availability heuristics. Overthinking happens when System 2 is tricked into rationalizing System 1’s primal emotional fears.',
+    actionableExercises: [
+      'Pre-Mortem Analysis: Before committing to an emotionally charged choice, imagine you are one year in the future and it failed catastrophically. Write out why.',
+      'Slow Down the Default: Whenever you feel an urgent impulse to react, enforce a mandatory 10-minute cooling period to allow System 2 to boot up.',
+      'Check the Availability Heuristic: Ask yourself: "Is this outcome genuinely probable, or is it just vivid and fresh in my memory?"',
+    ],
+    goldenQuote:
+      '“A reliable way to make people believe in falsehoods is frequent repetition, because familiarity is not easily distinguished from truth.”',
+  },
+  {
+    id: 'the-body-keeps-the-score',
+    title: 'The Body Keeps the Score',
+    author: 'Bessel van der Kolk, M.D.',
+    category: 'psychology',
+    categoryLabel: 'Neuroscience & Somatics',
+    readTime: '9 min summary',
+    gradient: 'from-rose-950 via-stone-900 to-stone-900 border-rose-500/30',
+    badge: 'Trauma & Mind-Body Neuroscience',
+    tagline: 'Brain, mind, and body in the healing of trauma, chronic anxiety, and stress.',
+    corePhilosophy:
+      'Trauma and chronic stress do not merely exist as memories; they imprint physically into the autonomic nervous system, tightening muscles, blunting digestion, and hyper-sensitizing the amygdala. Talk therapy alone cannot cure somatic distress—healing requires bottom-up body work.',
+    actionableExercises: [
+      'Interoceptive Check-in: Notice without words where tension lives in your body—throat, chest, gut, or jaw—and breathe directly into it.',
+      'Heart Rate Variability (HRV) Breathing: Breathe in for 5 seconds and out for 5 seconds (6 breaths/minute) to harmonize heart-brain resonance.',
+      'Rhythmic Somatic Movement: Engage in rhythmic walking, dance, or gentle stretching to discharge stuck sympathetic arousal.',
+    ],
+    goldenQuote:
+      '“As long as you keep keeping secrets and suppressing information, you are fundamentally at war with yourself.”',
+  },
+  {
+    id: 'mans-search-for-meaning',
+    title: "Man's Search for Meaning",
+    author: 'Viktor E. Frankl',
+    category: 'psychology',
+    categoryLabel: 'Existential Psychology',
+    readTime: '7 min summary',
+    gradient: 'from-purple-950 via-stone-900 to-stone-900 border-purple-500/30',
+    badge: 'Logotherapy Masterwork',
+    tagline: 'The classic tribute to hope from the Holocaust, discovering purpose in suffering.',
+    corePhilosophy:
+      'Between stimulus and response there is a space. In that space is our power to choose our response. In our response lies our growth and our freedom. Those who have a "why" to live can bear almost any "how".',
+    actionableExercises: [
+      'The Space of Choice: When faced with an irritating person or event, pause for 3 seconds to consciously choose your dignified response.',
+      'Meaning Reframe: Ask: "What is this difficult situation demanding of me? How can I respond with character?"',
+      'Tragic Optimism: Turn suffering into human achievement, guilt into positive change, and transience into responsible action.',
+    ],
+    goldenQuote:
+      '“When we are no longer able to change a situation, we are challenged to change ourselves.”',
+  },
 ];
+

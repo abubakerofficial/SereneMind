@@ -25,6 +25,7 @@ import {
   Mic,
   Music,
   Video,
+  Brain,
 } from 'lucide-react';
 import { ChatMessage, CoachAssessment, ExerciseType } from './types';
 import { useVoiceInput } from './hooks/useVoiceInput';
@@ -38,6 +39,7 @@ import { ThoughtDefusion } from './components/ThoughtDefusion';
 import { BooksLibrary } from './components/BooksLibrary';
 import { AmbientMusicPlayer } from './components/AmbientMusicPlayer';
 import { MindfulVideos } from './components/MindfulVideos';
+import { PsychologyHub } from './components/PsychologyHub';
 
 const INITIAL_ASSESSMENT: CoachAssessment = {
   spokenResponse: "Ready. Tap the microphone below to speak, start 4-7-8 breathing on front, or explore meditation videos, soundscapes, and books above.",
@@ -73,6 +75,7 @@ export default function App() {
   const breathSectionRef = useRef<HTMLDivElement>(null);
   const musicSectionRef = useRef<HTMLDivElement>(null);
   const videosSectionRef = useRef<HTMLDivElement>(null);
+  const psychologySectionRef = useRef<HTMLDivElement>(null);
   const exercisesSectionRef = useRef<HTMLDivElement>(null);
   const booksSectionRef = useRef<HTMLDivElement>(null);
   const voiceSectionRef = useRef<HTMLDivElement>(null);
@@ -297,6 +300,13 @@ export default function App() {
               <span>ویڈیوز (Videos)</span>
             </button>
             <button
+              onClick={() => scrollToSection(psychologySectionRef)}
+              className="px-3 py-1.5 rounded-xl font-medium text-stone-300 hover:text-emerald-300 hover:bg-stone-800/80 transition-all flex items-center gap-1.5"
+            >
+              <Brain className="w-3.5 h-3.5 text-emerald-400" />
+              <span>علمِ نفسیات (Psychology)</span>
+            </button>
+            <button
               onClick={() => scrollToSection(booksSectionRef)}
               className="px-3 py-1.5 rounded-xl font-medium text-stone-300 hover:text-emerald-300 hover:bg-stone-800/80 transition-all flex items-center gap-1.5"
             >
@@ -470,14 +480,21 @@ export default function App() {
         </section>
 
         {/* ========================================================================= */}
-        {/* 5. BOOKS LIBRARY: OVERTHINKING, MEDITATION & MENTAL CLARITY (کتب خانہ) */}
+        {/* 5. PSYCHOLOGY & COGNITIVE SCIENCE SANCTUARY (CBT REFRAME & ASSESSMENTS) */}
+        {/* ========================================================================= */}
+        <div ref={psychologySectionRef} className="scroll-mt-24">
+          <PsychologyHub />
+        </div>
+
+        {/* ========================================================================= */}
+        {/* 6. BOOKS LIBRARY: OVERTHINKING, MEDITATION & MENTAL CLARITY (کتب خانہ) */}
         {/* ========================================================================= */}
         <div ref={booksSectionRef} className="scroll-mt-24">
           <BooksLibrary />
         </div>
 
         {/* ========================================================================= */}
-        {/* 6. LIVE VOICE COACH & ASSISTANT (لائیو چیٹ / وائس کا ائیکن نیچے لے جاؤ) */}
+        {/* 7. LIVE VOICE COACH & ASSISTANT (لائیو چیٹ / وائس کا ائیکن نیچے لے جاؤ) */}
         {/* ========================================================================= */}
         <section ref={voiceSectionRef} className="scroll-mt-24 space-y-6 pt-6 border-t border-stone-800/80">
           <div className="flex items-center justify-between px-1">

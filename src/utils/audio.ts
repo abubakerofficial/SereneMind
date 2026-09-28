@@ -239,7 +239,10 @@ class SoundEngine {
     this.currentAmbientTrack = null;
   }
 
-  startAmbientSound(trackId: '432hz' | 'singing-bowls' | 'rain' | 'ocean' | 'theta', volume = 0.4) {
+  startAmbientSound(
+    trackId: '432hz' | 'singing-bowls' | 'rain' | 'ocean' | 'theta' | 'piano-strings',
+    volume = 0.4
+  ) {
     this.stopAmbientSound();
     try {
       const ctx = this.getAudioContext();
@@ -252,7 +255,43 @@ class SoundEngine {
       this.ambientNodes.gainNode = masterGain;
       this.currentAmbientTrack = trackId;
 
-      if (trackId === '432hz') {
+      if (trackId === 'piano-strings') {
+        // Celestial ambient piano & strings chord progression (Fmaj7 -> Am -> G -> C)
+        const chordNotes = [
+          [174.61, 220.0, 261.63, 329.63], // Fmaj7
+          [220.0, 261.63, 329.63, 440.0],  // Am
+          [196.0, 246.94, 293.66, 392.0],  // G
+          [261.63, 329.63, 392.0, 523.25], // Cmaj
+        ];
+
+        let chordIndex = 0;
+        const playNextChord = () => {
+          if (!this.ctx || this.currentAmbientTrack !== 'piano-strings') return;
+          const now = this.ctx.currentTime;
+          const currentNotes = chordNotes[chordIndex];
+          chordIndex = (chordIndex + 1) % chordNotes.length;
+
+          currentNotes.forEach((freq, idx) => {
+            const osc = this.ctx!.createOscillator();
+            const g = this.ctx!.createGain();
+            osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.15);
+
+            g.gain.setValueAtTime(0, now + idx * 0.15);
+            g.gain.linearRampToValueAtTime(0.08 / (idx + 1), now + idx * 0.15 + 0.3);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.15 + 4.8);
+
+            osc.connect(g);
+            g.connect(masterGain);
+            osc.start(now + idx * 0.15);
+            osc.stop(now + idx * 0.15 + 5.0);
+          });
+        };
+
+        playNextChord();
+        const intervalId = setInterval(playNextChord, 4500);
+        this.ambientNodes.intervals.push(intervalId);
+      } else if (trackId === '432hz') {
         // Deep 432 Hz Solfeggio healing chord (432Hz root, 216Hz sub, 648Hz 5th harmonic)
         const freqs = [108, 216, 432, 648];
         freqs.forEach((freq, idx) => {

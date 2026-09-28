@@ -36,7 +36,7 @@ export interface BookItem {
   id: string;
   title: string;
   author: string;
-  category: 'overthinking' | 'meditation' | 'clarity';
+  category: 'overthinking' | 'meditation' | 'clarity' | 'psychology';
   categoryLabel: string;
   readTime: string;
   gradient: string;
@@ -46,4 +46,34 @@ export interface BookItem {
   actionableExercises: string[];
   goldenQuote: string;
 }
+
+export interface CognitiveDistortion {
+  id: string;
+  name: string;
+  nameUrdu: string;
+  definition: string;
+  exampleThought: string;
+  cbtReframe: string;
+  socraticQuestions: string[];
+  mechanism: string;
+}
+
+export interface PsychologyModel {
+  id: string;
+  title: string;
+  titleUrdu: string;
+  founder: string;
+  field: string;
+  coreInsight: string;
+  practicalApplication: string;
+  brainRegion: string;
+  takeaway: string;
+}
+
+export interface AssessmentQuestion {
+  id: number;
+  question: string;
+  questionUrdu: string;
+}
+
 
