@@ -354,4 +354,10 @@ async function startServer() {
   });
 }
 
-startServer();
+// Export app for Vercel serverless deployment
+export default app;
+
+if (!process.env.VERCEL) {
+  startServer();
+}
+
