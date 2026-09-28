@@ -1,0 +1,8 @@
+{
+  "name": "SereneMind AI - Mental Wellness & Mindfulness Coach",
+  "description": "Empathetic AI voice and chat coach for overthinking relief, personalized personality insights, and real-time guided mindfulness practices.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
