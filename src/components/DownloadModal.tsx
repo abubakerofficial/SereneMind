@@ -10,13 +10,20 @@ import {
   Music,
   FileText,
   Sparkles,
-  ArrowRight,
   Shield,
   Layers,
   HelpCircle,
+  MoreVertical,
+  Check,
+  AlertCircle,
+  ExternalLink,
 } from 'lucide-react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
-import { download432HzAudio, downloadPsychologyHandbook } from '../utils/downloader';
+import {
+  download432HzAudio,
+  downloadPsychologyHandbook,
+  downloadAndroidWebShortcut,
+} from '../utils/downloader';
 
 interface DownloadModalProps {
   isOpen: boolean;
@@ -24,29 +31,56 @@ interface DownloadModalProps {
 }
 
 export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose }) => {
-  const { isInstallable, isInstalled, isIOS, isAndroid, isDesktop, platformName, install } = usePWAInstall();
+  const {
+    isInstallable,
+    isInstalled,
+    isIOS,
+    isAndroid,
+    isInfinix,
+    isDesktop,
+    platformName,
+    install,
+  } = usePWAInstall();
+
   const [activeTab, setActiveTab] = useState<'app' | 'media'>('app');
   const [deviceFilter, setDeviceFilter] = useState<'auto' | 'android' | 'ios' | 'windows' | 'mac'>('auto');
   const [audioDownloadProgress, setAudioDownloadProgress] = useState(false);
   const [guideDownloaded, setGuideDownloaded] = useState(false);
+  const [shortcutDownloaded, setShortcutDownloaded] = useState(false);
+  const [installStatusMessage, setInstallStatusMessage] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
-  // Determine which device instruction to highlight
+  const isMobileScreen = typeof window !== 'undefined' ? window.innerWidth <= 850 : false;
+  const hasTouch = typeof window !== 'undefined' ? 'ontouchstart' in window : false;
+
+  // Determine current device: ALWAYS default to android on phones, touch devices, or Infinix!
   const currentDevice =
     deviceFilter !== 'auto'
       ? deviceFilter
-      : isAndroid
-      ? 'android'
       : isIOS
       ? 'ios'
+      : isAndroid || isInfinix || isMobileScreen || hasTouch
+      ? 'android'
       : isDesktop
       ? 'windows'
       : 'android';
 
   const handleInstallApp = async () => {
     if (isInstallable) {
-      await install();
+      setInstallStatusMessage('Opening Chrome install dialog...');
+      const success = await install();
+      if (!success) {
+        setInstallStatusMessage(
+          'Please tap the 3 dots (⋮) in the top-right corner of Chrome and select "Install app" or "Add to Home screen".'
+        );
+      } else {
+        setInstallStatusMessage('App installed successfully!');
+      }
+    } else {
+      setInstallStatusMessage(
+        'Chrome install prompt: Tap the 3 dots (⋮) at the top-right of your screen and select "Install app" (ایپ انسٹال کریں).'
+      );
     }
   };
 
@@ -64,56 +98,62 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
     setTimeout(() => setGuideDownloaded(false), 3000);
   };
 
+  const handleDownloadShortcut = () => {
+    setShortcutDownloaded(true);
+    downloadAndroidWebShortcut();
+    setTimeout(() => setShortcutDownloaded(false), 3000);
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-950/85 backdrop-blur-md animate-fade-in">
-      <div className="bg-stone-900 border border-stone-800 rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-7 text-stone-100 shadow-2xl relative space-y-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-950/90 backdrop-blur-md animate-fade-in">
+      <div className="bg-stone-900 border border-stone-800 rounded-3xl max-w-2xl w-full max-h-[94vh] overflow-y-auto p-4 sm:p-7 text-stone-100 shadow-2xl relative space-y-4 sm:space-y-5">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-2xl bg-stone-800/80 hover:bg-stone-750 text-stone-400 hover:text-stone-100 transition-colors z-20"
+          className="absolute top-4 right-4 p-2 rounded-2xl bg-stone-800 hover:bg-stone-750 text-stone-400 hover:text-stone-100 transition-colors z-20"
           title="Close Download Dialog"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Modal Header */}
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 p-0.5 shadow-lg shadow-emerald-500/20 flex items-center justify-center">
+        <div className="flex items-center gap-3 pr-8">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 p-0.5 shadow-lg shadow-emerald-500/20 flex items-center justify-center shrink-0">
             <div className="w-full h-full bg-stone-950 rounded-[14px] flex items-center justify-center text-emerald-400">
               <Download className="w-5 h-5" />
             </div>
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg sm:text-xl font-bold text-stone-100 tracking-tight">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-base sm:text-xl font-bold text-stone-100 tracking-tight">
                 Download Center (تمام ڈیوائسز کے لیے ڈاؤن لوڈ)
               </h2>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/30">
-                All Devices Supported
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+                Infinix &amp; All Mobile Fixed
               </span>
             </div>
             <p className="text-xs text-stone-400 mt-0.5">
-              Detected Device: <strong className="text-emerald-400">{platformName}</strong> • Works on Android, iPhone/iPad, Windows PC &amp; Mac.
+              Current Device: <strong className="text-emerald-400 font-bold">{platformName}</strong> • Direct install for Infinix, Tecno, Samsung, iOS &amp; PC.
             </p>
           </div>
         </div>
 
-        {/* Main Category Switcher */}
+        {/* Category Switcher Tabs */}
         <div className="flex items-center gap-2 p-1 bg-stone-950/80 rounded-2xl border border-stone-800 text-xs">
           <button
             onClick={() => setActiveTab('app')}
-            className={`flex-1 py-2 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
+            className={`flex-1 py-2 sm:py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
               activeTab === 'app'
                 ? 'bg-emerald-500 text-stone-950 shadow-md shadow-emerald-500/20'
                 : 'text-stone-400 hover:text-stone-200'
             }`}
           >
             <Smartphone className="w-4 h-4" />
-            <span>Install App on Any Device (ایپ ڈاؤن لوڈ کریں)</span>
+            <span>Install App on Phone / PC (ایپ ڈاؤن لوڈ کریں)</span>
           </button>
           <button
             onClick={() => setActiveTab('media')}
-            className={`flex-1 py-2 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
+            className={`flex-1 py-2 sm:py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
               activeTab === 'media'
                 ? 'bg-emerald-500 text-stone-950 shadow-md shadow-emerald-500/20'
                 : 'text-stone-400 hover:text-stone-200'
@@ -125,57 +165,54 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
         </div>
 
         {/* ========================================================================= */}
-        {/* TAB 1: INSTALL APP ON ALL DEVICES */}
+        {/* TAB 1: INSTALL APP ON MOBILE & DESKTOP */}
         {/* ========================================================================= */}
         {activeTab === 'app' && (
           <div className="space-y-4">
-            {/* Quick 1-Click Install Banner (if browser supports beforeinstallprompt) */}
-            {isInstallable && !isInstalled && (
-              <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/80 via-stone-900 to-teal-950/70 border border-emerald-500/40 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-                    <Sparkles className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs sm:text-sm font-bold text-stone-100">
-                      1-Click Native App Install Ready!
-                    </h4>
-                    <p className="text-[11px] text-stone-300">
-                      Your browser supports instant installation to your home screen or desktop.
-                    </p>
-                  </div>
+            {/* Quick 1-Click Banner */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/90 via-stone-900 to-teal-950/80 border border-emerald-500/40 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-5 h-5" />
                 </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-stone-100 flex items-center gap-2">
+                    <span>1-Click App Installation</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-300 font-mono">
+                      No Play Store Required
+                    </span>
+                  </h4>
+                  <p className="text-[11px] text-stone-300">
+                    Installs directly to your home screen with offline support and zero storage burden.
+                  </p>
+                </div>
+              </div>
 
-                <button
-                  onClick={handleInstallApp}
-                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 shrink-0"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Download &amp; Install Now</span>
-                </button>
+              <button
+                onClick={handleInstallApp}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+              >
+                <Download className="w-4 h-4 fill-current" />
+                <span>Download &amp; Install Now</span>
+              </button>
+            </div>
+
+            {/* Install Status Feedback Message (if user clicked) */}
+            {installStatusMessage && (
+              <div className="p-3 rounded-xl bg-amber-950/60 border border-amber-500/40 text-xs text-amber-200 flex items-start gap-2 animate-fade-in">
+                <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <span>{installStatusMessage}</span>
               </div>
             )}
 
-            {isInstalled && (
-              <div className="p-4 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 text-center space-y-1">
-                <div className="inline-flex items-center gap-1.5 text-emerald-400 text-xs font-bold">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>App Already Installed on this Device!</span>
-                </div>
-                <p className="text-xs text-stone-300">
-                  You are enjoying SereneMind in standalone app mode with full offline caching.
-                </p>
-              </div>
-            )}
-
-            {/* Device Selector Tabs */}
+            {/* Platform Selector Buttons (Android is FIRST & SELECTED) */}
             <div>
               <span className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider block mb-2">
-                Choose Your Device Platform (اپنی ڈیوائس کا انتخاب کریں):
+                Select Your Device Platform (ڈیوائس کا انتخاب کریں):
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {[
-                  { id: 'android', label: 'Android Phone', icon: Smartphone },
+                  { id: 'android', label: 'Android (Infinix etc.)', icon: Smartphone },
                   { id: 'ios', label: 'iPhone / iPad', icon: Apple },
                   { id: 'windows', label: 'Windows PC', icon: Laptop },
                   { id: 'mac', label: 'Apple Mac', icon: Apple },
@@ -183,214 +220,253 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
                   <button
                     key={item.id}
                     onClick={() => setDeviceFilter(item.id as any)}
-                    className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
+                    className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       currentDevice === item.id
-                        ? 'bg-emerald-950/70 border-emerald-500/50 text-emerald-300 shadow-md ring-1 ring-emerald-500/30'
+                        ? 'bg-emerald-950/80 border-emerald-500/60 text-emerald-300 shadow-md ring-1 ring-emerald-500/40'
                         : 'bg-stone-950/60 border-stone-800 text-stone-400 hover:text-stone-200'
                     }`}
                   >
-                    <item.icon className="w-3.5 h-3.5" />
+                    <item.icon className="w-3.5 h-3.5 text-emerald-400" />
                     <span>{item.label}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Device Instructions Box */}
-            <div className="p-5 rounded-2xl bg-stone-950/80 border border-stone-800 space-y-3.5">
-              {/* ANDROID INSTRUCTIONS */}
-              {currentDevice === 'android' && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-stone-800">
-                    <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+            {/* ========================================================================= */}
+            {/* ANDROID / INFINIX INSTRUCTIONS (FIRST & COMPREHENSIVE) */}
+            {/* ========================================================================= */}
+            {currentDevice === 'android' && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-stone-950/90 border border-emerald-500/30 space-y-4">
+                {/* Device Title Banner */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-stone-800">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-500/30">
                       <Smartphone className="w-4 h-4" />
-                      Android Installation Guide (گوگل کروم / سام سنگ انٹرنیٹ)
                     </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-stone-900 border border-stone-800 text-stone-400 font-mono">
-                      No Google Play Required
-                    </span>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-bold text-stone-100">
+                        Infinix Hot 40 &amp; All Android Phones (انفینکس اور تمام اینڈرائیڈ)
+                      </h4>
+                      <p className="text-[11px] text-emerald-400/90">
+                        Google Chrome • Samsung Internet • Phoenix • Opera
+                      </p>
+                    </div>
                   </div>
-
-                  <ol className="space-y-2 text-xs text-stone-300">
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
-                        1
-                      </span>
-                      <span>
-                        Chrome Browser mein ooper daayein (top-right) <strong>3 dots ⋮ (Menu)</strong> par tap karein.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
-                        2
-                      </span>
-                      <span>
-                        Menu mein <strong>"Install app"</strong> ya <strong>"Add to Home screen" (ہوم اسکرین پر شامل کریں)</strong> par click karein.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
-                        3
-                      </span>
-                      <span>
-                        App foran aapke mobile ki home screen aur app drawer mein install ho jayegi aur bina browser bar ke full screen chale gi!
-                      </span>
-                    </li>
-                  </ol>
-
-                  {isInstallable && (
-                    <button
-                      onClick={handleInstallApp}
-                      className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-bold text-xs transition-all shadow-md flex items-center justify-center gap-2 mt-2"
-                    >
-                      <Download className="w-4 h-4" />
-                      <span>Direct Android Install Button</span>
-                    </button>
-                  )}
+                  <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/30 font-semibold self-start sm:self-auto">
+                    Direct 10-Second Method
+                  </span>
                 </div>
-              )}
 
-              {/* IOS / IPHONE INSTRUCTIONS */}
-              {currentDevice === 'ios' && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-stone-800">
-                    <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                      <Apple className="w-4 h-4" />
-                      iPhone &amp; iPad Installation Guide (Safari Browser)
-                    </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-stone-900 border border-stone-800 text-stone-400 font-mono">
-                      iOS Safari PWA
-                    </span>
+                {/* VISUAL STEP 1: Point to 3 dots right on their screen! */}
+                <div className="p-3.5 rounded-xl bg-gradient-to-r from-emerald-950/40 to-stone-900 border border-emerald-500/20 space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-300">
+                    <MoreVertical className="w-4 h-4 text-emerald-400 animate-pulse" />
+                    <span>کروم میں ڈاؤن لوڈ کرنے کا سب سے آسان اور گارنٹیڈ طریقہ:</span>
                   </div>
 
-                  <ol className="space-y-2 text-xs text-stone-300">
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                  <ol className="space-y-2.5 text-xs text-stone-200 mt-2">
+                    <li className="flex items-start gap-2.5">
+                      <span className="w-6 h-6 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
                         1
                       </span>
                       <span>
-                        Safari browser ke neechay toolbar mein <strong>Share Button</strong> (<Share2 className="w-3.5 h-3.5 inline text-emerald-400 mx-1" /> box with arrow pointing up) par tap karein.
+                        اپنی اسکرین کے <strong>سب سے اوپر دائیں کونے (Top-Right)</strong> میں دیکھیں، وہاں کروم کے <strong>3 ڈاٹس ⋮ (Menu)</strong> کا آئیکن موجود ہے (جیسا کہ آپ کی تصویر میں [2] ٹیب کے ساتھ نظر آ رہا ہے)۔
                       </span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                    <li className="flex items-start gap-2.5">
+                      <span className="w-6 h-6 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
                         2
                       </span>
                       <span>
-                        Neechay scroll karein aur <strong>"Add to Home Screen" (+)</strong> par tap karein.
+                        3 ڈاٹس پر ٹیپ کریں، مینو میں <strong>"Install app" (ایپ انسٹال کریں)</strong> یا <strong>"Add to Home screen" (ہوم اسکرین پر شامل کریں)</strong> پر کلک کریں۔
                       </span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                    <li className="flex items-start gap-2.5">
+                      <span className="w-6 h-6 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
                         3
                       </span>
                       <span>
-                        Top-right mein <strong>"Add"</strong> dabayein. App iPhone ki home screen par regular iOS app ki tarah save ho jayegi!
+                        <strong>"Install"</strong> کنفرم کریں۔ ایپ فوراً آپ کے انفینکس فون کی ہوم اسکرین اور ایپس مینو میں محفوظ ہو جائے گی اور بغیر براؤزر بار کے فل اسکرین چلے گی!
                       </span>
                     </li>
                   </ol>
                 </div>
-              )}
 
-              {/* WINDOWS PC INSTRUCTIONS */}
-              {currentDevice === 'windows' && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-stone-800">
-                    <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                      <Laptop className="w-4 h-4" />
-                      Windows 10 / 11 Desktop Installation (Chrome / Edge)
-                    </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-stone-900 border border-stone-800 text-stone-400 font-mono">
-                      Desktop Standalone
-                    </span>
+                {/* DESKTOP SITE WARNING (Common Infinix Issue) */}
+                <div className="p-3 rounded-xl bg-stone-900/90 border border-stone-800 text-[11px] text-stone-300 flex items-start gap-2">
+                  <span className="text-amber-400 font-bold text-base leading-none">💡</span>
+                  <div>
+                    <strong className="text-stone-100">اہم رہنمائی برائے انفینکس فون:</strong> اگر آپ کے کروم میں 3 ڈاٹس کے مینو کے اندر <strong>"Desktop site"</strong> کے آگے ٹک (✓) لگا ہوا ہے، تو اس پر کلک کر کے اسے بند (Uncheck) کریں۔ اس کے بعد موبائل انسٹال کا بٹن فوراً کام کرے گا۔
                   </div>
-
-                  <ol className="space-y-2 text-xs text-stone-300">
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
-                        1
-                      </span>
-                      <span>
-                        Google Chrome ya Microsoft Edge ke URL address bar ke bilkul daayein (right) taraf <strong>Install icon (🖥️ / ⊕)</strong> par click karein.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
-                        2
-                      </span>
-                      <span>
-                        Popup mein <strong>"Install SereneMind AI"</strong> confirm karein.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
-                        3
-                      </span>
-                      <span>
-                        Aapke Windows Desktop aur Start Menu mein SereneMind ka icon ban jayega jo seedha native window mein open hoga!
-                      </span>
-                    </li>
-                  </ol>
-
-                  {isInstallable && (
-                    <button
-                      onClick={handleInstallApp}
-                      className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-bold text-xs transition-all shadow-md flex items-center justify-center gap-2 mt-2"
-                    >
-                      <Download className="w-4 h-4" />
-                      <span>Install on Windows Desktop</span>
-                    </button>
-                  )}
                 </div>
-              )}
 
-              {/* MAC INSTRUCTIONS */}
-              {currentDevice === 'mac' && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-stone-800">
-                    <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                      <Apple className="w-4 h-4" />
-                      Apple Mac (macOS Sonoma / Ventura / Monterey)
-                    </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-stone-900 border border-stone-800 text-stone-400 font-mono">
-                      Mac Dock App
-                    </span>
-                  </div>
+                {/* Direct Action Buttons for Android */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                  <button
+                    onClick={handleInstallApp}
+                    className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Download className="w-4 h-4 fill-current" />
+                    <span>Try Direct Chrome Install</span>
+                  </button>
 
-                  <ol className="space-y-2 text-xs text-stone-300">
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
-                        1
-                      </span>
-                      <span>
-                        <strong>Safari mein:</strong> File menu par click karein &rarr; <strong>"Add to Dock..."</strong> select karein.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
-                        2
-                      </span>
-                      <span>
-                        <strong>Chrome mein:</strong> URL bar mein <strong>Install</strong> icon dabayein ya 3 dots &rarr; "Save and Share" &rarr; "Install SereneMind".
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
-                        3
-                      </span>
-                      <span>
-                        SereneMind aapke Mac Dock aur Launchpad mein standalone Mac application ki tarah run hogi!
-                      </span>
-                    </li>
-                  </ol>
+                  <button
+                    onClick={handleDownloadShortcut}
+                    className="w-full py-2.5 rounded-xl bg-stone-800 hover:bg-stone-750 text-stone-100 font-bold text-xs border border-stone-700 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {shortcutDownloaded ? (
+                      <>
+                        <Check className="w-4 h-4 text-emerald-400" />
+                        <span>Downloaded to Phone!</span>
+                      </>
+                    ) : (
+                      <>
+                        <ExternalLink className="w-4 h-4 text-emerald-400" />
+                        <span>Download Mobile Shortcut File</span>
+                      </>
+                    )}
+                  </button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
+
+            {/* ========================================================================= */}
+            {/* IPHONE / IPAD INSTRUCTIONS */}
+            {/* ========================================================================= */}
+            {currentDevice === 'ios' && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-stone-950/90 border border-stone-800 space-y-3.5">
+                <div className="flex items-center justify-between pb-2 border-b border-stone-800">
+                  <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                    <Apple className="w-4 h-4" />
+                    iPhone &amp; iPad Installation Guide (Safari Browser)
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-stone-900 border border-stone-800 text-stone-400 font-mono">
+                    iOS Safari PWA
+                  </span>
+                </div>
+
+                <ol className="space-y-2 text-xs text-stone-300">
+                  <li className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                      1
+                    </span>
+                    <span>
+                      Safari browser ke neechay toolbar mein <strong>Share Button</strong> (<Share2 className="w-3.5 h-3.5 inline text-emerald-400 mx-1" /> box with arrow) par tap karein.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                      2
+                    </span>
+                    <span>
+                      Neechay scroll karein aur <strong>"Add to Home Screen" (+)</strong> par tap karein.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                      3
+                    </span>
+                    <span>
+                      Top-right mein <strong>"Add"</strong> dabayein. App iPhone par standalone save ho jayegi!
+                    </span>
+                  </li>
+                </ol>
+              </div>
+            )}
+
+            {/* ========================================================================= */}
+            {/* WINDOWS PC INSTRUCTIONS */}
+            {/* ========================================================================= */}
+            {currentDevice === 'windows' && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-stone-950/90 border border-stone-800 space-y-3.5">
+                <div className="flex items-center justify-between pb-2 border-b border-stone-800">
+                  <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                    <Laptop className="w-4 h-4" />
+                    Windows 10 / 11 PC Desktop Installation
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-stone-900 border border-stone-800 text-stone-400 font-mono">
+                    Windows Desktop App
+                  </span>
+                </div>
+
+                <ol className="space-y-2 text-xs text-stone-300">
+                  <li className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                      1
+                    </span>
+                    <span>
+                      Google Chrome ya Edge mein address bar ke daayein taraf <strong>Install icon (🖥️ / ⊕)</strong> dabayein.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                      2
+                    </span>
+                    <span>
+                      Popup mein <strong>"Install"</strong> confirm karein.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                      3
+                    </span>
+                    <span>
+                      Aapke Windows Desktop aur Start Menu par SereneMind AI ka shortcut ban jayega!
+                    </span>
+                  </li>
+                </ol>
+
+                <button
+                  onClick={handleInstallApp}
+                  className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-bold text-xs transition-all shadow-md flex items-center justify-center gap-2 mt-2 cursor-pointer"
+                >
+                  <Download className="w-4 h-4 fill-current" />
+                  <span>Install on Windows Desktop</span>
+                </button>
+              </div>
+            )}
+
+            {/* ========================================================================= */}
+            {/* MAC INSTRUCTIONS */}
+            {/* ========================================================================= */}
+            {currentDevice === 'mac' && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-stone-950/90 border border-stone-800 space-y-3.5">
+                <div className="flex items-center justify-between pb-2 border-b border-stone-800">
+                  <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                    <Apple className="w-4 h-4" />
+                    Apple Mac (macOS Dock Application)
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-stone-900 border border-stone-800 text-stone-400 font-mono">
+                    Mac Standalone
+                  </span>
+                </div>
+
+                <ol className="space-y-2 text-xs text-stone-300">
+                  <li className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                      1
+                    </span>
+                    <span>
+                      <strong>Safari mein:</strong> File menu &rarr; <strong>"Add to Dock..."</strong> par click karein.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                      2
+                    </span>
+                    <span>
+                      <strong>Chrome mein:</strong> URL bar mein Install icon dabayein ya 3 dots &rarr; "Install SereneMind".
+                    </span>
+                  </li>
+                </ol>
+              </div>
+            )}
           </div>
         )}
 
         {/* ========================================================================= */}
-        {/* TAB 2: OFFLINE AUDIO & GUIDE FILES DOWNLOAD */}
+        {/* TAB 2: OFFLINE AUDIO & GUIDE FILES */}
         {/* ========================================================================= */}
         {activeTab === 'media' && (
           <div className="space-y-4">
@@ -422,7 +498,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
                 <button
                   onClick={handleDownloadAudio}
                   disabled={audioDownloadProgress}
-                  className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-bold text-xs transition-all shadow-md flex items-center justify-center gap-2"
+                  className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-bold text-xs transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>
@@ -453,7 +529,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
 
                 <button
                   onClick={handleDownloadGuide}
-                  className="w-full py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-100 font-bold text-xs transition-all border border-stone-700 flex items-center justify-center gap-2"
+                  className="w-full py-2.5 rounded-xl bg-stone-800 hover:bg-stone-750 text-stone-100 font-bold text-xs transition-all border border-stone-700 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {guideDownloaded ? (
                     <>

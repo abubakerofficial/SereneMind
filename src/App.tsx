@@ -45,6 +45,7 @@ import { PWAInstallButton } from './components/PWAInstallButton';
 import { DownloadModal } from './components/DownloadModal';
 import { DownloadHub } from './components/DownloadHub';
 import { OfflineIndicator } from './components/OfflineIndicator';
+import { MobileQuickInstallBar } from './components/MobileQuickInstallBar';
 
 const INITIAL_ASSESSMENT: CoachAssessment = {
   spokenResponse: "Ready. Tap the microphone below to speak, start 4-7-8 breathing on front, or explore meditation videos, soundscapes, and books above.",
@@ -709,6 +710,9 @@ export default function App() {
 
       {/* Offline Connectivity Notification */}
       <OfflineIndicator />
+
+      {/* Floating Mobile Install Bar for Infinix / Android / iOS */}
+      <MobileQuickInstallBar onOpenModal={() => setIsDownloadModalOpen(true)} />
     </div>
   );
 }

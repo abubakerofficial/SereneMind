@@ -61,9 +61,9 @@ export const DownloadHub: React.FC<DownloadHubProps> = ({ onOpenDownloadModal })
 
           {/* Device Badges & Benefits */}
           <div className="flex flex-wrap items-center gap-2.5 pt-1 text-xs text-stone-400">
-            <span className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-stone-950/70 border border-stone-800 text-stone-300">
+            <span className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 font-semibold">
               <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
-              Android APK / PWA
+              Infinix &amp; Android Phone
             </span>
             <span className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-stone-950/70 border border-stone-800 text-stone-300">
               <Apple className="w-3.5 h-3.5 text-emerald-400" />

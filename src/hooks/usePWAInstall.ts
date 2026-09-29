@@ -10,31 +10,66 @@ export function usePWAInstall() {
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
+  const [isInfinix, setIsInfinix] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
-  const [platformName, setPlatformName] = useState('All Devices');
+  const [platformName, setPlatformName] = useState('Android Phone');
 
   useEffect(() => {
-    // Detect standalone mode (already installed on homescreen/desktop)
+    // Detect standalone mode (already running as installed app on homescreen/desktop)
     const isStandalone =
       window.matchMedia('(display-mode: standalone)').matches ||
-      (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+      (window.navigator as unknown as { standalone?: boolean }).standalone === true ||
+      document.referrer.includes('android-app://');
     setIsInstalled(isStandalone);
 
-    // Detect platform
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    const isIOSDevice = /iphone|ipad|ipod/.test(userAgent);
-    const isAndroidDevice = /android/.test(userAgent);
-    const isMacOrWin = /windows|macintosh|linux/.test(userAgent) && !isIOSDevice && !isAndroidDevice;
+    const userAgent = (window.navigator.userAgent || '').toLowerCase();
+    const hasTouch = Boolean(
+      'ontouchstart' in window ||
+      (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0)
+    );
+    const isMobileViewport = typeof window !== 'undefined' ? window.innerWidth <= 850 : false;
+
+    // Detect iOS (iPhone / iPad / iPod)
+    const isIOSDevice = Boolean(
+      /iphone|ipad|ipod/.test(userAgent) ||
+      (typeof navigator !== 'undefined' && navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    );
+
+    // Detect Infinix / Tecno / Transsion specifically
+    const infinixDetected = /infinix|xos|tecno|transsion|x68/.test(userAgent);
+    setIsInfinix(infinixDetected);
+
+    // Detect Android:
+    // Any device mentioning android, linux with touch/mobile screen, infinix, samsung, or touch phone
+    const isAndroidDevice = Boolean(
+      !isIOSDevice &&
+      (/android|infinix|xos|tecno|transsion|samsung|xiaomi|redmi|oppo|vivo|mobile|phone/i.test(userAgent) ||
+        (hasTouch && isMobileViewport) ||
+        (/linux/i.test(userAgent) && hasTouch))
+    );
+
+    // Only genuine desktop without touch or wide desktop viewport
+    const isDesktopDevice = Boolean(!isIOSDevice && !isAndroidDevice && !hasTouch && !isMobileViewport);
 
     setIsIOS(isIOSDevice);
     setIsAndroid(isAndroidDevice);
-    setIsDesktop(isMacOrWin);
+    setIsDesktop(isDesktopDevice);
 
-    if (isAndroidDevice) setPlatformName('Android');
-    else if (isIOSDevice) setPlatformName('iPhone / iPad (iOS)');
-    else if (/windows/.test(userAgent)) setPlatformName('Windows PC');
-    else if (/macintosh/.test(userAgent)) setPlatformName('Mac (macOS)');
-    else setPlatformName('Desktop & Mobile');
+    if (infinixDetected) {
+      setPlatformName('Infinix Phone (Android)');
+    } else if (isAndroidDevice) {
+      setPlatformName('Android Phone');
+    } else if (isIOSDevice) {
+      setPlatformName('iPhone / iPad (iOS)');
+    } else if (/windows/i.test(userAgent) && !hasTouch) {
+      setPlatformName('Windows PC');
+    } else if (/macintosh/i.test(userAgent) && !hasTouch) {
+      setPlatformName('Mac (macOS)');
+    } else if (isMobileViewport || hasTouch) {
+      setPlatformName('Android Phone');
+    } else {
+      setPlatformName('Desktop & Mobile');
+    }
 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
@@ -56,15 +91,22 @@ export function usePWAInstall() {
   }, []);
 
   const install = async (): Promise<boolean> => {
-    if (!deferredPrompt) return false;
-    await deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setIsInstalled(true);
-      setDeferredPrompt(null);
-      return true;
+    if (!deferredPrompt) {
+      return false;
     }
-    return false;
+    try {
+      await deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setIsInstalled(true);
+        setDeferredPrompt(null);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.warn('Install prompt error:', err);
+      return false;
+    }
   };
 
   return {
@@ -72,6 +114,7 @@ export function usePWAInstall() {
     isInstalled,
     isIOS,
     isAndroid,
+    isInfinix,
     isDesktop,
     platformName,
     install,

@@ -152,3 +152,45 @@ Website: https://ais-pre-r3krmsc3z62vp4n75r3wes-351990971577.asia-east1.run.app
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
+
+/**
+ * Downloads a direct offline Android Launcher shortcut (.html) that directly opens SereneMind
+ */
+export function downloadAndroidWebShortcut() {
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : 'https://ais-pre-r3krmsc3z62vp4n75r3wes-351990971577.asia-east1.run.app';
+  const content = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SereneMind AI - Quick Launcher</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#022c22">
+  <meta http-equiv="refresh" content="0; url=${currentUrl}">
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; background: #0c0a09; color: #ecfdf5; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; text-align: center; }
+    .card { background: #1c1917; border: 1px solid #059669; border-radius: 24px; padding: 32px 24px; max-width: 400px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+    h2 { margin: 0 0 8px 0; color: #34d399; font-size: 24px; }
+    p { color: #a8a29e; font-size: 14px; margin-bottom: 24px; }
+    a { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-sizing: border-box; background: #10b981; color: #022c22; font-weight: bold; text-decoration: none; padding: 14px 20px; border-radius: 14px; font-size: 15px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>SereneMind AI</h2>
+    <p>Infinix & Android Quick Offline Launcher<br>Crafted by Abubakar & Mohsin</p>
+    <a href="${currentUrl}">🚀 Open SereneMind AI App</a>
+  </div>
+  <script>window.location.replace("${currentUrl}");</script>
+</body>
+</html>`;
+
+  const blob = new Blob([content], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'SereneMind-Infinix-Shortcut.html';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
