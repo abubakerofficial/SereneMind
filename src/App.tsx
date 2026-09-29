@@ -269,7 +269,7 @@ export default function App() {
                 </span>
               </div>
               <div className="flex items-center gap-1.5 text-[11px] text-stone-400 mt-0.5">
-                <span className="font-semibold text-emerald-400">By Abubakar</span>
+                <span className="font-semibold text-emerald-400">By Abubakar &amp; Mohsin</span>
                 <span className="text-stone-600">•</span>
                 <span className="text-stone-400">Mental Wellness &amp; Mindfulness</span>
               </div>
@@ -658,7 +658,7 @@ export default function App() {
         <p className="flex items-center justify-center gap-2 text-stone-400">
           <span className="font-medium text-stone-300">SereneMind AI</span>
           <span className="text-stone-600">•</span>
-          <span className="text-emerald-400 font-semibold">Crafted by Abubakar</span>
+          <span className="text-emerald-400 font-semibold">Crafted by Abubakar &amp; Mohsin</span>
           <span className="text-stone-600">•</span>
           <span>Peace &amp; Mindfulness Sanctuary</span>
         </p>
