@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGradMask" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#022c22" />
+      <stop offset="50%" stop-color="#064e3b" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="gemGradMask" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+  </defs>
+
+  <!-- Full bleed background for maskable safe margin -->
+  <rect width="512" height="512" fill="url(#bgGradMask)" />
+
+  <!-- Safe Zone Lotus (Centered within 80% diameter) -->
+  <circle cx="256" cy="256" r="140" fill="#047857" opacity="0.4" />
+  <circle cx="256" cy="256" r="120" stroke="#34d399" stroke-width="3" stroke-opacity="0.3" fill="none" stroke-dasharray="6 6" />
+
+  <path d="M256 140 C267 195 307 227 347 256 C307 285 267 317 256 372 C245 317 205 285 165 256 C205 227 245 195 256 140 Z" fill="url(#gemGradMask)" />
+  <path d="M256 188 C263 219 287 239 311 256 C287 273 263 293 256 324 C249 293 225 273 201 256 C225 239 249 219 256 188 Z" fill="#ecfdf5" opacity="0.9" />
+
+  <circle cx="256" cy="256" r="22" fill="#047857" />
+  <circle cx="256" cy="256" r="11" fill="#34d399" />
+</svg>

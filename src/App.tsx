@@ -26,6 +26,7 @@ import {
   Music,
   Video,
   Brain,
+  Download,
 } from 'lucide-react';
 import { ChatMessage, CoachAssessment, ExerciseType } from './types';
 import { useVoiceInput } from './hooks/useVoiceInput';
@@ -40,6 +41,10 @@ import { BooksLibrary } from './components/BooksLibrary';
 import { AmbientMusicPlayer } from './components/AmbientMusicPlayer';
 import { MindfulVideos } from './components/MindfulVideos';
 import { PsychologyHub } from './components/PsychologyHub';
+import { PWAInstallButton } from './components/PWAInstallButton';
+import { DownloadModal } from './components/DownloadModal';
+import { DownloadHub } from './components/DownloadHub';
+import { OfflineIndicator } from './components/OfflineIndicator';
 
 const INITIAL_ASSESSMENT: CoachAssessment = {
   spokenResponse: "Ready. Tap the microphone below to speak, start 4-7-8 breathing on front, or explore meditation videos, soundscapes, and books above.",
@@ -68,6 +73,7 @@ export default function App() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [autoSpeakVoice, setAutoSpeakVoice] = useState(true);
   const [activeExercise, setActiveExercise] = useState<ExerciseType>('none');
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [showInsightsDrawer, setShowInsightsDrawer] = useState(false);
   const [currentAssessment, setCurrentAssessment] = useState<CoachAssessment>(INITIAL_ASSESSMENT);
   const [lastUserSpoken, setLastUserSpoken] = useState<string>('');
@@ -76,6 +82,7 @@ export default function App() {
   const musicSectionRef = useRef<HTMLDivElement>(null);
   const videosSectionRef = useRef<HTMLDivElement>(null);
   const psychologySectionRef = useRef<HTMLDivElement>(null);
+  const downloadSectionRef = useRef<HTMLDivElement>(null);
   const exercisesSectionRef = useRef<HTMLDivElement>(null);
   const booksSectionRef = useRef<HTMLDivElement>(null);
   const voiceSectionRef = useRef<HTMLDivElement>(null);
@@ -320,10 +327,20 @@ export default function App() {
               <Mic className="w-3.5 h-3.5 text-emerald-400" />
               <span>لائیو وائس (Live Voice)</span>
             </button>
+            <button
+              onClick={() => setIsDownloadModalOpen(true)}
+              className="px-3 py-1.5 rounded-xl font-medium text-emerald-300 hover:text-emerald-200 hover:bg-emerald-950/60 border border-emerald-500/30 transition-all flex items-center gap-1.5"
+            >
+              <Download className="w-3.5 h-3.5 text-emerald-400" />
+              <span>ڈاؤن لوڈ (Download)</span>
+            </button>
           </nav>
 
           {/* Header Controls */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Install / Download PWA Button */}
+            <PWAInstallButton onOpenModal={() => setIsDownloadModalOpen(true)} />
+
             {/* Auto-Voice Speak Toggle */}
             <button
               onClick={() => {
@@ -487,14 +504,21 @@ export default function App() {
         </div>
 
         {/* ========================================================================= */}
-        {/* 6. BOOKS LIBRARY: OVERTHINKING, MEDITATION & MENTAL CLARITY (کتب خانہ) */}
+        {/* 6. DOWNLOAD APP & OFFLINE MEDIA HUB (تمام ڈیوائسز کے لیے ڈاؤن لوڈ) */}
+        {/* ========================================================================= */}
+        <div ref={downloadSectionRef} className="scroll-mt-24">
+          <DownloadHub onOpenDownloadModal={() => setIsDownloadModalOpen(true)} />
+        </div>
+
+        {/* ========================================================================= */}
+        {/* 7. BOOKS LIBRARY: OVERTHINKING, MEDITATION & MENTAL CLARITY (کتب خانہ) */}
         {/* ========================================================================= */}
         <div ref={booksSectionRef} className="scroll-mt-24">
           <BooksLibrary />
         </div>
 
         {/* ========================================================================= */}
-        {/* 7. LIVE VOICE COACH & ASSISTANT (لائیو چیٹ / وائس کا ائیکن نیچے لے جاؤ) */}
+        {/* 8. LIVE VOICE COACH & ASSISTANT (لائیو چیٹ / وائس کا ائیکن نیچے لے جاؤ) */}
         {/* ========================================================================= */}
         <section ref={voiceSectionRef} className="scroll-mt-24 space-y-6 pt-6 border-t border-stone-800/80">
           <div className="flex items-center justify-between px-1">
@@ -676,6 +700,15 @@ export default function App() {
       {activeExercise === 'defusion' && (
         <ThoughtDefusion onClose={() => setActiveExercise('none')} />
       )}
+
+      {/* Download Center Modal for All Devices */}
+      <DownloadModal
+        isOpen={isDownloadModalOpen}
+        onClose={() => setIsDownloadModalOpen(false)}
+      />
+
+      {/* Offline Connectivity Notification */}
+      <OfflineIndicator />
     </div>
   );
 }
