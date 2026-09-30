@@ -77,14 +77,14 @@ export const DownloadHub: React.FC<DownloadHubProps> = ({
           </div>
 
           <h3 className={`text-xl sm:text-2xl font-bold tracking-tight leading-snug ${isCosmic ? 'text-white' : 'text-slate-700'}`}>
-            تمام ڈیوائسز پر ڈاؤن لوڈ کریں{' '}
+            ہر موبائل میں خودکار ریل ایپ فٹنگ{' '}
             <span className={isCosmic ? 'text-cyan-300 font-light block sm:inline' : 'text-sky-600 font-light block sm:inline'}>
-              (Download SereneMind AI App)
+              (بغیر براؤزر ونڈو کے اصلی موبائل ایپ)
             </span>
           </h3>
 
           <p className={`text-xs sm:text-sm leading-relaxed ${isCosmic ? 'text-slate-200' : 'text-slate-500'}`}>
-            کسی بھی ایپ اسٹور کے بغیر اپنے <strong>انفینکس و اینڈرائیڈ موبائل</strong>، <strong>آئی فون / آئی پیڈ</strong>، یا <strong>ونڈوز کمپیوٹر</strong> پر انسٹال کریں۔ فوری آغاز، زیرو لوڈنگ وقت اور ۱۰۰٪ آف لائن کام کی صلاحیت۔
+            کسی بھی کمپنی کا موبائل ہو—<strong>آئی فون، سام سنگ، انفینکس، شیاؤمی یا دیگر اینڈرائیڈ</strong>—یہ ڈاؤن لوڈ ہونے کے بعد خود بخود اصلی نیٹو ایپ کی طرح فل اسکرین فٹ ہو جاتی ہے، اور براؤزر کا ونڈو فریم ختم ہو جاتا ہے۔
           </p>
 
           {/* Device Badges & Benefits */}
@@ -97,7 +97,7 @@ export const DownloadHub: React.FC<DownloadHubProps> = ({
               }`}
             >
               <Smartphone className="w-3.5 h-3.5 text-cyan-400" />
-              Infinix &amp; Android Phone
+              اینڈرائیڈ و انفنکس (فل اسکرین)
             </span>
             <span
               className={`flex items-center gap-1.5 px-3 py-1 rounded-xl border ${
@@ -106,8 +106,8 @@ export const DownloadHub: React.FC<DownloadHubProps> = ({
                   : 'bg-slate-50 border-slate-200 text-slate-600'
               }`}
             >
-              <Apple className="w-3.5 h-3.5 opacity-80" />
-              iOS Safari Home App
+              <Apple className="w-3.5 h-3.5 text-cyan-300" />
+              ایپل آئی فون (نوچ محفوظ فٹنگ)
             </span>
             <span
               className={`flex items-center gap-1.5 px-3 py-1 rounded-xl border ${
@@ -117,7 +117,7 @@ export const DownloadHub: React.FC<DownloadHubProps> = ({
               }`}
             >
               <Laptop className="w-3.5 h-3.5 opacity-80" />
-              Windows 10/11 Desktop
+              ونڈوز پی سی و میک
             </span>
             <span
               className={`flex items-center gap-1.5 px-3 py-1 rounded-xl font-medium border ${
@@ -127,7 +127,7 @@ export const DownloadHub: React.FC<DownloadHubProps> = ({
               }`}
             >
               <WifiOff className="w-3.5 h-3.5 text-teal-400" />
-              آف لائن کام کرتا ہے (Works Offline)
+              ۱۰۰٪ آف لائن کام کرتی ہے
             </span>
           </div>
         </div>

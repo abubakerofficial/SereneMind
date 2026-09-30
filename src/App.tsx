@@ -43,6 +43,8 @@ import { DownloadModal } from './components/DownloadModal';
 import { DownloadHub } from './components/DownloadHub';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { MobileQuickInstallBar } from './components/MobileQuickInstallBar';
+import { MobileNativeDock } from './components/MobileNativeDock';
+import { MobileRealAppIndicator } from './components/MobileRealAppIndicator';
 import VoiceAgent from './components/VoiceAgent';
 import { SereneMindLogo } from './components/SereneMindLogo';
 import { CosmicUniverseBackground } from './components/CosmicUniverseBackground';
