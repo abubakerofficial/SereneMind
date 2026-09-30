@@ -67,8 +67,8 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
   // Auto-detect mobile devices for optimal cooling & smoothness
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [coolModeEnabled, setCoolModeEnabled] = useState(true); // Default ON for zero-heat performance
-  const [starCount, setStarCount] = useState(55);
-  const [constellationsEnabled, setConstellationsEnabled] = useState(false); // Default off on mobile for zero heat
+  const [starCount, setStarCount] = useState(48);
+  const [constellationsEnabled, setConstellationsEnabled] = useState(false);
   const [speedMultiplier, setSpeedMultiplier] = useState(0.8);
   const [cosmicSoundActive, setCosmicSoundActive] = useState(false);
   const [lastAffirmation, setLastAffirmation] = useState<string | null>(null);
@@ -83,10 +83,10 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
 
     setIsMobileDevice(isMobile);
     if (isMobile) {
-      setStarCount(48); // Optimized for ultra-low CPU/GPU on mobile
+      setStarCount(45);
       setConstellationsEnabled(false);
     } else {
-      setStarCount(95);
+      setStarCount(90);
       setConstellationsEnabled(true);
     }
   }, []);
@@ -164,7 +164,6 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
-    // Use display size matching window for sharp rendering without excessive pixel multiplier
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
@@ -186,7 +185,7 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
 
     let nextShootingStarTime = Date.now() + 6000;
     let lastFrameTime = performance.now();
-    const targetInterval = coolModeEnabled ? 22 : 16; // ~45fps in Cool Mode, 60fps in Standard (saves 50% GPU thermal load)
+    const targetInterval = coolModeEnabled ? 22 : 16;
 
     const render = (now: number) => {
       // Pause rendering when tab is in background or phone is locked
@@ -204,37 +203,34 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
       const dt = Math.min(elapsed / 16.667, 1.8);
       lastFrameTime = now;
 
-      // 1. Clear Canvas efficiently (CSS background handles nebula gradients)
+      // Clear Canvas efficiently (CSS background handles nebula gradients)
       ctx.clearRect(0, 0, width, height);
 
       const stars = starsRef.current;
       const mouse = mouseRef.current;
 
-      // 2. Batch Render Stars
+      // Batch Render Stars
       for (let i = 0; i < stars.length; i++) {
         const star = stars[i];
 
-        // Twinkle calculation
         star.twinklePhase += star.twinkleSpeed * speedMultiplier * dt;
         star.alpha = star.baseAlpha + Math.sin(star.twinklePhase) * 0.3;
         star.alpha = Math.max(0.12, Math.min(0.95, star.alpha));
 
-        // Subtle cosmic drift
         star.x += star.vx * speedMultiplier * dt;
         star.y += star.vy * speedMultiplier * dt;
 
-        // Wrap boundaries
         if (star.x < 0) star.x = width;
         if (star.x > width) star.x = 0;
         if (star.y < 0) star.y = height;
         if (star.y > height) star.y = 0;
 
-        // Light gravity pull if mouse/touch is active
+        // Desktop mouse attraction only
         if (mouse.active) {
           const dx = mouse.x - star.x;
           const dy = mouse.y - star.y;
           const distSq = dx * dx + dy * dy;
-          if (distSq < 14400) { // 120px squared
+          if (distSq < 14400) {
             const dist = Math.sqrt(distSq);
             const force = (1 - dist / 120) * 0.25;
             star.x += (dx / dist) * force;
@@ -242,14 +238,12 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
           }
         }
 
-        // Draw star core
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
         ctx.fillStyle = star.color;
         ctx.globalAlpha = star.alpha;
         ctx.fill();
 
-        // Extra soft halo only for top 15% largest stars on desktop
         if (!isMobileDevice && star.z > 2.6) {
           ctx.beginPath();
           ctx.arc(star.x, star.y, star.radius * 2.2, 0, Math.PI * 2);
@@ -259,7 +253,7 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
         }
       }
 
-      // 3. Lightweight Constellations (Optimized: only connects nearby stars without heavy loop)
+      // Constellations
       if (constellationsEnabled && !coolModeEnabled) {
         ctx.lineWidth = 0.5;
         const limit = Math.min(stars.length, 40);
@@ -270,7 +264,7 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
           const dy = s1.y - s2.y;
           const distSq = dx * dx + dy * dy;
 
-          if (distSq < 6400) { // 80px squared
+          if (distSq < 6400) {
             const dist = Math.sqrt(distSq);
             ctx.strokeStyle = '#38bdf8';
             ctx.globalAlpha = (1 - dist / 80) * 0.15;
@@ -282,13 +276,13 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
         }
       }
 
-      // 4. Automatic visual shooting star (silent & lightweight)
+      // Automatic visual shooting star (silent & lightweight)
       if (Date.now() > nextShootingStarTime) {
         launchShootingStar(false);
         nextShootingStarTime = Date.now() + Math.random() * 7000 + 5000;
       }
 
-      // 5. Update & Draw Shooting Stars
+      // Update & Draw Shooting Stars
       const shootingStars = shootingStarsRef.current;
       for (let i = shootingStars.length - 1; i >= 0; i--) {
         const s = shootingStars[i];
@@ -318,7 +312,6 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
         ctx.lineTo(s.x, s.y);
         ctx.stroke();
 
-        // Star head
         ctx.beginPath();
         ctx.arc(s.x, s.y, 2.2, 0, Math.PI * 2);
         ctx.fillStyle = '#ffffff';
@@ -332,7 +325,7 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
 
     animFrameRef.current = requestAnimationFrame(render);
 
-    // Mouse & Touch listeners
+    // Desktop mouse listeners only
     const handleMouseMove = (e: MouseEvent) => {
       mouseRef.current = { x: e.clientX, y: e.clientY, active: true };
     };
@@ -341,21 +334,9 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
       mouseRef.current.active = false;
     };
 
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches[0]) {
-        mouseRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, active: true };
-      }
-    };
-
-    const handleTouchEnd = () => {
-      mouseRef.current.active = false;
-    };
-
-    if (interactive) {
+    if (interactive && !isMobileDevice) {
       window.addEventListener('mousemove', handleMouseMove, { passive: true });
       window.addEventListener('mouseleave', handleMouseLeave, { passive: true });
-      window.addEventListener('touchmove', handleTouchMove, { passive: true });
-      window.addEventListener('touchend', handleTouchEnd, { passive: true });
     }
 
     const handleCustomTrigger = () => {
@@ -367,11 +348,9 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
       window.removeEventListener('resize', handleResize);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('launch-shooting-star', handleCustomTrigger);
-      if (interactive) {
+      if (interactive && !isMobileDevice) {
         window.removeEventListener('mousemove', handleMouseMove);
         window.removeEventListener('mouseleave', handleMouseLeave);
-        window.removeEventListener('touchmove', handleTouchMove);
-        window.removeEventListener('touchend', handleTouchEnd);
       }
       if (animFrameRef.current) {
         cancelAnimationFrame(animFrameRef.current);
@@ -392,7 +371,7 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
 
   return (
     <>
-      {/* GPU-Accelerated Static Nebula Background (Replaces expensive canvas gradients) */}
+      {/* GPU-Accelerated Static Nebula Background */}
       <div
         className="fixed inset-0 pointer-events-none z-0 bg-[#050814]"
         style={{
@@ -440,7 +419,7 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
             <span className="sm:hidden">تارا</span>
           </button>
 
-          {/* Smart Cool / Battery Saver Mode (Guarantees zero phone heat & 60fps smoothness) */}
+          {/* Smart Cool / Battery Saver Mode */}
           <button
             onClick={() => setCoolModeEnabled(!coolModeEnabled)}
             className={`p-2 rounded-xl transition-all cursor-pointer flex items-center gap-1 ${
