@@ -22,6 +22,8 @@ import {
   Download,
   Sun,
   Heart,
+  Moon,
+  Stars,
 } from 'lucide-react';
 import { ChatMessage, CoachAssessment, ExerciseType } from './types';
 import { useVoiceInput } from './hooks/useVoiceInput';
@@ -43,6 +45,8 @@ import { OfflineIndicator } from './components/OfflineIndicator';
 import { MobileQuickInstallBar } from './components/MobileQuickInstallBar';
 import VoiceAgent from './components/VoiceAgent';
 import { SereneMindLogo } from './components/SereneMindLogo';
+import { CosmicUniverseBackground } from './components/CosmicUniverseBackground';
+import { CosmicSanctuary } from './components/CosmicSanctuary';
 
 const INITIAL_ASSESSMENT: CoachAssessment = {
   spokenResponse: "Ready. Tap the microphone below to speak, start 4-7-8 breathing on front, or explore meditation videos, soundscapes, and books above.",
@@ -74,7 +78,15 @@ export default function App() {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [currentAssessment, setCurrentAssessment] = useState<CoachAssessment>(INITIAL_ASSESSMENT);
   const [lastUserSpoken, setLastUserSpoken] = useState<string>('');
+  const [theme, setTheme] = useState<'universe' | 'sunrise'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('serenemind_theme');
+      if (saved === 'sunrise' || saved === 'universe') return saved;
+    }
+    return 'universe'; // Default to animated cosmic universe with stars
+  });
 
+  const cosmicSectionRef = useRef<HTMLDivElement>(null);
   const breathSectionRef = useRef<HTMLDivElement>(null);
   const musicSectionRef = useRef<HTMLDivElement>(null);
   const videosSectionRef = useRef<HTMLDivElement>(null);
@@ -83,6 +95,22 @@ export default function App() {
   const exercisesSectionRef = useRef<HTMLDivElement>(null);
   const booksSectionRef = useRef<HTMLDivElement>(null);
   const voiceSectionRef = useRef<HTMLDivElement>(null);
+
+  const handleToggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === 'universe' ? 'sunrise' : 'universe';
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('serenemind_theme', next);
+      }
+      return next;
+    });
+  };
+
+  const handleTriggerShootingStar = () => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('launch-shooting-star'));
+    }
+  };
 
   // Stop speaking audio helper
   const handleStopAudio = () => {
@@ -246,92 +274,209 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-700 flex flex-col font-sans relative selection:bg-sky-200 selection:text-slate-800">
-      {/* Calm Sunrise Ambient Gradients */}
-      <div className="fixed top-[-10%] left-[20%] w-[550px] h-[550px] bg-sky-200/40 rounded-full blur-[140px] pointer-events-none" />
-      <div className="fixed top-[45%] right-[10%] w-[500px] h-[500px] bg-amber-100/50 rounded-full blur-[130px] pointer-events-none" />
-      <div className="fixed bottom-[-10%] left-[10%] w-[450px] h-[450px] bg-teal-100/40 rounded-full blur-[120px] pointer-events-none" />
+    <div
+      className={`min-h-screen flex flex-col font-sans relative transition-colors duration-700 ${
+        theme === 'universe'
+          ? 'bg-[#060814] text-slate-100 selection:bg-indigo-500 selection:text-white'
+          : 'bg-slate-50 text-slate-700 selection:bg-sky-200 selection:text-slate-800'
+      }`}
+    >
+      {/* Dynamic Animated Cosmic Universe or Calm Sunrise Background */}
+      {theme === 'universe' ? (
+        <CosmicUniverseBackground
+          interactive={true}
+          showControlsBar={true}
+        />
+      ) : (
+        <>
+          <div className="fixed top-[-10%] left-[20%] w-[550px] h-[550px] bg-sky-200/40 rounded-full blur-[140px] pointer-events-none" />
+          <div className="fixed top-[45%] right-[10%] w-[500px] h-[500px] bg-amber-100/50 rounded-full blur-[130px] pointer-events-none" />
+          <div className="fixed bottom-[-10%] left-[10%] w-[450px] h-[450px] bg-teal-100/40 rounded-full blur-[120px] pointer-events-none" />
+        </>
+      )}
 
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3.5 shadow-xs">
+      <header
+        className={`sticky top-0 z-40 transition-colors duration-500 backdrop-blur-md px-4 sm:px-8 py-3.5 shadow-sm ${
+          theme === 'universe'
+            ? 'bg-[#0b0f24]/85 border-b border-indigo-500/20 text-slate-100 shadow-indigo-950/40'
+            : 'bg-white/85 border-b border-slate-100 text-slate-700 shadow-slate-200/40'
+        }`}
+      >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo & Brand */}
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-white border border-slate-100 shadow-sm shadow-sky-100/50 p-1 flex items-center justify-center">
+            <div
+              className={`w-11 h-11 rounded-2xl p-1 flex items-center justify-center transition-all ${
+                theme === 'universe'
+                  ? 'bg-slate-900 border border-indigo-500/40 shadow-md shadow-indigo-500/20'
+                  : 'bg-white border border-slate-100 shadow-sm shadow-sky-100/50'
+              }`}
+            >
               <SereneMindLogo size={36} withContainer={false} />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-bold text-lg text-slate-700 tracking-tight">
-                  SereneMind <span className="text-sky-600 font-light">AI</span>
+                <h1
+                  className={`font-bold text-lg tracking-tight ${
+                    theme === 'universe' ? 'text-white' : 'text-slate-700'
+                  }`}
+                >
+                  SereneMind{' '}
+                  <span className={theme === 'universe' ? 'text-cyan-400 font-light' : 'text-sky-600 font-light'}>
+                    AI
+                  </span>
                 </h1>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
-                  Calm Sunrise
-                </span>
+                {theme === 'universe' ? (
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-950 text-cyan-300 border border-indigo-500/40 flex items-center gap-1 shadow-xs">
+                    <Stars className="w-3 h-3 text-amber-300 animate-spin" />
+                    Cosmic Universe
+                  </span>
+                ) : (
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
+                    Calm Sunrise
+                  </span>
+                )}
               </div>
-              <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mt-0.5">
-                <span className="font-semibold text-sky-600">By Abubakar &amp; Mohsin</span>
-                <span className="text-slate-300">•</span>
-                <span className="text-slate-500">Mindfulness &amp; Uplifting Peace</span>
+              <div
+                className={`flex items-center gap-1.5 text-[11px] mt-0.5 ${
+                  theme === 'universe' ? 'text-slate-400' : 'text-slate-500'
+                }`}
+              >
+                <span className={theme === 'universe' ? 'font-semibold text-cyan-400' : 'font-semibold text-sky-600'}>
+                  By Abubakar &amp; Mohsin
+                </span>
+                <span className="opacity-40">•</span>
+                <span>Mindfulness &amp; Cosmic Serenity</span>
               </div>
             </div>
           </div>
 
           {/* Quick Section Navigation Links */}
-          <nav className="hidden xl:flex items-center gap-1 p-1 bg-slate-100/80 rounded-2xl border border-slate-200/70 text-xs">
+          <nav
+            className={`hidden xl:flex items-center gap-1 p-1 rounded-2xl border text-xs transition-colors ${
+              theme === 'universe'
+                ? 'bg-slate-900/80 border-indigo-500/30'
+                : 'bg-slate-100/80 border-slate-200/70'
+            }`}
+          >
+            <button
+              onClick={() => scrollToSection(cosmicSectionRef)}
+              className={`px-3 py-1.5 rounded-xl font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                theme === 'universe'
+                  ? 'text-cyan-300 hover:text-white hover:bg-indigo-950/80'
+                  : 'text-slate-600 hover:text-sky-600 hover:bg-white'
+              }`}
+            >
+              <Stars className="w-3.5 h-3.5 text-cyan-400 animate-spin" />
+              <span>کائنات (Universe)</span>
+            </button>
             <button
               onClick={() => scrollToSection(breathSectionRef)}
-              className="px-3 py-1.5 rounded-xl font-medium text-slate-600 hover:text-sky-600 hover:bg-white transition-all flex items-center gap-1.5 cursor-pointer"
+              className={`px-3 py-1.5 rounded-xl font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                theme === 'universe'
+                  ? 'text-slate-300 hover:text-cyan-300 hover:bg-slate-800/60'
+                  : 'text-slate-600 hover:text-sky-600 hover:bg-white'
+              }`}
             >
-              <Wind className="w-3.5 h-3.5 text-sky-500" />
+              <Wind className="w-3.5 h-3.5 text-sky-400" />
               <span>سانس (Breath)</span>
             </button>
             <button
               onClick={() => scrollToSection(musicSectionRef)}
-              className="px-3 py-1.5 rounded-xl font-medium text-slate-600 hover:text-sky-600 hover:bg-white transition-all flex items-center gap-1.5 cursor-pointer"
+              className={`px-3 py-1.5 rounded-xl font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                theme === 'universe'
+                  ? 'text-slate-300 hover:text-teal-300 hover:bg-slate-800/60'
+                  : 'text-slate-600 hover:text-sky-600 hover:bg-white'
+              }`}
             >
-              <Music className="w-3.5 h-3.5 text-teal-500" />
+              <Music className="w-3.5 h-3.5 text-teal-400" />
               <span>موسیقی (Music)</span>
             </button>
             <button
               onClick={() => scrollToSection(videosSectionRef)}
-              className="px-3 py-1.5 rounded-xl font-medium text-slate-600 hover:text-sky-600 hover:bg-white transition-all flex items-center gap-1.5 cursor-pointer"
+              className={`px-3 py-1.5 rounded-xl font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                theme === 'universe'
+                  ? 'text-slate-300 hover:text-amber-300 hover:bg-slate-800/60'
+                  : 'text-slate-600 hover:text-sky-600 hover:bg-white'
+              }`}
             >
-              <Video className="w-3.5 h-3.5 text-amber-500" />
+              <Video className="w-3.5 h-3.5 text-amber-400" />
               <span>ویڈیوز (Videos)</span>
             </button>
             <button
               onClick={() => scrollToSection(psychologySectionRef)}
-              className="px-3 py-1.5 rounded-xl font-medium text-slate-600 hover:text-sky-600 hover:bg-white transition-all flex items-center gap-1.5 cursor-pointer"
+              className={`px-3 py-1.5 rounded-xl font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                theme === 'universe'
+                  ? 'text-slate-300 hover:text-indigo-300 hover:bg-slate-800/60'
+                  : 'text-slate-600 hover:text-sky-600 hover:bg-white'
+              }`}
             >
-              <Brain className="w-3.5 h-3.5 text-indigo-500" />
+              <Brain className="w-3.5 h-3.5 text-indigo-400" />
               <span>علمِ نفسیات (Psychology)</span>
             </button>
             <button
               onClick={() => scrollToSection(booksSectionRef)}
-              className="px-3 py-1.5 rounded-xl font-medium text-slate-600 hover:text-sky-600 hover:bg-white transition-all flex items-center gap-1.5 cursor-pointer"
+              className={`px-3 py-1.5 rounded-xl font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                theme === 'universe'
+                  ? 'text-slate-300 hover:text-sky-300 hover:bg-slate-800/60'
+                  : 'text-slate-600 hover:text-sky-600 hover:bg-white'
+              }`}
             >
-              <BookOpen className="w-3.5 h-3.5 text-sky-500" />
+              <BookOpen className="w-3.5 h-3.5 text-sky-400" />
               <span>کتب خانہ (Books)</span>
             </button>
             <button
               onClick={() => scrollToSection(voiceSectionRef)}
-              className="px-3 py-1.5 rounded-xl font-medium text-slate-600 hover:text-sky-600 hover:bg-white transition-all flex items-center gap-1.5 cursor-pointer"
+              className={`px-3 py-1.5 rounded-xl font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                theme === 'universe'
+                  ? 'text-slate-300 hover:text-rose-300 hover:bg-slate-800/60'
+                  : 'text-slate-600 hover:text-sky-600 hover:bg-white'
+              }`}
             >
-              <Mic className="w-3.5 h-3.5 text-rose-500" />
+              <Mic className="w-3.5 h-3.5 text-rose-400" />
               <span>لائیو وائس (Live Voice)</span>
             </button>
             <button
               onClick={() => setIsDownloadModalOpen(true)}
-              className="px-3 py-1.5 rounded-xl font-medium text-sky-700 bg-sky-50 hover:bg-sky-100/80 border border-sky-200 transition-all flex items-center gap-1.5 cursor-pointer"
+              className={`px-3 py-1.5 rounded-xl font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                theme === 'universe'
+                  ? 'text-cyan-300 bg-indigo-950 hover:bg-indigo-900 border border-indigo-500/40'
+                  : 'text-sky-700 bg-sky-50 hover:bg-sky-100/80 border border-sky-200'
+              }`}
             >
-              <Download className="w-3.5 h-3.5 text-sky-600" />
+              <Download className="w-3.5 h-3.5 text-cyan-400" />
               <span>ڈاؤن لوڈ (Download)</span>
             </button>
           </nav>
 
           {/* Header Controls */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Universe vs Sunrise Theme Switcher Button */}
+            <button
+              onClick={handleToggleTheme}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-semibold border transition-all cursor-pointer ${
+                theme === 'universe'
+                  ? 'bg-gradient-to-r from-indigo-900/90 to-purple-900/90 text-cyan-300 border-indigo-500/40 hover:border-cyan-400 shadow-md shadow-indigo-950/60'
+                  : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 shadow-xs'
+              }`}
+              title={theme === 'universe' ? 'Active: Cosmic Universe with animated stars. Tap for Calm Sunrise.' : 'Active: Calm Sunrise. Tap for Cosmic Universe with animated stars.'}
+            >
+              {theme === 'universe' ? (
+                <>
+                  <Moon className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+                  <span className="hidden sm:inline">Universe (सितारे)</span>
+                  <span className="sm:hidden">Cosmic</span>
+                </>
+              ) : (
+                <>
+                  <Sun className="w-3.5 h-3.5 text-amber-500" />
+                  <span className="hidden sm:inline">Sunrise (दिन)</span>
+                  <span className="sm:hidden">Day</span>
+                </>
+              )}
+            </button>
+
             {/* Install / Download PWA Button */}
             <PWAInstallButton onOpenModal={() => setIsDownloadModalOpen(true)} />
 
@@ -343,20 +488,32 @@ export default function App() {
                 if (!nextState) soundEngine.stopPlayback();
               }}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-medium border transition-all cursor-pointer ${
-                autoSpeakVoice
+                theme === 'universe'
+                  ? autoSpeakVoice
+                    ? 'bg-cyan-950/80 text-cyan-300 border-cyan-500/40 shadow-xs'
+                    : 'bg-slate-900/80 text-slate-400 border-slate-700 hover:text-slate-200'
+                  : autoSpeakVoice
                   ? 'bg-sky-50 text-sky-700 border-sky-200 shadow-xs'
                   : 'bg-white text-slate-500 border-slate-200 hover:text-slate-700'
               }`}
               title={autoSpeakVoice ? 'AI Voice will speak responses' : 'AI Voice is muted'}
             >
-              {autoSpeakVoice ? <Volume2 className="w-4 h-4 text-sky-600" /> : <VolumeX className="w-4 h-4 text-slate-400" />}
+              {autoSpeakVoice ? (
+                <Volume2 className={`w-4 h-4 ${theme === 'universe' ? 'text-cyan-400' : 'text-sky-600'}`} />
+              ) : (
+                <VolumeX className="w-4 h-4 opacity-60" />
+              )}
               <span className="hidden sm:inline">{autoSpeakVoice ? 'Voice Active' : 'Muted'}</span>
             </button>
 
             {/* Reset Session */}
             <button
               onClick={handleResetSession}
-              className="p-2 rounded-2xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-700 transition-colors cursor-pointer"
+              className={`p-2 rounded-2xl border transition-colors cursor-pointer ${
+                theme === 'universe'
+                  ? 'bg-slate-900/80 hover:bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-100'
+                  : 'bg-white hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-700'
+              }`}
               title="Reset conversation and state"
             >
               <RotateCcw className="w-4 h-4" />
@@ -366,27 +523,51 @@ export default function App() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-12">
-        
+      <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-12">
+        {/* ========================================================================= */}
+        {/* 0. COSMIC UNIVERSE & LIVING STARFIELD SANCTUARY (ब्रह्मांड और सितारे) */}
+        {/* ========================================================================= */}
+        <div ref={cosmicSectionRef} className="scroll-mt-24">
+          <CosmicSanctuary
+            onTriggerShootingStar={handleTriggerShootingStar}
+            isCosmicTheme={theme === 'universe'}
+            onToggleTheme={handleToggleTheme}
+          />
+        </div>
+
         {/* ========================================================================= */}
         {/* 1. FRONT & CENTER: BREATHING PRACTICE (سانسوں کی پریکٹس فرنٹ پر) */}
         {/* ========================================================================= */}
         <section ref={breathSectionRef} className="scroll-mt-24 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-sky-100 text-sky-600">
+              <div
+                className={`p-2 rounded-xl ${
+                  theme === 'universe' ? 'bg-indigo-950 text-cyan-400 border border-indigo-500/30' : 'bg-sky-100 text-sky-600'
+                }`}
+              >
                 <Wind className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-700 tracking-tight">
-                  Guided Breathwork Sanctuary <span className="text-sky-600 font-light">(سانسوں کی پریکٹس)</span>
+                <h2
+                  className={`text-xl sm:text-2xl font-bold tracking-tight ${
+                    theme === 'universe' ? 'text-white' : 'text-slate-700'
+                  }`}
+                >
+                  Guided Breathwork Sanctuary <span className={theme === 'universe' ? 'text-cyan-400 font-light' : 'text-sky-600 font-light'}>(سانسوں کی پریکٹس)</span>
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-500">
+                <p className={`text-xs sm:text-sm ${theme === 'universe' ? 'text-slate-400' : 'text-slate-500'}`}>
                   Direct somatic vagus nerve reset to instantly break acute overthinking and anxiety. Celebratory calm music plays upon completion!
                 </p>
               </div>
             </div>
-            <span className="text-xs px-3 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-100 self-start sm:self-auto font-medium">
+            <span
+              className={`text-xs px-3 py-1 rounded-full self-start sm:self-auto font-medium ${
+                theme === 'universe'
+                  ? 'bg-indigo-950/80 text-cyan-300 border border-indigo-500/40'
+                  : 'bg-sky-50 text-sky-700 border border-sky-100'
+              }`}
+            >
               Front &amp; Interactive
             </span>
           </div>
@@ -535,12 +716,24 @@ export default function App() {
           </div>
 
           {/* Real-time Voice Agent (Direct Voice Call with Abu Bakar) */}
-          <VoiceAgent />
+          <VoiceAgent theme={theme} />
 
           {/* Central Voice Resonance Box */}
-          <div className="bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 relative overflow-hidden flex flex-col items-center text-center shadow-sm">
+          <div
+            className={`rounded-3xl p-6 sm:p-8 relative overflow-hidden flex flex-col items-center text-center transition-all ${
+              theme === 'universe'
+                ? 'bg-slate-900/80 backdrop-blur-xl border border-indigo-500/25 text-slate-100 shadow-xl shadow-indigo-950/50'
+                : 'bg-white border border-slate-100 text-slate-700 shadow-sm'
+            }`}
+          >
             {/* Status Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs text-slate-600 mb-6 shadow-xs">
+            <div
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs mb-6 shadow-xs ${
+                theme === 'universe'
+                  ? 'bg-slate-800/80 border border-slate-700 text-cyan-300'
+                  : 'bg-slate-50 border border-slate-200 text-slate-600'
+              }`}
+            >
               <span
                 className={`w-2.5 h-2.5 rounded-full ${
                   currentStatus === 'Listening...'

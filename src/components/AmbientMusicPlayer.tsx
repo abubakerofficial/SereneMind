@@ -14,11 +14,12 @@ import {
   Sliders,
   Headphones,
   Check,
+  Stars,
 } from 'lucide-react';
 import { soundEngine } from '../utils/audio';
 
 export interface AmbientTrack {
-  id: '432hz' | 'singing-bowls' | 'rain' | 'ocean' | 'theta' | 'piano-strings';
+  id: '432hz' | 'singing-bowls' | 'rain' | 'ocean' | 'theta' | 'piano-strings' | 'cosmic-universe';
   name: string;
   nameUrdu: string;
   description: string;
@@ -29,6 +30,16 @@ export interface AmbientTrack {
 }
 
 export const AMBIENT_TRACKS: AmbientTrack[] = [
+  {
+    id: 'cosmic-universe',
+    name: 'Cosmic Universe & Interstellar Starlight',
+    nameUrdu: 'کائناتی کائنات اور ستاروں کی فریکوئنسی (Cosmic 432Hz)',
+    description: 'Deep celestial ambient resonance with 54Hz sub-cosmic drift and 432Hz theta waves for anxiety dissolution.',
+    frequencyBadge: '432Hz Cosmic Harmonics',
+    qualityBadge: 'Lossless Cosmic Master',
+    icon: Stars,
+    accentColor: 'from-indigo-500/25 to-cyan-500/15 border-indigo-500/40 text-cyan-300',
+  },
   {
     id: '432hz',
     name: '432 Hz Solfeggio Master Healing',

@@ -5,7 +5,7 @@ import { Phone, PhoneOff, Sparkles, Shield, AlertCircle, X, Sun, Waves } from 'l
 const EXACT_SAFARI_PERMISSION_MESSAGE =
   "Microphone permission denied. Please tap the 'aA' icon in your Safari address bar and allow microphone access specifically for this website.";
 
-export default function VoiceAgent() {
+export default function VoiceAgent({ theme = 'universe' }: { theme?: 'universe' | 'sunrise' }) {
   const [isActive, setIsActive] = useState(false);
   const [statusText, setStatusText] = useState("مدد کے لیے بٹن دبائیں (Talk with Abu Bakar)");
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -230,34 +230,66 @@ export default function VoiceAgent() {
   };
 
   return (
-    <div className="relative z-20 flex flex-col items-center justify-center p-7 sm:p-10 bg-white rounded-3xl shadow-sm border border-slate-100 w-full max-w-xl mx-auto my-6 select-none overflow-hidden transition-all duration-300">
-      {/* Calm Sunrise Background Glows */}
+    <div
+      className={`relative z-20 flex flex-col items-center justify-center p-7 sm:p-10 rounded-3xl w-full max-w-xl mx-auto my-6 select-none overflow-hidden transition-all duration-500 ${
+        theme === 'universe'
+          ? 'bg-slate-900/80 backdrop-blur-xl border border-indigo-500/30 text-white shadow-2xl shadow-indigo-950/60'
+          : 'bg-white rounded-3xl shadow-sm border border-slate-100 text-slate-700'
+      }`}
+    >
+      {/* Background Glows (Cosmic Nebula or Calm Sunrise) */}
       <div
         className={`absolute -top-20 -left-20 w-64 h-64 rounded-full blur-3xl pointer-events-none transition-opacity duration-1000 ${
-          isActive ? 'bg-sky-200/50 opacity-100' : 'bg-amber-100/60 opacity-80'
+          theme === 'universe'
+            ? 'bg-indigo-600/30 opacity-90'
+            : isActive
+            ? 'bg-sky-200/50 opacity-100'
+            : 'bg-amber-100/60 opacity-80'
         }`}
       />
       <div
         className={`absolute -bottom-20 -right-20 w-64 h-64 rounded-full blur-3xl pointer-events-none transition-opacity duration-1000 ${
-          isActive ? 'bg-teal-200/50 opacity-100' : 'bg-sky-100/60 opacity-80'
+          theme === 'universe'
+            ? 'bg-cyan-600/30 opacity-90'
+            : isActive
+            ? 'bg-teal-200/50 opacity-100'
+            : 'bg-sky-100/60 opacity-80'
         }`}
       />
 
-      {/* Header Tagline & Sunrise Badge */}
+      {/* Header Tagline & Badge */}
       <div className="flex items-center gap-2 mb-3 pointer-events-none">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 text-sky-700 text-xs font-semibold border border-sky-100 shadow-xs">
-          <Sun className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
-          <span>Calm Sunrise Voice Companion</span>
+        <span
+          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold shadow-xs ${
+            theme === 'universe'
+              ? 'bg-indigo-950/90 text-cyan-300 border border-indigo-500/40'
+              : 'bg-sky-50 text-sky-700 border border-sky-100'
+          }`}
+        >
+          <Sun className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+          <span>{theme === 'universe' ? 'Cosmic Voice Companion (کائناتی آواز)' : 'Calm Sunrise Voice Companion'}</span>
         </span>
-        <span className="text-[11px] font-medium text-slate-500 hidden sm:inline">
+        <span
+          className={`text-[11px] font-medium hidden sm:inline ${
+            theme === 'universe' ? 'text-slate-400' : 'text-slate-500'
+          }`}
+        >
           · 100% Free Gemini Engine
         </span>
       </div>
 
-      <h3 className="text-xl sm:text-2xl font-bold text-slate-700 text-center mb-1.5 tracking-tight pointer-events-none">
+      <h3
+        className={`text-xl sm:text-2xl font-bold text-center mb-1.5 tracking-tight pointer-events-none ${
+          theme === 'universe' ? 'text-white' : 'text-slate-700'
+        }`}
+      >
         Live Voice Call with Abu Bakar
       </h3>
-      <p className="text-xs sm:text-sm text-slate-500 text-center mb-7 max-w-md leading-relaxed pointer-events-none">
+      <p
+        className={`text-xs sm:text-sm text-center mb-7 max-w-md leading-relaxed pointer-events-none ${
+          theme === 'universe' ? 'text-slate-300' : 'text-slate-500'
+        }`}
+      >
         A calm, uplifting sanctuary to gently dissolve overthinking and depression. Speak naturally in Urdu or English.
       </p>
 

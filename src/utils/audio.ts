@@ -25,6 +25,31 @@ class SoundEngine {
     return this.ctx;
   }
 
+  // Play celestial shooting star wishing chime
+  playShootingStarChime() {
+    try {
+      const ctx = this.getAudioContext();
+      const now = ctx.currentTime;
+      // Magical twinkling arpeggio (E6, G#6, B6, E7)
+      const freqs = [1318.51, 1661.22, 1975.53, 2637.02];
+      freqs.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+
+        gain.gain.setValueAtTime(0, now + idx * 0.08);
+        gain.gain.linearRampToValueAtTime(0.06, now + idx * 0.08 + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 1.2);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.08);
+        osc.stop(now + idx * 0.08 + 1.3);
+      });
+    } catch {}
+  }
+
   // Play celebratory calm completion music when practice finishes
   playCompletionMusic() {
     try {
@@ -240,7 +265,7 @@ class SoundEngine {
   }
 
   startAmbientSound(
-    trackId: '432hz' | 'singing-bowls' | 'rain' | 'ocean' | 'theta' | 'piano-strings',
+    trackId: '432hz' | 'singing-bowls' | 'rain' | 'ocean' | 'theta' | 'piano-strings' | 'cosmic-universe',
     volume = 0.4
   ) {
     this.stopAmbientSound();
@@ -418,6 +443,32 @@ class SoundEngine {
         oscL.start();
         oscR.start();
         this.ambientNodes.oscillators.push(oscL, oscR);
+      } else if (trackId === 'cosmic-universe') {
+        // Deep space cosmic resonance: Sub 54Hz drone, 108Hz carrier, 216Hz & 432Hz ethereal harmonics with slow cosmic phasing
+        const cosmicFreqs = [54, 108, 216, 432, 648];
+        cosmicFreqs.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = idx === 0 ? 'sine' : idx === 1 ? 'triangle' : 'sine';
+          osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+          // Deep cosmic slow drifting LFO
+          const lfo = ctx.createOscillator();
+          const lfoGain = ctx.createGain();
+          lfo.frequency.setValueAtTime(0.04 + idx * 0.015, ctx.currentTime);
+          lfoGain.gain.setValueAtTime(freq * 0.02, ctx.currentTime);
+          lfo.connect(osc.frequency);
+          lfo.start();
+          this.ambientNodes.oscillators.push(lfo);
+
+          const baseVol = idx === 0 ? 0.09 : idx === 1 ? 0.07 : idx === 3 ? 0.06 : 0.03;
+          gain.gain.setValueAtTime(baseVol, ctx.currentTime);
+
+          osc.connect(gain);
+          gain.connect(masterGain);
+          osc.start();
+          this.ambientNodes.oscillators.push(osc);
+        });
       }
     } catch {
       // AudioContext policy
