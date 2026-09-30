@@ -25,12 +25,20 @@ const ai = new GoogleGenAI({
   },
 });
 
-const SYSTEM_INSTRUCTION = `CORE DIRECTIVE: ANSWER FIRST, COACH LATER
-You are SereneMind AI, an intelligent assistant. You must follow these absolute rules:
-1. DIRECT DEFINITIONS & ANSWERS: If a user asks "what is X" (even with typos like "what is our thing thinking" instead of "overthinking"), you MUST define and explain the concept logically and directly in plain words. NEVER reply to a factual or conceptual question with a breathing exercise.
-2. ZERO UNSOLICITED MEDITATION: Do NOT tell the user to take a deep breath, hold their breath, or relax UNLESS they explicitly type exact commands like "I am stressed", "help me relax", or "give me an exercise".
-3. CLARIFY TYPOS: If the user's input doesn't make perfect sense, make a logical guess and answer it, or ask them a quick question to clarify. Do NOT default to therapy mode.
-4. VOICE OPTIMIZED: Keep your logical answers to 1-2 sentences max, speaking like a normal, helpful friend.
+const DYNAMIC_COACH_INSTRUCTION = `You are Abu Bakar / SereneMind AI, an intelligent, deeply empathetic, and wise mental wellness guide with 30 years of experience helping people overcome depression, stress, overthinking, and anxiety.
+
+CRITICAL LANGUAGE & CONVERSATION DIRECTIVES:
+1. STRICT LANGUAGE MATCHING:
+   - If the user speaks or writes in Urdu script (اردو), e.g. "مجھے بہت پریشانی ہو رہی ہے", "اوورتھنکنگ کیسے ختم کروں؟", or "کیا حال ہے؟", you MUST reply in authentic, fluent, comforting URDU script (اردو).
+   - If the user speaks or writes in English, e.g. "How to stop overthinking?" or "I feel overwhelmed", you MUST reply in clear, natural, empathetic ENGLISH.
+   - If the user speaks in Roman Urdu (e.g. "mujhe tension ho rahi hai"), reply in warm, supportive Roman Urdu or Urdu.
+2. DIRECT RELEVANCE & ACTIVE LISTENING:
+   - Answer their specific question or situation directly. Never output generic or canned text. Listen carefully to what they actually said and respond thoughtfully to their exact words.
+3. VOICE-OPTIMIZED CONVERSATIONAL TONE:
+   - Keep answers warm, comforting, and concise (1 to 3 short sentences max) so that spoken audio is crisp, clear, and soothing like a caring friend on a phone call.
+   - Never use markdown formatting, asterisks, or long bullet lists in spoken voice responses.`;
+
+const SYSTEM_INSTRUCTION = `${DYNAMIC_COACH_INSTRUCTION}
 
 Always respond in a JSON format matching the schema.`;
 
@@ -98,77 +106,85 @@ app.get('/api/session', async (_req: Request, res: Response) => {
   }
 });
 
+// Smart contextual fallback generator for Urdu, Roman Urdu, and English
+function generateContextualMentalHealthResponse(message: string): string {
+  const text = (message || '').trim().toLowerCase();
+  const isUrdu = /[\u0600-\u06FF]/.test(message || '');
+
+  if (isUrdu) {
+    if (text.includes('اوورتھنکنگ') || text.includes('سوچ') || text.includes('خیال')) {
+      return 'اوورتھنکنگ تب ہوتی ہے جب ذہن ماضی یا مستقبل کے خدشات میں الجھ جائے۔ ایک گہرا سانس لیں اور موجودہ لمحے پر توجہ مرکوز کریں۔ میں آپ کے ساتھ ہوں۔';
+    }
+    if (text.includes('نیند') || text.includes('سونے') || text.includes('جاگ')) {
+      return 'پرسکون نیند کے لیے اپنی آنکھیں بند کریں، کندھوں کو ڈھیلا چھوڑیں اور 4-7-8 سانس کی مشق کریں۔ آپ کا ذہن خود بخود پرسکون ہو جائے گا۔';
+    }
+    if (text.includes('گھبراہٹ') || text.includes('بے چینی') || text.includes('ڈر') || text.includes('خوف')) {
+      return 'گھبراہٹ عارضی ہے اور یہ گزر جائے گی۔ اپنے اردگرد کی 5 چیزوں کو دیکھیں اور گہرا سانس لیں۔ آپ بالکل محفوظ ہیں۔';
+    }
+    if (text.includes('پریشان') || text.includes('ٹینشن') || text.includes('دباؤ') || text.includes('غم')) {
+      return 'ہر مشکل کا حل نکل آتا ہے۔ خود پر زیادہ بوجھ نہ ڈالیں، ایک وقت میں صرف ایک قدم اٹھائیں۔ بتائیں سب سے زیادہ کیا پریشان کر رہا ہے؟';
+    }
+    if (text.includes('سلام') || text.includes('کیسے') || text.includes('حال')) {
+      return 'وعلیکم السلام! میں ابوبکر ہوں، آپ کی رہنمائی اور ذہنی سکون کے لیے حاضر ہوں۔ بتائیں آج آپ کیسا محسوس کر رہے ہیں؟';
+    }
+    return 'میں آپ کی بات توجہ سے سن رہا ہوں۔ ایک پرسکون سانس لیں اور کھل کر بتائیں، ہم مل کر آپ کے ذہن کو پرسکون کریں گے۔';
+  }
+
+  // Roman Urdu
+  if (text.includes('tension') || text.includes('overthinking') || text.includes('pareshan') || text.includes('neend')) {
+    return 'Main aap ki baat samajh raha hoon. Overthinking temporary hoti hai, aik lamba gehra saans lein aur batayein aap kya mehsoos kar rahe hain.';
+  }
+
+  // English
+  if (text.includes('overthink') || text.includes('thought') || text.includes('mind racing')) {
+    return 'Overthinking happens when your mind tries to control the uncontrollable. Take three slow breaths and ground yourself in this present moment.';
+  }
+  if (text.includes('sleep') || text.includes('insomnia') || text.includes('tired')) {
+    return 'To ease your mind for sleep, release tension from your jaw and shoulders, and focus gently on the rhythm of your natural breath.';
+  }
+  if (text.includes('anxiety') || text.includes('panic') || text.includes('scared') || text.includes('stressed')) {
+    return 'This wave of anxiety is temporary and will pass. You are safe right now. Breathe in slowly for 4 seconds, and out for 6.';
+  }
+  if (text.includes('hello') || text.includes('hi') || text.includes('hey') || text.includes('how are you')) {
+    return "Hello! I am Abu Bakar, your mindful guide. Take a restful breath and tell me how you are feeling today.";
+  }
+
+  return "I hear you deeply. Take a gentle breath, and let us explore what is on your mind one step at a time.";
+}
+
 // Endpoint: Abu Bakar Lifetime Free Gemini Voice Route (/api/gemini)
 app.post('/api/gemini', async (req: Request, res: Response) => {
+  const { message = '' } = req.body || {};
+
   try {
-    const { message } = req.body || {};
-
-    const ABU_BAKAR_INSTRUCTION = `You are Abu Bakar, an empathetic guide with 30 years of experience helping people with depression and overthinking.
-Keep answers very short (1-2 sentences max), conversational, and deeply empathetic.
-Listen carefully, do not lecture, and gently guide the user out of overthinking.
-Speak in conversational Roman Urdu or Urdu or English depending on user. Never use markdown or long paragraphs.`;
-
-    let replyText = '';
-
-    try {
+    if (process.env.GEMINI_API_KEY) {
       const response = await ai.models.generateContent({
         model: 'gemini-3.8-flash',
-        contents: [{ role: 'user', parts: [{ text: message || 'Hello' }] }],
+        contents: [{ role: 'user', parts: [{ text: message || 'Hello Abu Bakar' }] }],
         config: {
-          systemInstruction: ABU_BAKAR_INSTRUCTION,
+          systemInstruction: DYNAMIC_COACH_INSTRUCTION,
           temperature: 0.7,
         },
       });
-      replyText = response.text?.trim() || '';
-    } catch (genAiErr) {
-      // Fallback to direct REST call if GEMINI_API_KEY environment variable is provided
-      const geminiApiKey = process.env.GEMINI_API_KEY;
 
-      if (geminiApiKey) {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
-        const payload = {
-          system_instruction: {
-            parts: { text: ABU_BAKAR_INSTRUCTION },
-          },
-          contents: [{ parts: [{ text: message || 'Hello' }] }],
-        };
-
-        const restRes = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-
-        if (restRes.ok) {
-          const restData = await restRes.json();
-          replyText = restData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
-        }
+      const replyText = response.text?.trim();
+      if (replyText) {
+        return res.json({ reply: replyText });
       }
     }
-
-    if (!replyText) {
-      replyText = 'میں آپ کی بات سن رہا ہوں۔ ایک پرسکون سانس لیں اور بتائیں کہ کیا محسوس کر رہے ہیں؟';
-    }
-
-    return res.json({ reply: replyText });
-  } catch (error) {
-    console.error('Gemini API Error:', error);
-    return res.json({
-      reply: 'میں بالکل آپ کے ساتھ ہوں۔ بتائیں آپ کیا محسوس کر رہے ہیں، ہم مل کر اسے حل کریں گے۔',
-    });
+  } catch (genAiErr) {
+    // Graceful fallback without throwing unhandled exceptions
   }
+
+  // Reliable, instant contextual reply
+  const fallbackReply = generateContextualMentalHealthResponse(message);
+  return res.json({ reply: fallbackReply });
 });
 
 // Endpoint: Abu Bakar Conversational Guide (Depression & Overthinking Coach)
 app.post('/api/abubakar-chat', async (req: Request, res: Response) => {
   try {
     const { message = '', history = [] } = req.body || {};
-
-    const ABU_BAKAR_INSTRUCTION = `You are Abu Bakar, an empathetic guide with 30 years of experience helping people with depression and overthinking.
-Keep answers very short (1 to 2 short sentences max), deeply empathetic, warm, and conversational.
-Listen carefully, do not lecture or give long bullet lists, and gently guide the user out of overthinking.
-Never use markdown or symbols. Speak like a real human on a phone call.
-If the user speaks or asks in Urdu, Roman Urdu, or English, reply in their same language.`;
 
     const contents = Array.isArray(history)
       ? history.slice(-6).map((h: any) => ({
@@ -186,17 +202,23 @@ If the user speaks or asks in Urdu, Roman Urdu, or English, reply in their same 
       model: 'gemini-3.8-flash',
       contents,
       config: {
-        systemInstruction: ABU_BAKAR_INSTRUCTION,
+        systemInstruction: DYNAMIC_COACH_INSTRUCTION,
         temperature: 0.7,
       },
     });
 
-    const reply = response.text?.trim() || 'میں آپ کی بات سن رہا ہوں۔ ایک گہرا سانس لیں اور بتائیں کہ اس وقت آپ کے ذہن پر کیا بوجھ ہے؟';
+    const isUrduInput = /[\u0600-\u06FF]/.test(message || '');
+    const reply = response.text?.trim() || (isUrduInput
+      ? 'میں آپ کی بات سن رہا ہوں۔ ایک گہرا سانس لیں اور بتائیں کہ اس وقت آپ کے ذہن پر کیا بوجھ ہے؟'
+      : "I'm listening with care. What thoughts are weighing on your mind right now?");
     return res.json({ reply });
   } catch (err: any) {
     console.error('Abu Bakar chat error:', err);
+    const isUrdu = /[\u0600-\u06FF]/.test(req.body?.message || '');
     return res.json({
-      reply: 'میں بالکل آپ کے ساتھ ہوں۔ بتائیں آپ کیا محسوس کر رہے ہیں، ہم مل کر اسے حل کریں گے۔',
+      reply: isUrdu
+        ? 'میں بالکل آپ کے ساتھ ہوں۔ بتائیں آپ کیا محسوس کر رہے ہیں، ہم مل کر اسے حل کریں گے۔'
+        : "I'm here with you. Tell me what you're feeling and we'll take it one step at a time.",
     });
   }
 });

@@ -491,7 +491,7 @@ class SoundEngine {
     }
   }
 
-  // Play voice with Web Speech Synthesis (reliable fallback)
+  // Play voice with Web Speech Synthesis (bilingual: Urdu and English)
   speakFallback(text: string, onEnd?: () => void): boolean {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
       return false;
@@ -501,24 +501,36 @@ class SoundEngine {
     const cleanText = text.replace(/[*_#`~[\]]/g, '').trim();
     if (!cleanText) return false;
 
+    const isUrdu = /[\u0600-\u06FF]/.test(cleanText);
     const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.rate = 0.95; // natural speaking pace
-    utterance.pitch = 1.0;
+    utterance.rate = isUrdu ? 0.92 : 0.95; // natural speaking pace
+    utterance.pitch = isUrdu ? 0.95 : 1.0;
+    utterance.lang = isUrdu ? 'ur-PK' : 'en-US';
 
-    // Pick a natural gentle voice if available
+    // Pick ideal voice based on detected language
     const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(
-      (v) =>
-        (v.name.includes('Natural') ||
-          v.name.includes('Samantha') ||
-          v.name.includes('Google') ||
-          v.name.includes('Karen') ||
-          v.name.includes('Serena')) &&
-        v.lang.startsWith('en')
-    ) || voices.find((v) => v.lang.startsWith('en'));
-
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
+    if (isUrdu) {
+      const urduVoice =
+        voices.find((v) => v.lang.startsWith('ur') || v.name.toLowerCase().includes('urdu')) ||
+        voices.find((v) => v.lang.startsWith('hi') || v.name.toLowerCase().includes('hindi')) ||
+        voices.find((v) => v.lang.startsWith('ar') || v.lang.startsWith('fa'));
+      if (urduVoice) {
+        utterance.voice = urduVoice;
+      }
+    } else {
+      const englishVoice =
+        voices.find(
+          (v) =>
+            (v.name.includes('Natural') ||
+              v.name.includes('Samantha') ||
+              v.name.includes('Google') ||
+              v.name.includes('Karen') ||
+              v.name.includes('Serena')) &&
+            v.lang.startsWith('en')
+        ) || voices.find((v) => v.lang.startsWith('en'));
+      if (englishVoice) {
+        utterance.voice = englishVoice;
+      }
     }
 
     this.isCurrentlySpeaking = true;

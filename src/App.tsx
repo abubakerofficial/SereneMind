@@ -126,10 +126,12 @@ export default function App() {
     transcript,
     interimTranscript,
     error: voiceError,
+    selectedLanguage,
+    setSelectedLanguage,
     startListening,
     stopListening,
     resetTranscript,
-  } = useVoiceInput();
+  } = useVoiceInput({ language: 'ur-PK' });
 
   // Determine current system status
   const currentStatus: 'Idle' | 'Listening...' | 'Thinking...' | 'Speaking...' = isListening
@@ -825,13 +827,41 @@ export default function App() {
               />
               <span className="font-semibold">
                 {currentStatus === 'Listening...'
-                  ? 'Listening to your voice... (سن رہا ہوں)'
+                  ? selectedLanguage === 'ur-PK'
+                    ? 'اردو میں سن رہا ہوں... (Listening in Urdu)'
+                    : 'Listening in English...'
                   : currentStatus === 'Thinking...'
-                  ? 'Thinking & formulating clear answer... (سوچ رہا ہوں)'
+                  ? 'سوچ رہا ہوں... (Formulating answer)'
                   : currentStatus === 'Speaking...'
-                  ? 'Coach Speaking... (بول رہا ہے)'
-                  : 'Voice Coach Ready (مائیکروفون پر بولیں)'}
+                  ? 'جواب بول رہا ہوں... (Speaking)'
+                  : 'وائس کوچ تیار ہے (Tap mic to speak)'}
               </span>
+            </div>
+
+            {/* Language Selection Pill for Speech-to-Speech */}
+            <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-950/70 border border-indigo-500/30 text-xs">
+              <button
+                type="button"
+                onClick={() => setSelectedLanguage('ur-PK')}
+                className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                  selectedLanguage === 'ur-PK'
+                    ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-md shadow-cyan-500/25'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                🇵🇰 اردو (Urdu)
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedLanguage('en-US')}
+                className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                  selectedLanguage === 'en-US'
+                    ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-md shadow-cyan-500/25'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                🌐 English
+              </button>
             </div>
 
             {/* Glowing Resonance Circle & Large Voice Mic */}

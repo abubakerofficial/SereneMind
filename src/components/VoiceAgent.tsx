@@ -1,243 +1,313 @@
 "use client";
-import React, { useState, useRef, useEffect } from 'react';
-import { Phone, PhoneOff, Sparkles, Shield, AlertCircle, X, Sun, Waves } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Phone, PhoneOff, Sparkles, AlertCircle, Globe, Volume2, VolumeX, Sun, Mic, Send, RefreshCw } from 'lucide-react';
+import { soundEngine } from '../utils/audio';
 
 const EXACT_SAFARI_PERMISSION_MESSAGE =
   "Microphone permission denied. Please tap the 'aA' icon in your Safari address bar and allow microphone access specifically for this website.";
 
-export default function VoiceAgent({ theme = 'universe' }: { theme?: 'universe' | 'sunrise' }) {
+const SAMPLE_VOICE_PROMPTS = [
+  { urdu: 'مجھے بہت اوورتھنکنگ ہو رہی ہے، کیا کروں؟', eng: 'How to calm severe overthinking?' },
+  { urdu: 'ذہن کو پرسکون کرنے کا طریقہ بتائیں', eng: 'Give me a fast way to find inner peace.' },
+  { urdu: 'گھبراہٹ اور بے چینی سے کیسے نکلیں؟', eng: 'How do I overcome anxiety and stress?' },
+  { urdu: 'رات کو نیند نہیں آ رہی، ذہن چل رہا ہے', eng: 'I cannot sleep because my mind is racing.' },
+];
+
+export function VoiceAgent({ theme = 'universe' }: { theme?: 'universe' | 'sunrise' }) {
   const [isActive, setIsActive] = useState(false);
-  const [statusText, setStatusText] = useState("مدد کے لیے بٹن دبائیں (Talk with Abu Bakar)");
+  const [selectedLang, setSelectedLang] = useState<'ur-PK' | 'en-US'>('ur-PK');
+  const [statusText, setStatusText] = useState("مائیکروفون پر ٹیپ کریں اور بولیں (Tap to Speak)");
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
+  const [liveTranscript, setLiveTranscript] = useState('');
+  const [lastUserQuery, setLastUserQuery] = useState('');
   const [lastReply, setLastReply] = useState('');
+  const [audioLevel, setAudioLevel] = useState(0);
   const [browserSupportError, setBrowserSupportError] = useState<string | null>(null);
   const [safariPermissionDenied, setSafariPermissionDenied] = useState(false);
+  const [customTextInput, setCustomTextInput] = useState('');
 
   const recognitionRef = useRef<any>(null);
-  const isPermissionDeniedRef = useRef(false);
+  const isListeningRef = useRef(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const micStreamRef = useRef<MediaStream | null>(null);
+  const animFrameRef = useRef<number | null>(null);
+  const silenceTimerRef = useRef<any>(null);
+  const accumulatedTextRef = useRef('');
 
-  useEffect(() => {
-    // براؤزر کا فری وائس انجن چیک کریں
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  // Stop mic and audio visualization
+  const stopAudioCapture = useCallback(() => {
+    isListeningRef.current = false;
+    setIsActive(false);
 
-    if (SpeechRecognition) {
-      try {
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'ur-PK, en-US'; // اردو اور انگلش دونوں سمجھے گا
-        recognition.continuous = false;
-        recognition.interimResults = false;
-
-        recognition.onstart = () => {
-          isPermissionDeniedRef.current = false;
-          setSafariPermissionDenied(false);
-          setStatusText("ابوبکر آپ کی بات سن رہا ہے... (Listening)");
-        };
-
-        recognition.onresult = async (event: any) => {
-          const transcript = event.results?.[0]?.[0]?.transcript;
-          if (!transcript) return;
-
-          setStatusText(`آپ نے کہا: "${transcript}" — ابوبکر سوچ رہا ہے...`);
-
-          try {
-            const res = await fetch("/api/gemini", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ message: transcript }),
-            });
-            const data = await res.json();
-
-            if (data.reply) {
-              setStatusText("ابوبکر بول رہا ہے... (Speaking)");
-              setLastReply(data.reply);
-              speakText(data.reply);
-            }
-          } catch (e) {
-            setStatusText("کنکشن کا مسئلہ آیا۔ دوبارہ دبائیں۔");
-            setIsActive(false);
-            setIsSpeaking(false);
-          }
-        };
-
-        recognition.onerror = (event: any) => {
-          console.warn("Speech recognition event error:", event?.error);
-          const errorType = event?.error;
-
-          if (
-            errorType === 'not-allowed' ||
-            errorType === 'service-not-allowed' ||
-            errorType === 'permission-denied'
-          ) {
-            isPermissionDeniedRef.current = true;
-            setStatusText(EXACT_SAFARI_PERMISSION_MESSAGE);
-            setSafariPermissionDenied(true);
-          } else if (errorType !== 'no-speech') {
-            setStatusText("آواز صاف نہیں آئی۔ دوبارہ کوشش کریں۔");
-          }
-
-          setIsActive(false);
-          setIsSpeaking(false);
-        };
-
-        recognition.onend = () => {
-          setIsActive(false);
-          if (!isPermissionDeniedRef.current && !window.speechSynthesis?.speaking) {
-            setStatusText("مدد کے لیے بٹن دبائیں (Talk with Abu Bakar)");
-          }
-        };
-
-        recognitionRef.current = recognition;
-      } catch (err) {
-        console.error("Error initializing SpeechRecognition:", err);
-      }
-    } else {
-      setStatusText("آپ کا براؤزر وائس سپورٹ نہیں کرتا۔ گوگل کروم یا ایج استعمال کریں۔");
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
     }
 
-    return () => {
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.abort();
-        } catch (_) {}
-      }
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-    };
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach((t) => t.stop());
+      micStreamRef.current = null;
+    }
+
+    if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+      audioContextRef.current.close().catch(() => {});
+      audioContextRef.current = null;
+    }
+
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (_) {}
+    }
+
+    setAudioLevel(0);
   }, []);
 
-  const speakText = (text: string) => {
-    if (!('speechSynthesis' in window)) {
-      setIsActive(false);
-      setIsSpeaking(false);
-      return;
-    }
+  // Send collected prompt to Gemini AI
+  const sendPromptToAI = useCallback(
+    async (textToSend: string) => {
+      const cleanText = textToSend.trim();
+      if (!cleanText) return;
 
-    try {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(true);
-
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'ur-PK';
-      utterance.rate = 0.95;
-      utterance.pitch = 0.95;
-
-      const voices = window.speechSynthesis.getVoices();
-      const matchVoice = voices.find(
-        (v) => v.lang.includes('ur') || v.lang.includes('hi') || v.lang.includes('ar')
+      stopAudioCapture();
+      setLastUserQuery(cleanText);
+      setLiveTranscript('');
+      accumulatedTextRef.current = '';
+      setIsThinking(true);
+      setStatusText(
+        selectedLang === 'ur-PK'
+          ? `آپ نے کہا: "${cleanText}" — ابوبکر سوچ رہا ہے...`
+          : `You said: "${cleanText}" — Abu Bakar is thinking...`
       );
-      if (matchVoice) {
-        utterance.voice = matchVoice;
+
+      try {
+        const res = await fetch('/api/gemini', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: cleanText }),
+        });
+        const data = await res.json();
+
+        setIsThinking(false);
+        if (data.reply) {
+          setLastReply(data.reply);
+          setStatusText(
+            selectedLang === 'ur-PK'
+              ? 'ابوبکر بول رہا ہے... (Speaking Urdu)'
+              : 'Abu Bakar is speaking... (Speaking English)'
+          );
+          setIsSpeaking(true);
+          soundEngine.speakFallback(data.reply, () => {
+            setIsSpeaking(false);
+            setStatusText(
+              selectedLang === 'ur-PK'
+                ? 'مدد کے لیے دوبارہ مائیک دبائیں (Ready)'
+                : 'Tap mic to talk again (Ready)'
+            );
+          });
+        }
+      } catch (e) {
+        setIsThinking(false);
+        setStatusText('کنکشن کا مسئلہ آیا۔ براہِ کرم دوبارہ بولیں۔');
       }
+    },
+    [selectedLang, stopAudioCapture]
+  );
 
-      utterance.onend = () => {
-        setIsActive(false);
-        setIsSpeaking(false);
-        if (!isPermissionDeniedRef.current) {
-          setStatusText("مدد کے لیے بٹن دبائیں (Talk with Abu Bakar)");
+  // Start real microphone audio meter
+  const startAudioMeter = useCallback(async () => {
+    try {
+      if (!navigator?.mediaDevices?.getUserMedia) return;
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      micStreamRef.current = stream;
+
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      const ctx = new AudioCtx();
+      audioContextRef.current = ctx;
+
+      const source = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 64;
+      source.connect(analyser);
+      analyserRef.current = analyser;
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      const updateMeter = () => {
+        if (!isListeningRef.current) return;
+        analyser.getByteFrequencyData(dataArray);
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+          sum += dataArray[i];
         }
+        const avg = sum / dataArray.length;
+        setAudioLevel(Math.min(100, Math.round((avg / 128) * 100)));
+        animFrameRef.current = requestAnimationFrame(updateMeter);
       };
-
-      utterance.onerror = () => {
-        setIsActive(false);
-        setIsSpeaking(false);
-        if (!isPermissionDeniedRef.current) {
-          setStatusText("مدد کے لیے بٹن دبائیں (Talk with Abu Bakar)");
-        }
-      };
-
-      window.speechSynthesis.speak(utterance);
-    } catch (e) {
-      console.warn("Speech synthesis error:", e);
-      setIsActive(false);
-      setIsSpeaking(false);
+      updateMeter();
+    } catch (err: any) {
+      console.warn('Microphone stream error:', err);
+      if (err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError') {
+        setSafariPermissionDenied(true);
+        setStatusText(EXACT_SAFARI_PERMISSION_MESSAGE);
+      }
     }
-  };
+  }, []);
 
-  const handleToggle = (e?: React.MouseEvent) => {
-    e?.preventDefault();
-    e?.stopPropagation();
-
-    console.log("Button clicked!", { currentState: isActive });
+  // Initialize Speech Recognition
+  const startListening = useCallback(async () => {
+    soundEngine.stopPlayback();
+    setIsSpeaking(false);
+    accumulatedTextRef.current = '';
+    setLiveTranscript('');
 
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      console.warn("SpeechRecognition is not supported in this browser.");
-      const errorMsg =
-        "Your browser does not support voice features. Please use Google Chrome or Edge.";
-      setBrowserSupportError(errorMsg);
-      setStatusText("آپ کا براؤزر وائس سپورٹ نہیں کرتا۔ برائے مہربانی گوگل کروم یا ایج استعمال کریں۔");
-      setIsActive(false);
+      setBrowserSupportError('آپ کا براؤزر وائس سپورٹ نہیں کرتا۔ کروم یا ایج استعمال کریں۔');
+      setStatusText('آپ کا براؤزر وائس سپورٹ نہیں کرتا۔');
       return;
     }
 
-    if (isActive) {
-      try {
-        recognitionRef.current?.stop();
-      } catch (_) {}
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-      setIsActive(false);
-      setIsSpeaking(false);
-      setStatusText("مدد کے لیے بٹن دبائیں (Talk with Abu Bakar)");
-    } else {
-      isPermissionDeniedRef.current = false;
+    try {
+      isListeningRef.current = true;
       setIsActive(true);
-      setStatusText("مائیکروفون شروع ہو رہا ہے... بولنا شروع کریں (Listening)");
+      setStatusText(
+        selectedLang === 'ur-PK'
+          ? 'مائیکروفون فعال ہے... اب بولنا شروع کریں (Listening)'
+          : 'Listening... speak now in English'
+      );
 
-      if (navigator?.mediaDevices?.getUserMedia) {
-        navigator.mediaDevices
-          .getUserMedia({ audio: true })
-          .then((stream) => {
-            stream.getTracks().forEach((track) => track.stop());
-            isPermissionDeniedRef.current = false;
-            setSafariPermissionDenied(false);
-            try {
-              recognitionRef.current?.start();
-            } catch (err) {
-              console.warn("Recognition start after stream:", err);
-            }
-          })
-          .catch((err) => {
-            console.warn("getUserMedia permission error:", err);
-            if (
-              err?.name === 'NotAllowedError' ||
-              err?.name === 'PermissionDeniedError' ||
-              err?.name === 'SecurityError'
-            ) {
-              isPermissionDeniedRef.current = true;
-              setStatusText(EXACT_SAFARI_PERMISSION_MESSAGE);
-              setSafariPermissionDenied(true);
-              setIsActive(false);
-            } else {
-              try {
-                recognitionRef.current?.start();
-              } catch (_) {}
-            }
-          });
-      } else {
-        try {
-          recognitionRef.current?.start();
-        } catch (err) {
-          console.warn("Direct recognition start error:", err);
+      await startAudioMeter();
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = selectedLang;
+      recognition.continuous = true; // Stay alive continuously while user speaks
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        isListeningRef.current = true;
+        setSafariPermissionDenied(false);
+      };
+
+      recognition.onresult = (event: any) => {
+        let interim = '';
+        let final = '';
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const trans = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            final += trans;
+          } else {
+            interim += trans;
+          }
         }
-      }
+
+        const currentText = final || interim;
+        if (currentText) {
+          accumulatedTextRef.current = (accumulatedTextRef.current + ' ' + final).trim() || interim;
+          setLiveTranscript(accumulatedTextRef.current || interim);
+          setStatusText(`سن رہا ہوں: "${accumulatedTextRef.current || interim}"`);
+
+          // Auto-send after 2 seconds of silence once speech is detected
+          if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = setTimeout(() => {
+            if (accumulatedTextRef.current.trim() && isListeningRef.current) {
+              sendPromptToAI(accumulatedTextRef.current);
+            }
+          }, 2200);
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn('Speech recognition event error:', event?.error);
+        if (
+          event?.error === 'not-allowed' ||
+          event?.error === 'service-not-allowed' ||
+          event?.error === 'permission-denied'
+        ) {
+          setSafariPermissionDenied(true);
+          setStatusText(EXACT_SAFARI_PERMISSION_MESSAGE);
+          stopAudioCapture();
+        } else if (event?.error === 'no-speech') {
+          // Do NOT crash or stop if user paused for 1 second; keep listening
+          if (isListeningRef.current && !accumulatedTextRef.current) {
+            setStatusText(
+              selectedLang === 'ur-PK'
+                ? 'مائیکروفون فعال ہے، براہِ کرم بولیں... (Listening)'
+                : 'Listening... speak into your microphone'
+            );
+          }
+        }
+      };
+
+      recognition.onend = () => {
+        // If still marked as active, restart seamlessly
+        if (isListeningRef.current) {
+          try {
+            recognition.start();
+          } catch (_) {}
+        }
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.warn('Recognition start exception:', err);
+      stopAudioCapture();
     }
+  }, [selectedLang, sendPromptToAI, startAudioMeter, stopAudioCapture]);
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      stopAudioCapture();
+      soundEngine.stopPlayback();
+    };
+  }, [stopAudioCapture]);
+
+  const handleToggle = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+
+    if (isActive || isSpeaking) {
+      if (accumulatedTextRef.current.trim()) {
+        sendPromptToAI(accumulatedTextRef.current);
+      } else {
+        stopAudioCapture();
+        soundEngine.stopPlayback();
+        setIsSpeaking(false);
+        setStatusText('مدد کے لیے مائیک دبائیں (Tap to Speak)');
+      }
+    } else {
+      startListening();
+    }
+  };
+
+  const handleTextSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customTextInput.trim()) return;
+    sendPromptToAI(customTextInput);
+    setCustomTextInput('');
   };
 
   return (
     <div
-      className={`relative z-20 flex flex-col items-center justify-center p-7 sm:p-10 rounded-3xl w-full max-w-xl mx-auto my-6 select-none overflow-hidden transition-all duration-500 ${
+      className={`relative z-20 flex flex-col items-center justify-center p-5 sm:p-8 rounded-3xl w-full max-w-xl mx-auto my-4 select-none overflow-hidden transition-all duration-500 ${
         theme === 'universe'
-          ? 'bg-slate-900/80 backdrop-blur-xl border border-indigo-500/30 text-white shadow-2xl shadow-indigo-950/60'
+          ? 'bg-slate-900/90 backdrop-blur-xl border border-indigo-500/35 text-white shadow-2xl shadow-indigo-950/70'
           : 'bg-white rounded-3xl shadow-sm border border-slate-100 text-slate-700'
       }`}
     >
-      {/* Background Glows (Cosmic Nebula or Calm Sunrise) */}
+      {/* Background Glows */}
       <div
         className={`absolute -top-20 -left-20 w-64 h-64 rounded-full blur-3xl pointer-events-none transition-opacity duration-1000 ${
           theme === 'universe'
@@ -257,180 +327,233 @@ export default function VoiceAgent({ theme = 'universe' }: { theme?: 'universe' 
         }`}
       />
 
-      {/* Header Tagline & Badge */}
-      <div className="flex items-center gap-2 mb-3 pointer-events-none">
-        <span
-          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold shadow-xs ${
-            theme === 'universe'
-              ? 'bg-indigo-950/90 text-cyan-300 border border-indigo-500/40'
-              : 'bg-sky-50 text-sky-700 border border-sky-100'
-          }`}
-        >
-          <Sun className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-          <span>{theme === 'universe' ? 'Cosmic Voice Companion (کائناتی آواز)' : 'Calm Sunrise Voice Companion'}</span>
-        </span>
-        <span
-          className={`text-[11px] font-medium hidden sm:inline ${
-            theme === 'universe' ? 'text-slate-400' : 'text-slate-500'
-          }`}
-        >
-          · 100% Free Gemini Engine
-        </span>
+      {/* Header & Language Switcher */}
+      <div className="w-full flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-1.5">
+          <span
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold shadow-xs ${
+              theme === 'universe'
+                ? 'bg-indigo-950/90 text-cyan-300 border border-indigo-500/40'
+                : 'bg-sky-50 text-sky-700 border border-sky-100'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin" />
+            <span>لائیو جیمنی وائس (100% Free Live Voice)</span>
+          </span>
+        </div>
+
+        {/* Language Switcher */}
+        <div className="flex items-center p-1 rounded-xl bg-slate-950/70 border border-indigo-500/30 text-xs">
+          <button
+            onClick={() => {
+              setSelectedLang('ur-PK');
+              if (isActive) stopAudioCapture();
+            }}
+            className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+              selectedLang === 'ur-PK'
+                ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-xs'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            🇵🇰 اردو (Urdu)
+          </button>
+          <button
+            onClick={() => {
+              setSelectedLang('en-US');
+              if (isActive) stopAudioCapture();
+            }}
+            className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+              selectedLang === 'en-US'
+                ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-xs'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            🌐 English
+          </button>
+        </div>
       </div>
 
       <h3
-        className={`text-xl sm:text-2xl font-bold text-center mb-1.5 tracking-tight pointer-events-none ${
+        className={`text-xl sm:text-2xl font-extrabold text-center mb-1 tracking-tight ${
           theme === 'universe' ? 'text-white' : 'text-slate-700'
         }`}
       >
-        Live Voice Call with Abu Bakar
+        {selectedLang === 'ur-PK' ? 'ابوبکر سے لائیو بول کر بات کریں' : 'Live Voice Call with Abu Bakar'}
       </h3>
       <p
-        className={`text-xs sm:text-sm text-center mb-7 max-w-md leading-relaxed pointer-events-none ${
+        className={`text-xs text-center mb-4 max-w-md leading-relaxed ${
           theme === 'universe' ? 'text-slate-300' : 'text-slate-500'
         }`}
       >
-        A calm, uplifting sanctuary to gently dissolve overthinking and depression. Speak naturally in Urdu or English.
+        {selectedLang === 'ur-PK'
+          ? 'مائیکروفون پر کلک کریں اور کھل کر بولیں۔ اے آئی آپ کی بات سن کر فوری اور تفصیلی صوتی جواب دے گا۔'
+          : 'Speak naturally in English or Urdu. The AI listens continuously and responds with natural voice.'}
       </p>
 
-      {/* Browser Support Error Notification */}
+      {/* Browser Support / Safari Warning */}
       {browserSupportError && (
-        <div className="w-full mb-5 p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2.5 shadow-xs relative z-50 animate-fade-in">
-          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+        <div className="w-full mb-3 p-3 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 text-xs flex items-start gap-2 shadow-xs">
+          <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="font-semibold text-amber-800">براؤزر سپورٹ الرٹ</p>
-            <p className="text-[11px] text-amber-700 mt-0.5">{browserSupportError}</p>
+            <p className="font-semibold">{browserSupportError}</p>
           </div>
+        </div>
+      )}
+
+      {/* Interactive Microphone Button with Live Wave Audio Visualizer */}
+      <div className="relative my-3 flex flex-col items-center justify-center">
+        {/* Pulsing rings based on real audio level */}
+        {isActive && (
+          <>
+            <div
+              className="absolute rounded-full bg-cyan-400/30 transition-all duration-75 pointer-events-none"
+              style={{
+                width: `${100 + audioLevel * 1.2}px`,
+                height: `${100 + audioLevel * 1.2}px`,
+              }}
+            />
+            <div
+              className="absolute rounded-full bg-indigo-500/25 transition-all duration-100 pointer-events-none"
+              style={{
+                width: `${85 + audioLevel * 0.8}px`,
+                height: `${85 + audioLevel * 0.8}px`,
+              }}
+            />
+          </>
+        )}
+
+        <button
+          onClick={handleToggle}
+          className={`relative z-10 w-20 h-20 sm:w-24 sm:h-24 rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl cursor-pointer ${
+            isSpeaking
+              ? 'bg-gradient-to-tr from-emerald-500 to-teal-400 text-white ring-4 ring-emerald-400/40 animate-pulse'
+              : isThinking
+              ? 'bg-gradient-to-tr from-amber-500 to-orange-500 text-white ring-4 ring-amber-400/40 animate-spin'
+              : isActive
+              ? 'bg-gradient-to-tr from-rose-500 to-amber-500 text-white ring-4 ring-rose-400/40 scale-105'
+              : theme === 'universe'
+              ? 'bg-gradient-to-tr from-cyan-500 via-indigo-600 to-purple-600 hover:scale-105 active:scale-95 text-white shadow-cyan-500/30 border border-cyan-300/40'
+              : 'bg-gradient-to-tr from-sky-400 to-teal-400 text-white shadow-sky-400/30 hover:scale-105'
+          }`}
+          title={isActive ? 'بولنا مکمل کریں (Send)' : 'بولنا شروع کریں (Speak)'}
+        >
+          {isSpeaking ? (
+            <Volume2 className="w-8 h-8 sm:w-10 sm:h-10 animate-pulse" />
+          ) : isThinking ? (
+            <RefreshCw className="w-8 h-8 sm:w-10 sm:h-10 animate-spin" />
+          ) : isActive ? (
+            <Mic className="w-8 h-8 sm:w-10 sm:h-10 text-white animate-pulse" />
+          ) : (
+            <Phone className="w-8 h-8 sm:w-10 sm:h-10" />
+          )}
+          <span className="text-[10px] font-bold mt-1 tracking-wider uppercase">
+            {isSpeaking ? 'بول رہا ہے' : isThinking ? 'سوچ رہا ہے' : isActive ? 'سن رہا ہے' : 'بولیں (Talk)'}
+          </span>
+        </button>
+
+        {/* Live Audio Level Indicator Bar */}
+        {isActive && (
+          <div className="mt-3 flex items-center gap-1">
+            <span className="text-[10px] text-cyan-300 font-bold uppercase tracking-wider">مائیک کا سگنل:</span>
+            <div className="w-24 h-2 rounded-full bg-slate-950 border border-cyan-500/40 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-teal-400 to-emerald-400 transition-all duration-75"
+                style={{ width: `${Math.max(10, audioLevel)}%` }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Real-time Status Caption */}
+      <div
+        className={`w-full text-center px-4 py-2.5 my-2.5 rounded-2xl text-xs sm:text-sm font-medium transition-all ${
+          isSpeaking
+            ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/40'
+            : isThinking
+            ? 'bg-amber-950/80 text-amber-300 border border-amber-500/40 animate-pulse'
+            : isActive
+            ? 'bg-rose-950/80 text-rose-300 border border-rose-500/40'
+            : theme === 'universe'
+            ? 'bg-slate-950/60 text-slate-300 border border-indigo-500/20'
+            : 'bg-slate-50 text-slate-600 border border-slate-200'
+        }`}
+      >
+        {statusText}
+      </div>
+
+      {/* Live Transcript or Complete Button */}
+      {isActive && liveTranscript && (
+        <div className="w-full flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-slate-950/80 border border-cyan-400/40 text-xs">
+          <p className="text-cyan-200 truncate flex-1">"{liveTranscript}"</p>
           <button
-            type="button"
-            onClick={() => setBrowserSupportError(null)}
-            className="text-amber-500 hover:text-amber-800 p-1 cursor-pointer"
+            onClick={() => sendPromptToAI(liveTranscript)}
+            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-bold flex items-center gap-1 shadow-md cursor-pointer shrink-0"
           >
-            <X className="w-4 h-4" />
+            <span>ارسال کریں (Send)</span>
+            <Send className="w-3 h-3" />
           </button>
         </div>
       )}
 
-      {/* Safari Microphone Permission Denied Instruction Banner */}
-      {safariPermissionDenied && (
-        <div className="w-full mb-6 p-4.5 rounded-2xl bg-amber-50/95 border-2 border-amber-300 text-amber-900 text-xs shadow-sm relative z-50 animate-fade-in">
-          <div className="flex items-center justify-between pb-2 border-b border-amber-200 mb-2.5">
-            <div className="flex items-center gap-2 font-bold text-amber-900 text-xs">
-              <span className="px-2 py-0.5 rounded-md bg-amber-200 border border-amber-300 font-mono text-xs font-black text-amber-800 tracking-wider">
-                aA
-              </span>
-              <span>iOS Safari Microphone Guide</span>
+      {/* User Query & Abu Bakar Reply Dialogue Box */}
+      {(lastUserQuery || lastReply) && !isActive && (
+        <div className="w-full space-y-2 mt-2 pt-2 border-t border-indigo-500/20 text-xs">
+          {lastUserQuery && (
+            <div className="p-3 rounded-xl bg-slate-950/80 border border-indigo-500/30 text-cyan-200">
+              <span className="font-bold text-slate-400 block mb-0.5">آپ کی بات (You said):</span>
+              <p className="text-sm font-medium">"{lastUserQuery}"</p>
             </div>
-            <button
-              type="button"
-              onClick={() => setSafariPermissionDenied(false)}
-              className="text-amber-600 hover:text-amber-900 p-1 cursor-pointer"
-              title="Close guide"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          <p className="font-medium text-xs text-amber-800 mb-2.5 leading-relaxed">
-            Safari needs microphone permission in Website Settings. Please follow these quick steps:
-          </p>
-
-          <ol className="space-y-1.5 text-xs text-slate-700 pl-4 list-decimal leading-relaxed">
-            <li>
-              Look at your Safari address bar and tap the <strong>&lsquo;aA&rsquo;</strong> icon.
-            </li>
-            <li>
-              Tap <strong>&ldquo;Website Settings&rdquo;</strong> (یا ویب سائٹ کی ترتیبات).
-            </li>
-            <li>
-              Find <strong>Microphone</strong> and set it to <strong>&ldquo;Allow&rdquo;</strong>.
-            </li>
-            <li>
-              Tap <strong>Done</strong>, then tap the soothing <strong>&ldquo;Talk Now&rdquo;</strong> button below to start.
-            </li>
-          </ol>
-        </div>
-      )}
-
-      {/* Main Calling Button with Breathing / Pulse Animation & Soft Glow */}
-      <div
-        onClick={handleToggle}
-        className={`relative z-50 cursor-pointer w-40 h-40 rounded-full flex items-center justify-center mb-6 transition-all duration-700 ${
-          isActive
-            ? 'bg-rose-50 border-2 border-rose-300 scale-105 shadow-xl shadow-rose-200/60'
-            : 'bg-sky-50/70 border border-sky-100 hover:border-sky-300/80 shadow-md'
-        }`}
-      >
-        {/* Breathing outer halo */}
-        <div
-          className={`absolute inset-0 rounded-full pointer-events-none transition-all duration-1000 ${
-            isActive
-              ? 'animate-ping bg-rose-200/40'
-              : 'animate-calm-breathe bg-sky-200/30'
-          }`}
-        />
-
-        <button
-          type="button"
-          onClick={handleToggle}
-          className={`relative z-50 cursor-pointer w-32 h-32 rounded-full text-white font-bold transition-all flex flex-col items-center justify-center gap-1.5 transform active:scale-95 ${
-            isActive
-              ? 'bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 shadow-lg shadow-rose-200/60'
-              : 'bg-gradient-to-r from-sky-400 to-teal-300 hover:from-sky-500 hover:to-teal-400 shadow-lg shadow-sky-200/50 hover:shadow-xl hover:shadow-sky-300/60 animate-calm-breathe'
-          }`}
-          title={isActive ? "End Voice Call" : "Start Live Voice Call"}
-          aria-label={isActive ? "End Call" : "Talk Now"}
-        >
-          {isActive ? (
-            <>
-              <PhoneOff className="w-8 h-8 pointer-events-none animate-pulse" />
-              <span className="text-xs tracking-wider uppercase font-black pointer-events-none">End Call</span>
-            </>
-          ) : (
-            <>
-              <Phone className="w-8 h-8 pointer-events-none" />
-              <span className="text-xs tracking-wider uppercase font-extrabold pointer-events-none">Talk Now</span>
-            </>
           )}
-        </button>
-      </div>
-
-      {/* Status indicator box */}
-      <div className="relative z-30 flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-slate-50 border border-slate-100 max-w-md w-full justify-center shadow-xs">
-        {isActive && (
-          <span
-            className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-              isSpeaking ? 'bg-teal-500 animate-bounce' : 'bg-sky-500 animate-ping'
-            }`}
-          />
-        )}
-        <p
-          className={`text-xs sm:text-sm font-medium text-center leading-relaxed ${
-            safariPermissionDenied ? 'text-amber-800' : 'text-slate-700'
-          }`}
-        >
-          {statusText}
-        </p>
-      </div>
-
-      {/* Last spoken response subtitle preview */}
-      {lastReply && isActive && (
-        <div className="mt-3.5 w-full p-3 rounded-2xl bg-sky-50/70 border border-sky-100 text-sky-900 text-xs sm:text-sm text-center italic animate-fade-in line-clamp-2">
-          &ldquo;{lastReply}&rdquo;
+          {lastReply && (
+            <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-950/90 to-slate-900/90 border border-cyan-400/40 text-slate-100 shadow-md">
+              <span className="font-bold text-cyan-300 block mb-0.5 flex items-center justify-between">
+                <span>ابوبکر کا جواب (Abu Bakar):</span>
+                {isSpeaking && <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-spin" />}
+              </span>
+              <p className="text-sm leading-relaxed">{lastReply}</p>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Uplifting Footer reassurance */}
-      <div className="flex items-center gap-2.5 text-xs text-slate-500 mt-5 pointer-events-none">
-        <span className="flex items-center gap-1.5 font-medium text-sky-700">
-          <Shield className="w-3.5 h-3.5 text-sky-500" />
-          100% Free Lifetime Voice
+      {/* Fast Text Input Fallback (اگر بولنا نہ چاہیں تو ٹائپ بھی کر سکتے ہیں) */}
+      <form onSubmit={handleTextSubmit} className="w-full mt-3 flex items-center gap-2">
+        <input
+          type="text"
+          value={customTextInput}
+          onChange={(e) => setCustomTextInput(e.target.value)}
+          placeholder={selectedLang === 'ur-PK' ? 'یا یہاں سوال لکھ کر بھیجیں...' : 'Or type your question here...'}
+          className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-950/60 border border-indigo-500/30 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400"
+        />
+        <button
+          type="submit"
+          className="p-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer"
+          title="Send"
+        >
+          <Send className="w-4 h-4" />
+        </button>
+      </form>
+
+      {/* Quick Voice Starters */}
+      <div className="w-full mt-4 space-y-1.5">
+        <span className="text-[11px] font-semibold text-slate-400 block text-right">
+          فوری موضوعات (یا مائیک دبا کر بات کریں):
         </span>
-        <span aria-hidden="true" className="text-slate-300">·</span>
-        <span>A warm, safe space for your mind</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {SAMPLE_VOICE_PROMPTS.map((p, idx) => (
+            <button
+              key={idx}
+              onClick={() => sendPromptToAI(selectedLang === 'ur-PK' ? p.urdu : p.eng)}
+              className="p-2 text-left rounded-xl bg-slate-950/50 hover:bg-indigo-950/80 border border-indigo-500/25 hover:border-cyan-400/40 text-[11px] text-slate-300 hover:text-white transition-all cursor-pointer truncate"
+            >
+              {selectedLang === 'ur-PK' ? p.urdu : p.eng}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
 }
 
-export { VoiceAgent };
+export default VoiceAgent;
