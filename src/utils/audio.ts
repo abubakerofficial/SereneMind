@@ -9,20 +9,35 @@ class SoundEngine {
   private ctx: AudioContext | null = null;
   private currentSource: AudioBufferSourceNode | null = null;
   private isCurrentlySpeaking: boolean = false;
+  private idleSuspendTimer: any = null;
 
   get isSpeaking(): boolean {
     return this.isCurrentlySpeaking;
   }
 
   private getAudioContext(): AudioContext {
+    if (this.idleSuspendTimer) {
+      clearTimeout(this.idleSuspendTimer);
+      this.idleSuspendTimer = null;
+    }
     if (!this.ctx || this.ctx.state === 'closed') {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       this.ctx = new AudioCtx();
     }
     if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
+      this.ctx.resume().catch(() => {});
     }
     return this.ctx;
+  }
+
+  private scheduleIdleSuspend(delayMs = 2500) {
+    if (this.isAmbientActive || this.isCurrentlySpeaking) return;
+    if (this.idleSuspendTimer) clearTimeout(this.idleSuspendTimer);
+    this.idleSuspendTimer = setTimeout(() => {
+      if (this.ctx && this.ctx.state === 'running' && !this.isAmbientActive && !this.isCurrentlySpeaking) {
+        this.ctx.suspend().catch(() => {});
+      }
+    }, delayMs);
   }
 
   // Play celestial shooting star wishing chime
@@ -47,6 +62,7 @@ class SoundEngine {
         osc.start(now + idx * 0.08);
         osc.stop(now + idx * 0.08 + 1.3);
       });
+      this.scheduleIdleSuspend(3000);
     } catch {}
   }
 
