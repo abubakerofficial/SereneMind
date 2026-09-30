@@ -177,42 +177,42 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
       case 'inhale':
         return {
           scale: 'scale-125 transition-transform duration-[4000ms] ease-out',
-          color: 'from-emerald-400/30 to-teal-500/20 border-teal-400/50 shadow-teal-500/20',
+          color: 'from-sky-300/40 to-teal-300/40 border-sky-400/60 shadow-sky-200/50',
           title: 'Inhale gently through nose',
           subtitle: 'Fill your lower belly, expanding with calm',
         };
       case 'hold':
         return {
           scale: 'scale-125 transition-transform duration-500 ease-in-out',
-          color: 'from-sky-400/30 to-indigo-500/20 border-sky-400/50 shadow-sky-500/20',
+          color: 'from-amber-200/40 to-sky-300/40 border-amber-300 shadow-amber-200/50',
           title: 'Hold softly...',
           subtitle: 'Notice the stillness inside you',
         };
       case 'exhale':
         return {
           scale: 'scale-75 transition-transform duration-[6000ms] ease-in-out',
-          color: 'from-amber-400/20 to-emerald-400/20 border-emerald-400/40 shadow-emerald-400/10',
+          color: 'from-teal-300/40 to-sky-300/40 border-teal-400/60 shadow-teal-200/40',
           title: 'Release completely through mouth',
           subtitle: 'Let your shoulders drop and thoughts dissolve',
         };
       case 'holdPost':
         return {
           scale: 'scale-75 transition-transform duration-500 ease-in-out',
-          color: 'from-slate-400/20 to-teal-400/20 border-slate-400/40 shadow-slate-400/10',
+          color: 'from-slate-200/50 to-teal-200/40 border-slate-300 shadow-slate-200/40',
           title: 'Rest in pause...',
           subtitle: 'Empty and free of tension',
         };
       case 'completed':
         return {
           scale: 'scale-100 transition-transform duration-700 ease-out',
-          color: 'from-emerald-400/30 to-teal-400/30 border-emerald-400/60 shadow-emerald-500/30',
+          color: 'from-teal-300/40 to-sky-300/40 border-teal-400 shadow-teal-200/50',
           title: 'Cycle Complete',
           subtitle: 'Bask in this renewed clarity and peace',
         };
       default:
         return {
           scale: 'scale-100 transition-transform duration-700 ease-out',
-          color: 'from-teal-400/20 to-emerald-400/20 border-teal-400/30 shadow-teal-500/10',
+          color: 'from-sky-200/40 to-teal-200/40 border-sky-300 shadow-sky-100',
           title: 'Ready to center',
           subtitle: 'Press start to begin breath cadence',
         };
@@ -222,39 +222,39 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
   const orb = getOrbState();
 
   const content = (
-    <div className={`relative w-full ${embedded ? 'max-w-2xl' : 'max-w-lg'} bg-stone-900/95 border border-emerald-500/25 rounded-3xl p-6 sm:p-8 shadow-2xl text-stone-100 flex flex-col items-center overflow-hidden backdrop-blur-md`}>
+    <div className={`relative w-full ${embedded ? 'max-w-2xl' : 'max-w-lg'} bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm text-slate-700 flex flex-col items-center overflow-hidden`}>
       {/* Ambient background glow */}
-      <div className="absolute -top-24 -left-24 w-64 h-64 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-24 -left-24 w-64 h-64 bg-sky-100/60 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-amber-50/70 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header */}
-      <div className="w-full flex items-center justify-between pb-4 border-b border-stone-800 z-10">
+      <div className="w-full flex items-center justify-between pb-4 border-b border-slate-100 z-10">
         <div className="flex items-center gap-2.5">
-          <span className="p-2 rounded-xl bg-emerald-950/60 text-emerald-300 border border-emerald-500/20">
+          <span className="p-2 rounded-xl bg-sky-50 text-sky-600 border border-sky-100">
             <Sparkles className="w-4 h-4" />
           </span>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-bold text-stone-100 text-base sm:text-lg">Mindful Breath Oasis</h3>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/30">
+              <h3 className="font-bold text-slate-700 text-base sm:text-lg">Mindful Breath Oasis</h3>
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
                 سانسوں کی پریکٹس
               </span>
             </div>
-            <p className="text-xs text-stone-400">Step-by-step vagus nerve reset &amp; acute overthinking relief</p>
+            <p className="text-xs text-slate-500">Step-by-step vagus nerve reset &amp; acute overthinking relief</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
             title={soundEnabled ? 'Mute ambient chime' : 'Unmute ambient chime'}
-            className="p-2 rounded-xl bg-stone-800/80 hover:bg-stone-800 text-stone-300 transition-colors"
+            className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors cursor-pointer"
           >
-            {soundEnabled ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4" />}
+            {soundEnabled ? <Volume2 className="w-4 h-4 text-sky-600" /> : <VolumeX className="w-4 h-4" />}
           </button>
           {!embedded && onClose && (
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-stone-800/80 hover:bg-stone-800 text-stone-400 hover:text-stone-200 transition-colors"
+              className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-700 border border-slate-200 transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -263,7 +263,7 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
       </div>
 
       {/* Pattern Selector Tabs */}
-      <div className="w-full flex gap-1.5 p-1 my-5 bg-stone-950/70 rounded-2xl border border-stone-800 z-10">
+      <div className="w-full flex gap-1.5 p-1 my-5 bg-slate-100/80 rounded-2xl border border-slate-200/70 z-10">
         {BREATH_PATTERNS.map((pattern) => {
           const isSelected = selectedPattern.id === pattern.id;
           return (
@@ -276,10 +276,10 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
                 setCurrentCycle(1);
                 setSecondsRemaining(pattern.inhale);
               }}
-              className={`flex-1 py-2 px-2 text-xs font-semibold rounded-xl transition-all ${
+              className={`flex-1 py-2 px-2 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
                 isSelected
-                  ? 'bg-emerald-600/30 text-emerald-200 border border-emerald-500/40 shadow-sm'
-                  : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800/40'
+                  ? 'bg-white text-sky-700 border border-slate-200 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-700 hover:bg-white/60'
               }`}
             >
               {pattern.name.split(' ')[0]} {pattern.id === '4-7-8' ? '(Deep Calm)' : ''}
@@ -292,24 +292,24 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
       <div className="relative my-6 sm:my-8 flex items-center justify-center w-60 h-60 sm:w-64 sm:h-64 z-10">
         {/* Outer Pulsing Aura */}
         <div
-          className={`absolute inset-0 rounded-full bg-gradient-to-br ${orb.color} blur-xl opacity-60 transition-all ${orb.scale}`}
+          className={`absolute inset-0 rounded-full bg-gradient-to-br ${orb.color} blur-xl opacity-70 transition-all ${orb.scale}`}
         />
 
         {/* Main Breathing Orb */}
         <div
-          className={`relative w-44 h-44 sm:w-48 sm:h-48 rounded-full border-2 bg-stone-900/80 flex flex-col items-center justify-center shadow-lg transition-all ${orb.scale} ${orb.color}`}
+          className={`relative w-44 h-44 sm:w-48 sm:h-48 rounded-full border-2 bg-white flex flex-col items-center justify-center shadow-lg transition-all ${orb.scale} ${orb.color}`}
         >
           {phase === 'completed' ? (
             <div className="flex flex-col items-center text-center p-3 animate-fade-in">
-              <CheckCircle2 className="w-12 h-12 text-emerald-400 mb-1" />
-              <span className="text-sm font-semibold text-emerald-200">Refreshed</span>
+              <CheckCircle2 className="w-12 h-12 text-teal-500 mb-1" />
+              <span className="text-sm font-semibold text-teal-700">Refreshed</span>
             </div>
           ) : (
             <>
-              <span className="text-4xl font-light tracking-tight text-stone-100 font-mono">
+              <span className="text-4xl font-light tracking-tight text-slate-700 font-mono">
                 {phase === 'ready' ? selectedPattern.inhale : secondsRemaining}
               </span>
-              <span className="text-xs uppercase font-semibold tracking-wider text-emerald-300/90 mt-1">
+              <span className="text-xs uppercase font-semibold tracking-wider text-sky-600 mt-1">
                 {phase === 'ready' ? 'SEC' : phase}
               </span>
             </>
@@ -319,28 +319,28 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
 
       {/* Verbal Instruction */}
       <div className="text-center min-h-[4rem] z-10 px-4">
-        <h4 className="text-lg font-medium text-stone-100 transition-all">
+        <h4 className="text-lg font-semibold text-slate-700 transition-all">
           {orb.title}
         </h4>
-        <p className="text-xs text-stone-400 mt-1 max-w-sm mx-auto">
+        <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-sm mx-auto">
           {orb.subtitle}
         </p>
       </div>
 
       {/* Cycle Progress Dots */}
       <div className="flex items-center gap-2 my-4 z-10">
-        <span className="text-xs text-stone-400 mr-1">
+        <span className="text-xs text-slate-500 mr-1">
           Cycle {currentCycle} of {selectedPattern.cycles}
         </span>
         {Array.from({ length: selectedPattern.cycles }).map((_, i) => (
           <div
             key={i}
-            className={`w-2 h-2 rounded-full transition-all ${
+            className={`w-2.5 h-2.5 rounded-full transition-all ${
               i + 1 < currentCycle
-                ? 'bg-emerald-400 scale-100'
+                ? 'bg-sky-400 scale-100'
                 : i + 1 === currentCycle
-                ? 'bg-emerald-400 ring-2 ring-emerald-400/40 scale-125'
-                : 'bg-stone-700'
+                ? 'bg-sky-500 ring-2 ring-sky-300 scale-125'
+                : 'bg-slate-200'
             }`}
           />
         ))}
@@ -350,7 +350,7 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
       <div className="w-full flex items-center justify-center gap-4 mt-2 z-10">
         <button
           onClick={handleReset}
-          className="p-3 rounded-2xl bg-stone-800/80 hover:bg-stone-800 text-stone-400 hover:text-stone-200 transition-all"
+          className="p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-700 transition-all cursor-pointer"
           title="Reset exercise"
         >
           <RotateCcw className="w-5 h-5" />
@@ -358,10 +358,10 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
 
         <button
           onClick={handleStartPause}
-          className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl font-medium shadow-lg transition-all ${
+          className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl font-bold transition-all cursor-pointer ${
             isActive
-              ? 'bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700'
-              : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-stone-950 font-semibold shadow-emerald-500/20'
+              ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 shadow-sm'
+              : 'bg-gradient-to-r from-sky-400 to-teal-300 hover:from-sky-500 hover:to-teal-400 text-white shadow-lg shadow-sky-200/50 hover:shadow-xl'
           }`}
         >
           {isActive ? (
@@ -380,7 +380,7 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
         </button>
       </div>
 
-      <p className="text-[11px] text-stone-500 mt-5 text-center max-w-sm z-10">
+      <p className="text-[11px] text-slate-500 mt-5 text-center max-w-sm z-10">
         {selectedPattern.benefits}
       </p>
     </div>

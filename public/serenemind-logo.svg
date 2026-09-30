@@ -62,9 +62,12 @@
   <!-- Calming Ambient Halo Behind Brain -->
   <circle cx="256" cy="245" r="160" fill="url(#sunGlowGrad)" filter="url(#ambientSunriseGlow)" />
 
-  <!-- Sunrise inside Brain -->
+  <!-- ==================== SUNRISE (Emerging in Center of Brain) ==================== -->
   <g id="sunrise-element">
+    <!-- Rising Sun Core -->
     <circle cx="256" cy="240" r="42" fill="url(#sunDiscGrad)" filter="url(#softGlow)" />
+    
+    <!-- Gentle Radiant Dawn Rays (Continuous Minimalist Strokes) -->
     <path d="M256 168 L256 148" stroke="#fbbf24" stroke-width="5" stroke-linecap="round" opacity="0.85" />
     <path d="M205 189 L191 175" stroke="#fbbf24" stroke-width="5" stroke-linecap="round" opacity="0.85" />
     <path d="M307 189 L321 175" stroke="#fbbf24" stroke-width="5" stroke-linecap="round" opacity="0.85" />
@@ -72,17 +75,23 @@
     <path d="M340 238 L360 238" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round" opacity="0.75" />
   </g>
 
-  <!-- Gentle Waves -->
+  <!-- ==================== GENTLE WAVES (Mental Calm & Peace) ==================== -->
   <g id="gentle-waves">
+    <!-- Calm Horizon Wave 1 -->
     <path d="M165 258 C 195 246, 225 268, 256 256 C 287 244, 317 268, 347 258" 
           fill="none" stroke="url(#waveGrad1)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <!-- Calm Flowing Wave 2 -->
     <path d="M180 286 C 205 276, 230 294, 256 284 C 282 274, 307 294, 332 284" 
           fill="none" stroke="url(#waveGrad2)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" />
+
+    <!-- Calming Base Ripple 3 -->
     <path d="M200 314 C 220 306, 238 318, 256 312 C 274 306, 292 318, 312 314" 
           fill="none" stroke="#2dd4bf" stroke-width="5" stroke-linecap="round" opacity="0.75" />
   </g>
 
-  <!-- Flowing Brain Silhouette -->
+  <!-- ==================== FLOWING CONTINUOUS BRAIN SILHOUETTE ==================== -->
+  <!-- Left Hemisphere (Smooth, continuous flowing pastel sky blue & teal line) -->
   <path d="
     M 252 355
     C 230 355, 205 345, 185 328
@@ -99,6 +108,7 @@
   stroke-linejoin="round"
   filter="url(#softGlow)" />
 
+  <!-- Right Hemisphere (Harmonious continuous flowing line) -->
   <path d="
     M 260 104
     C 266 104, 279 108, 290 120
@@ -115,7 +125,8 @@
   stroke-linejoin="round"
   filter="url(#softGlow)" />
 
-  <!-- Inner Gyri -->
+  <!-- Internal Brain Folds / Organic Gyri (Continuous Flowing Curves) -->
+  <!-- Left Inner Gyri -->
   <path d="
     M 215 132
     C 195 152, 180 180, 192 208
@@ -129,6 +140,7 @@
   stroke-linejoin="round"
   opacity="0.85" />
 
+  <!-- Right Inner Gyri -->
   <path d="
     M 297 132
     C 317 152, 332 180, 320 208
@@ -142,12 +154,18 @@
   stroke-linejoin="round"
   opacity="0.85" />
 
-  <path d="M246 360 C 246 385, 252 396, 252 408" fill="none" stroke="#0ea5e9" stroke-width="6.5" stroke-linecap="round" opacity="0.8" />
-  <path d="M266 360 C 266 385, 260 396, 260 408" fill="none" stroke="#14b8a6" stroke-width="6.5" stroke-linecap="round" opacity="0.8" />
+  <!-- Brainstem / Serenity Anchor at Bottom -->
+  <path d="M246 360 C 246 385, 252 396, 252 408" 
+        fill="none" stroke="#0ea5e9" stroke-width="6.5" stroke-linecap="round" opacity="0.8" />
+  <path d="M266 360 C 266 385, 260 396, 260 408" 
+        fill="none" stroke="#14b8a6" stroke-width="6.5" stroke-linecap="round" opacity="0.8" />
 
-  <!-- Sparkles -->
+  <!-- Sparks of Clarity & Uplift (Subtle Stars/Dots) -->
   <circle cx="140" cy="155" r="5" fill="#38bdf8" />
   <circle cx="372" cy="155" r="5" fill="#2dd4bf" />
   <circle cx="256" cy="78" r="4.5" fill="#fbbf24" />
   <path d="M256 70 L256 86 M248 78 L264 78" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" opacity="0.9" />
+
+  <circle cx="118" cy="256" r="3.5" fill="#bae6fd" />
+  <circle cx="394" cy="256" r="3.5" fill="#99f6e4" />
 </svg>

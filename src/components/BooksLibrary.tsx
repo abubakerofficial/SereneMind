@@ -57,23 +57,23 @@ export const BooksLibrary: React.FC = () => {
   };
 
   return (
-    <section className="bg-stone-900/50 border border-stone-800/90 rounded-3xl p-5 sm:p-7 backdrop-blur-md shadow-2xl relative">
+    <section className="bg-white border border-slate-100 rounded-3xl p-5 sm:p-7 shadow-sm text-slate-700 relative">
       {/* Section Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-stone-800/80 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100 mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 shadow-sm shadow-emerald-950/50">
+          <div className="p-2.5 rounded-2xl bg-sky-50 border border-sky-100 text-sky-600 shadow-xs">
             <BookOpen className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg sm:text-xl font-bold text-stone-100 tracking-tight">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-700 tracking-tight">
                 Mindfulness &amp; Overthinking Library
               </h2>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/30">
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
                 کتب خانہ
               </span>
             </div>
-            <p className="text-xs text-stone-400 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5">
               Curated masterworks on stopping overthinking, daily meditation, breath awareness, and mental clarity.
             </p>
           </div>
@@ -81,35 +81,35 @@ export const BooksLibrary: React.FC = () => {
 
         {/* Search Bar */}
         <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 text-stone-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search books, authors, topics..."
-            className="w-full pl-9 pr-4 py-2 rounded-xl bg-stone-950/70 border border-stone-800 text-stone-200 placeholder-stone-500 text-xs focus:outline-none focus:border-emerald-500/50 transition-all"
+            className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 placeholder-slate-400 text-xs focus:outline-none focus:border-sky-400 transition-all"
           />
         </div>
       </div>
 
-      {/* Category Filter Pills */}
+      {/* Category Filter Buttons */}
       <div className="flex flex-wrap gap-2 mb-6">
         <button
           onClick={() => setSelectedCategory('all')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
             selectedCategory === 'all'
-              ? 'bg-emerald-500 text-stone-950 shadow-md shadow-emerald-500/20'
-              : 'bg-stone-950/60 border border-stone-800 text-stone-400 hover:text-stone-200 hover:bg-stone-850'
+              ? 'bg-gradient-to-r from-sky-400 to-teal-300 text-white shadow-md shadow-sky-200/50'
+              : 'bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-800 hover:bg-slate-100'
           }`}
         >
           All Books ({MINDFUL_BOOKS.length})
         </button>
         <button
           onClick={() => setSelectedCategory('overthinking')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
             selectedCategory === 'overthinking'
-              ? 'bg-emerald-500 text-stone-950 shadow-md shadow-emerald-500/20'
-              : 'bg-stone-950/60 border border-stone-800 text-stone-400 hover:text-stone-200 hover:bg-stone-850'
+              ? 'bg-gradient-to-r from-sky-400 to-teal-300 text-white shadow-md shadow-sky-200/50'
+              : 'bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-800 hover:bg-slate-100'
           }`}
         >
           <Sparkles className="w-3.5 h-3.5" />
@@ -117,10 +117,10 @@ export const BooksLibrary: React.FC = () => {
         </button>
         <button
           onClick={() => setSelectedCategory('meditation')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
             selectedCategory === 'meditation'
-              ? 'bg-emerald-500 text-stone-950 shadow-md shadow-emerald-500/20'
-              : 'bg-stone-950/60 border border-stone-800 text-stone-400 hover:text-stone-200 hover:bg-stone-850'
+              ? 'bg-gradient-to-r from-sky-400 to-teal-300 text-white shadow-md shadow-sky-200/50'
+              : 'bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-800 hover:bg-slate-100'
           }`}
         >
           <Bookmark className="w-3.5 h-3.5" />
@@ -128,10 +128,10 @@ export const BooksLibrary: React.FC = () => {
         </button>
         <button
           onClick={() => setSelectedCategory('clarity')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
             selectedCategory === 'clarity'
-              ? 'bg-emerald-500 text-stone-950 shadow-md shadow-emerald-500/20'
-              : 'bg-stone-950/60 border border-stone-800 text-stone-400 hover:text-stone-200 hover:bg-stone-850'
+              ? 'bg-gradient-to-r from-sky-400 to-teal-300 text-white shadow-md shadow-sky-200/50'
+              : 'bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-800 hover:bg-slate-100'
           }`}
         >
           <Lightbulb className="w-3.5 h-3.5" />
@@ -139,10 +139,10 @@ export const BooksLibrary: React.FC = () => {
         </button>
         <button
           onClick={() => setSelectedCategory('psychology')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
             selectedCategory === 'psychology'
-              ? 'bg-emerald-500 text-stone-950 shadow-md shadow-emerald-500/20'
-              : 'bg-stone-950/60 border border-stone-800 text-stone-400 hover:text-stone-200 hover:bg-stone-850'
+              ? 'bg-gradient-to-r from-sky-400 to-teal-300 text-white shadow-md shadow-sky-200/50'
+              : 'bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-800 hover:bg-slate-100'
           }`}
         >
           <Sparkles className="w-3.5 h-3.5" />
@@ -156,38 +156,38 @@ export const BooksLibrary: React.FC = () => {
           <div
             key={book.id}
             onClick={() => setActiveBook(book)}
-            className={`group cursor-pointer rounded-2xl bg-gradient-to-br ${book.gradient} border p-5 transition-all duration-300 hover:scale-[1.01] hover:shadow-xl hover:border-emerald-500/40 flex flex-col justify-between`}
+            className="group cursor-pointer rounded-2xl bg-white border border-slate-100 p-5 transition-all duration-300 hover:scale-[1.01] hover:shadow-md hover:border-sky-300 flex flex-col justify-between shadow-xs"
           >
             <div>
               {/* Badge & Read Time */}
               <div className="flex items-center justify-between gap-2 mb-3">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-stone-900/90 text-emerald-300 border border-emerald-500/20">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-100">
                   {book.badge}
                 </span>
-                <span className="text-[11px] text-stone-400 flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-stone-500" />
+                <span className="text-[11px] text-slate-400 flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-slate-400" />
                   {book.readTime}
                 </span>
               </div>
 
               {/* Title & Author */}
-              <h3 className="text-base font-bold text-stone-100 group-hover:text-emerald-300 transition-colors leading-snug">
+              <h3 className="text-base font-bold text-slate-700 group-hover:text-sky-600 transition-colors leading-snug">
                 {book.title}
               </h3>
-              <p className="text-xs text-stone-400 flex items-center gap-1 mt-1 font-medium">
-                <User className="w-3 h-3 text-stone-500" />
+              <p className="text-xs text-slate-500 flex items-center gap-1 mt-1 font-medium">
+                <User className="w-3 h-3 text-slate-400" />
                 {book.author}
               </p>
 
               {/* Tagline */}
-              <p className="text-xs text-stone-300/90 mt-2.5 line-clamp-2 leading-relaxed">
+              <p className="text-xs text-slate-500 mt-2.5 line-clamp-2 leading-relaxed">
                 {book.tagline}
               </p>
             </div>
 
             {/* Bottom Quote & Action */}
-            <div className="pt-4 mt-4 border-t border-stone-800/60 flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-emerald-400 group-hover:text-emerald-300 flex items-center gap-1">
+            <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[11px] font-semibold text-sky-600 group-hover:text-sky-700 flex items-center gap-1">
                 Read Key Summary &amp; Exercises
                 <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
               </span>
@@ -196,15 +196,15 @@ export const BooksLibrary: React.FC = () => {
         ))}
 
         {filteredBooks.length === 0 && (
-          <div className="col-span-full py-12 text-center text-stone-400">
-            <BookOpen className="w-8 h-8 mx-auto text-stone-600 mb-2" />
+          <div className="col-span-full py-12 text-center text-slate-500">
+            <BookOpen className="w-8 h-8 mx-auto text-slate-400 mb-2" />
             <p className="text-sm">No books found matching your search.</p>
             <button
               onClick={() => {
                 setSearchQuery('');
                 setSelectedCategory('all');
               }}
-              className="mt-3 text-xs text-emerald-400 hover:underline"
+              className="mt-3 text-xs text-sky-600 hover:underline cursor-pointer"
             >
               Reset filters
             </button>
@@ -214,12 +214,12 @@ export const BooksLibrary: React.FC = () => {
 
       {/* Book Detail & Actionable Summary Modal */}
       {activeBook && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/80 backdrop-blur-md animate-fade-in">
-          <div className="bg-stone-900 border border-stone-700/80 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 text-stone-100 shadow-2xl relative space-y-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-fade-in">
+          <div className="bg-white border border-slate-100 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 text-slate-700 shadow-2xl relative space-y-6">
             {/* Modal Close Button */}
             <button
               onClick={handleCloseModal}
-              className="absolute top-5 right-5 p-2 rounded-2xl bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-stone-100 transition-colors"
+              className="absolute top-5 right-5 p-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
               title="Close"
             >
               <X className="w-5 h-5" />
@@ -228,33 +228,33 @@ export const BooksLibrary: React.FC = () => {
             {/* Header info */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-[11px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/30">
+                <span className="text-[11px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
                   {activeBook.categoryLabel}
                 </span>
-                <span className="text-[11px] text-stone-400 flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-stone-500" />
+                <span className="text-[11px] text-slate-400 flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-slate-400" />
                   {activeBook.readTime}
                 </span>
               </div>
-              <h2 className="text-2xl font-bold text-stone-100 tracking-tight">
+              <h2 className="text-2xl font-bold text-slate-700 tracking-tight">
                 {activeBook.title}
               </h2>
-              <p className="text-sm text-emerald-400 font-medium mt-0.5">
+              <p className="text-sm text-sky-600 font-medium mt-0.5">
                 by {activeBook.author}
               </p>
-              <p className="text-xs text-stone-400 italic mt-1">
+              <p className="text-xs text-slate-500 italic mt-1">
                 "{activeBook.tagline}"
               </p>
             </div>
 
             {/* Listen Audio Narration Button */}
-            <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-stone-950/70 border border-stone-800">
+            <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
               <button
                 onClick={() => handlePlayBookSummary(activeBook)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   isPlayingAudio
-                    ? 'bg-rose-500 text-stone-950 shadow-md shadow-rose-500/30'
-                    : 'bg-emerald-500 hover:bg-emerald-400 text-stone-950 shadow-md shadow-emerald-500/20'
+                    ? 'bg-rose-500 text-white shadow-md shadow-rose-200/50'
+                    : 'bg-gradient-to-r from-sky-400 to-teal-300 hover:from-sky-500 hover:to-teal-400 text-white shadow-md shadow-sky-200/50'
                 }`}
               >
                 {isPlayingAudio ? (
@@ -269,25 +269,25 @@ export const BooksLibrary: React.FC = () => {
                   </>
                 )}
               </button>
-              <span className="text-xs text-stone-400">
+              <span className="text-xs text-slate-500">
                 {isPlayingAudio ? 'Speaking book key takeaway...' : 'Listen to core insights read aloud'}
               </span>
             </div>
 
             {/* Core Philosophy & Insight */}
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-600">
                 <Lightbulb className="w-4 h-4" />
                 <span>Core Philosophy &amp; Teaching</span>
               </div>
-              <p className="text-sm text-stone-300 leading-relaxed bg-stone-950/40 p-4 rounded-2xl border border-stone-800/80">
+              <p className="text-sm text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100">
                 {activeBook.corePhilosophy}
               </p>
             </div>
 
             {/* 3 Actionable Daily Exercises */}
             <div className="space-y-3">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-teal-600">
                 <CheckCircle2 className="w-4 h-4" />
                 <span>3 Actionable Exercises You Can Do Today</span>
               </div>
@@ -295,12 +295,12 @@ export const BooksLibrary: React.FC = () => {
                 {activeBook.actionableExercises.map((step, idx) => (
                   <div
                     key={idx}
-                    className="flex items-start gap-3 p-3.5 rounded-2xl bg-stone-950/50 border border-stone-800/70"
+                    className="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-100"
                   >
-                    <div className="w-6 h-6 rounded-lg bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                    <div className="w-6 h-6 rounded-lg bg-teal-50 border border-teal-200 text-teal-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
                       {idx + 1}
                     </div>
-                    <p className="text-xs sm:text-sm text-stone-200 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                       {step}
                     </p>
                   </div>
@@ -309,13 +309,13 @@ export const BooksLibrary: React.FC = () => {
             </div>
 
             {/* Golden Quote */}
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/30 via-teal-950/20 to-stone-950 border border-emerald-500/20 flex items-start gap-3">
-              <Quote className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+            <div className="p-4 rounded-2xl bg-sky-50 border border-sky-100 flex items-start gap-3">
+              <Quote className="w-5 h-5 text-sky-500 shrink-0 mt-0.5" />
               <div>
-                <span className="text-[11px] uppercase font-bold tracking-wider text-emerald-400 block mb-1">
+                <span className="text-[11px] uppercase font-bold tracking-wider text-sky-600 block mb-1">
                   Golden Insight
                 </span>
-                <p className="text-sm font-medium text-stone-100 italic leading-relaxed">
+                <p className="text-sm font-medium text-slate-700 italic leading-relaxed">
                   {activeBook.goldenQuote}
                 </p>
               </div>
@@ -325,7 +325,7 @@ export const BooksLibrary: React.FC = () => {
             <div className="pt-2 text-right">
               <button
                 onClick={handleCloseModal}
-                className="px-5 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold transition-colors"
+                className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
               >
                 Close Summary
               </button>

@@ -247,49 +247,49 @@ export const MindfulVideos: React.FC = () => {
   });
 
   return (
-    <section className="bg-stone-900/50 border border-stone-800/90 rounded-3xl p-5 sm:p-7 backdrop-blur-md shadow-2xl relative">
+    <section className="bg-white border border-slate-100 rounded-3xl p-5 sm:p-7 shadow-sm text-slate-700 relative">
       {/* Section Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-stone-800/80 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100 mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 shadow-sm shadow-emerald-950/50">
+          <div className="p-2.5 rounded-2xl bg-sky-50 border border-sky-100 text-sky-600 shadow-xs">
             <Video className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg sm:text-xl font-bold text-stone-100 tracking-tight">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-700 tracking-tight">
                 4K &amp; HD Guided Videos Sanctuary
               </h2>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/30">
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
                 ایچ ڈی ویڈیوز
               </span>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-stone-900 text-teal-300 border border-stone-800 hidden sm:inline">
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-slate-100 text-teal-700 border border-slate-200 hidden sm:inline">
                 4K Ultra HD • 1080p 60fps
               </span>
             </div>
-            <p className="text-xs text-stone-400 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5">
               Certified high-definition video masterclasses for 4-7-8 breathing, diaphragmatic breathwork, Wim Hof, and mindfulness meditation.
             </p>
           </div>
         </div>
 
         {/* Category Filter Tabs */}
-        <div className="flex items-center gap-1.5 p-1 bg-stone-950/70 rounded-2xl border border-stone-800 text-xs">
+        <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 rounded-2xl border border-slate-200/70 text-xs">
           <button
             onClick={() => setSelectedCategory('all')}
-            className={`px-3 py-1.5 rounded-xl font-semibold transition-all ${
+            className={`px-3 py-1.5 rounded-xl font-semibold transition-all cursor-pointer ${
               selectedCategory === 'all'
-                ? 'bg-emerald-500 text-stone-950 shadow-md'
-                : 'text-stone-400 hover:text-stone-200'
+                ? 'bg-gradient-to-r from-sky-400 to-teal-300 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             All HD Videos ({MINDFUL_VIDEOS.length})
           </button>
           <button
             onClick={() => setSelectedCategory('breathing')}
-            className={`px-3 py-1.5 rounded-xl font-semibold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-xl font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
               selectedCategory === 'breathing'
-                ? 'bg-emerald-500 text-stone-950 shadow-md'
-                : 'text-stone-400 hover:text-stone-200'
+                ? 'bg-gradient-to-r from-sky-400 to-teal-300 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Wind className="w-3.5 h-3.5" />
@@ -297,10 +297,10 @@ export const MindfulVideos: React.FC = () => {
           </button>
           <button
             onClick={() => setSelectedCategory('meditation')}
-            className={`px-3 py-1.5 rounded-xl font-semibold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-xl font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
               selectedCategory === 'meditation'
-                ? 'bg-emerald-500 text-stone-950 shadow-md'
-                : 'text-stone-400 hover:text-stone-200'
+                ? 'bg-gradient-to-r from-sky-400 to-teal-300 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
@@ -315,70 +315,69 @@ export const MindfulVideos: React.FC = () => {
           <div
             key={video.id}
             onClick={() => setActiveVideo(video)}
-            className="group cursor-pointer rounded-2xl bg-stone-950/70 border border-stone-800/90 hover:border-emerald-500/50 p-3.5 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl flex flex-col justify-between"
+            className="group cursor-pointer rounded-2xl bg-white border border-slate-100 hover:border-sky-300 p-3.5 transition-all duration-300 hover:scale-[1.02] hover:shadow-md flex flex-col justify-between shadow-xs"
           >
             <div>
               {/* Real HD YouTube Thumbnail with Badges */}
-              <div className="relative aspect-video rounded-xl overflow-hidden mb-3 bg-stone-900 border border-stone-800">
+              <div className="relative aspect-video rounded-xl overflow-hidden mb-3 bg-slate-100 border border-slate-200">
                 <img
                   src={video.thumbnailUrl}
                   alt={video.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
                   onError={(e) => {
-                    // Fallback to high quality YouTube thumbnail if maxres is unavailable
                     (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`;
                   }}
                 />
 
                 {/* Gradient Shadow Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-transparent to-black/40" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-black/20" />
 
                 {/* Center Play Icon Overlay */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-10 h-10 rounded-full bg-emerald-500 text-stone-950 flex items-center justify-center shadow-lg shadow-emerald-500/40 group-hover:scale-110 transition-transform">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-sky-400 to-teal-300 text-white flex items-center justify-center shadow-lg shadow-sky-200/50 group-hover:scale-110 transition-transform">
                     <Play className="w-4 h-4 fill-current ml-0.5" />
                   </div>
                 </div>
 
                 {/* Resolution Badge */}
-                <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-stone-950/90 text-[9px] font-mono font-bold text-emerald-300 border border-emerald-500/30 flex items-center gap-1 shadow-sm">
-                  <Tv className="w-3 h-3 text-emerald-400" />
+                <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-white/95 text-[9px] font-mono font-bold text-sky-700 border border-slate-200 flex items-center gap-1 shadow-xs">
+                  <Tv className="w-3 h-3 text-sky-600" />
                   {video.resolutionBadge}
                 </span>
 
                 {/* Duration Badge */}
-                <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-stone-950/95 text-[10px] font-mono font-bold text-stone-200 border border-stone-800 flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-emerald-400" />
+                <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-slate-900/90 text-[10px] font-mono font-bold text-white border border-slate-800 flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-sky-300" />
                   {video.duration}
                 </span>
               </div>
 
               {/* Title & Teacher */}
-              <h3 className="text-xs sm:text-sm font-bold text-stone-100 group-hover:text-emerald-300 transition-colors leading-snug line-clamp-2">
+              <h3 className="text-xs sm:text-sm font-bold text-slate-700 group-hover:text-sky-600 transition-colors leading-snug line-clamp-2">
                 {video.title}
               </h3>
-              <p className="text-[11px] text-emerald-400/90 font-medium mt-0.5">
+              <p className="text-[11px] text-teal-600 font-medium mt-0.5">
                 {video.titleUrdu}
               </p>
-              <p className="text-xs text-stone-400 flex items-center gap-1 mt-1 font-medium">
-                <User className="w-3 h-3 text-stone-500" />
+              <p className="text-xs text-slate-500 flex items-center gap-1 mt-1 font-medium">
+                <User className="w-3 h-3 text-slate-400" />
                 {video.teacher}
               </p>
 
               {/* Description */}
-              <p className="text-xs text-stone-400 mt-2 line-clamp-2 leading-relaxed">
+              <p className="text-xs text-slate-500 mt-2 line-clamp-2 leading-relaxed">
                 {video.description}
               </p>
             </div>
 
             {/* Bottom Action */}
-            <div className="pt-3 mt-3 border-t border-stone-800/60 flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-emerald-400 group-hover:text-emerald-300 flex items-center gap-1">
+            <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[11px] font-semibold text-sky-600 group-hover:text-sky-700 flex items-center gap-1">
                 Watch in HD
-                <Play className="w-3 h-3 fill-current ml-0.5" />
+                <Play className="w-3 h-3 fill-current ml-0.5 text-sky-500" />
               </span>
-              <span className="text-[9px] font-mono px-2 py-0.5 rounded-md bg-stone-900 text-stone-400 border border-stone-800">
+              <span className="text-[9px] font-mono px-2 py-0.5 rounded-md bg-slate-50 text-slate-600 border border-slate-200">
                 {video.audioBadge}
               </span>
             </div>
@@ -388,12 +387,12 @@ export const MindfulVideos: React.FC = () => {
 
       {/* Video Modal Player in Full HD */}
       {activeVideo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-950/90 backdrop-blur-md animate-fade-in">
-          <div className="bg-stone-900 border border-stone-700/80 rounded-3xl max-w-4xl w-full max-h-[94vh] overflow-y-auto p-5 sm:p-7 text-stone-100 shadow-2xl relative space-y-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/50 backdrop-blur-md animate-fade-in">
+          <div className="bg-white border border-slate-100 rounded-3xl max-w-4xl w-full max-h-[94vh] overflow-y-auto p-5 sm:p-7 text-slate-700 shadow-2xl relative space-y-5">
             {/* Modal Close Button */}
             <button
               onClick={() => setActiveVideo(null)}
-              className="absolute top-4 right-4 p-2 rounded-2xl bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-stone-100 transition-colors z-20"
+              className="absolute top-4 right-4 p-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors z-20 cursor-pointer"
               title="Close HD Video"
             >
               <X className="w-5 h-5" />
@@ -402,30 +401,30 @@ export const MindfulVideos: React.FC = () => {
             {/* Header info */}
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/30">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
                   {activeVideo.categoryLabel}
                 </span>
-                <span className="text-[10px] uppercase font-mono font-bold tracking-wider px-2 py-0.5 rounded-md bg-stone-950 text-teal-300 border border-teal-500/30">
+                <span className="text-[10px] uppercase font-mono font-bold tracking-wider px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 border border-teal-200">
                   {activeVideo.resolutionBadge}
                 </span>
-                <span className="text-xs text-stone-400 flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-stone-500" />
+                <span className="text-xs text-slate-400 flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-slate-400" />
                   {activeVideo.duration}
                 </span>
-                <span className="text-xs text-emerald-400 font-medium">
+                <span className="text-xs text-sky-600 font-medium">
                   • {activeVideo.audioBadge}
                 </span>
               </div>
-              <h2 className="text-lg sm:text-xl font-bold text-stone-100 tracking-tight pr-10">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-700 tracking-tight pr-10">
                 {activeVideo.title}
               </h2>
-              <p className="text-xs text-emerald-400/90 font-medium mt-0.5">
+              <p className="text-xs text-teal-600 font-medium mt-0.5">
                 {activeVideo.titleUrdu} • Guided by {activeVideo.teacher}
               </p>
             </div>
 
-            {/* Responsive HD Video Player Embed with vq=hd1080 */}
-            <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-stone-800 shadow-2xl">
+            {/* Responsive HD Video Player Embed */}
+            <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-slate-200 shadow-lg">
               <iframe
                 src={`https://www.youtube-nocookie.com/embed/${activeVideo.youtubeId}?autoplay=1&vq=hd1080&rel=0&modestbranding=1`}
                 title={activeVideo.title}
@@ -437,17 +436,17 @@ export const MindfulVideos: React.FC = () => {
 
             {/* Step-by-Step Instructions */}
             <div className="space-y-2.5">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4" />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-sky-700 flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-sky-600" />
                 Step-by-Step Exercise Instructions (رہنمائی)
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 {activeVideo.guidedSteps.map((step, idx) => (
                   <div
                     key={idx}
-                    className="flex items-start gap-2.5 p-3 rounded-2xl bg-stone-950/70 border border-stone-800/80 text-xs text-stone-200 leading-relaxed"
+                    className="flex items-start gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs text-slate-600 leading-relaxed"
                   >
-                    <span className="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                    <span className="w-5 h-5 rounded-md bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
                       {idx + 1}
                     </span>
                     <span>{step}</span>
@@ -457,12 +456,12 @@ export const MindfulVideos: React.FC = () => {
             </div>
 
             {/* Bottom Actions */}
-            <div className="flex items-center justify-between pt-2 border-t border-stone-800">
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
               <a
                 href={`https://www.youtube.com/watch?v=${activeVideo.youtubeId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-stone-400 hover:text-emerald-400 flex items-center gap-1 transition-colors"
+                className="text-xs text-slate-500 hover:text-sky-600 flex items-center gap-1 transition-colors"
               >
                 <span>Watch on YouTube in 4K / HD</span>
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -470,7 +469,7 @@ export const MindfulVideos: React.FC = () => {
 
               <button
                 onClick={() => setActiveVideo(null)}
-                className="px-5 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold transition-colors"
+                className="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
               >
                 Close HD Video
               </button>

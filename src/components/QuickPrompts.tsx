@@ -35,8 +35,8 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({
 }) => {
   return (
     <div className="w-full py-2">
-      <div className="flex items-center gap-1.5 text-xs text-stone-400 mb-2.5 font-medium px-1">
-        <MessageSquareText className="w-3.5 h-3.5 text-emerald-400" />
+      <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-2.5 font-medium px-1">
+        <MessageSquareText className="w-3.5 h-3.5 text-sky-600" />
         <span>Common Overthinking Starters:</span>
       </div>
 
@@ -48,17 +48,17 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({
               key={idx}
               onClick={() => onSelectPrompt(item.text)}
               disabled={disabled}
-              className="flex items-start gap-2.5 p-3 rounded-2xl bg-stone-900/40 hover:bg-stone-850 border border-stone-800/80 hover:border-emerald-500/30 text-left transition-all group disabled:opacity-50 disabled:pointer-events-none"
+              className="flex items-start gap-2.5 p-3 rounded-2xl bg-slate-50 hover:bg-sky-50/60 border border-slate-200/70 hover:border-sky-300 text-left transition-all group disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
             >
-              <div className="p-2 rounded-xl bg-stone-800/80 group-hover:bg-emerald-950/40 text-stone-400 group-hover:text-emerald-400 border border-stone-700/50 group-hover:border-emerald-500/20 shrink-0 transition-colors">
+              <div className="p-2 rounded-xl bg-white group-hover:bg-sky-100 text-slate-500 group-hover:text-sky-600 border border-slate-200/60 group-hover:border-sky-200 shrink-0 transition-colors shadow-2xs">
                 <Icon className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <span className="text-xs font-semibold text-stone-200 block group-hover:text-emerald-300 transition-colors">
+                <span className="text-xs font-semibold text-slate-700 block group-hover:text-sky-700 transition-colors">
                   {item.title}
                 </span>
-                <p className="text-[11px] text-stone-400 line-clamp-1 mt-0.5">
-                  "{item.text}"
+                <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
+                  {item.text}
                 </p>
               </div>
             </button>

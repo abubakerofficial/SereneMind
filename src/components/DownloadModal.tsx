@@ -24,6 +24,7 @@ import {
   downloadPsychologyHandbook,
   downloadAndroidWebShortcut,
 } from '../utils/downloader';
+import { SereneMindLogo } from './SereneMindLogo';
 
 interface DownloadModalProps {
   isOpen: boolean;
@@ -105,61 +106,59 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-950/90 backdrop-blur-md animate-fade-in">
-      <div className="bg-stone-900 border border-stone-800 rounded-3xl max-w-2xl w-full max-h-[94vh] overflow-y-auto p-4 sm:p-7 text-stone-100 shadow-2xl relative space-y-4 sm:space-y-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-md animate-fade-in">
+      <div className="bg-white border border-slate-100 rounded-3xl max-w-2xl w-full max-h-[94vh] overflow-y-auto p-4 sm:p-7 text-slate-700 shadow-2xl relative space-y-4 sm:space-y-5">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-2xl bg-stone-800 hover:bg-stone-750 text-stone-400 hover:text-stone-100 transition-colors z-20"
+          className="absolute top-4 right-4 p-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors z-20 cursor-pointer"
           title="Close Download Dialog"
         >
           <X className="w-5 h-5" />
         </button>
 
-        {/* Modal Header */}
+        {/* Modal Header featuring SereneMind Logo */}
         <div className="flex items-center gap-3 pr-8">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 p-0.5 shadow-lg shadow-emerald-500/20 flex items-center justify-center shrink-0">
-            <div className="w-full h-full bg-stone-950 rounded-[14px] flex items-center justify-center text-emerald-400">
-              <Download className="w-5 h-5" />
-            </div>
+          <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 shadow-sm shadow-sky-100/50 p-1 flex items-center justify-center shrink-0">
+            <SereneMindLogo size={38} withContainer={false} />
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-base sm:text-xl font-bold text-stone-100 tracking-tight">
-                Download Center (تمام ڈیوائسز کے لیے ڈاؤن لوڈ)
+              <h2 className="text-base sm:text-xl font-bold text-slate-700 tracking-tight">
+                Download SereneMind AI (تمام ڈیوائسز کے لیے ڈاؤن لوڈ)
               </h2>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/40">
-                Infinix &amp; All Mobile Fixed
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
+                Direct Install
               </span>
             </div>
-            <p className="text-xs text-stone-400 mt-0.5">
-              Current Device: <strong className="text-emerald-400 font-bold">{platformName}</strong> • Direct install for Infinix, Tecno, Samsung, iOS &amp; PC.
+            <p className="text-xs text-slate-500 mt-0.5">
+              Current Device: <strong className="text-sky-600 font-bold">{platformName}</strong> • Direct install for Infinix, Tecno, Samsung, iOS &amp; PC.
             </p>
           </div>
         </div>
 
         {/* Category Switcher Tabs */}
-        <div className="flex items-center gap-2 p-1 bg-stone-950/80 rounded-2xl border border-stone-800 text-xs">
+        <div className="flex items-center gap-2 p-1 bg-slate-100/80 rounded-2xl border border-slate-200/60 text-xs">
           <button
             onClick={() => setActiveTab('app')}
-            className={`flex-1 py-2 sm:py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
+            className={`flex-1 py-2 sm:py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
               activeTab === 'app'
-                ? 'bg-emerald-500 text-stone-950 shadow-md shadow-emerald-500/20'
-                : 'text-stone-400 hover:text-stone-200'
+                ? 'bg-white text-sky-700 shadow-xs border border-slate-200/50'
+                : 'text-slate-500 hover:text-slate-800'
             }`}
           >
-            <Smartphone className="w-4 h-4" />
+            <Smartphone className="w-4 h-4 text-sky-500" />
             <span>Install App on Phone / PC (ایپ ڈاؤن لوڈ کریں)</span>
           </button>
           <button
             onClick={() => setActiveTab('media')}
-            className={`flex-1 py-2 sm:py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
+            className={`flex-1 py-2 sm:py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
               activeTab === 'media'
-                ? 'bg-emerald-500 text-stone-950 shadow-md shadow-emerald-500/20'
-                : 'text-stone-400 hover:text-stone-200'
+                ? 'bg-white text-teal-700 shadow-xs border border-slate-200/50'
+                : 'text-slate-500 hover:text-slate-800'
             }`}
           >
-            <Music className="w-4 h-4" />
+            <Music className="w-4 h-4 text-teal-500" />
             <span>Offline Audio &amp; Guide (آف لائن فائلز)</span>
           </button>
         </div>
@@ -170,19 +169,19 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
         {activeTab === 'app' && (
           <div className="space-y-4">
             {/* Quick 1-Click Banner */}
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/90 via-stone-900 to-teal-950/80 border border-emerald-500/40 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-sky-50 via-teal-50/50 to-amber-50/40 border border-sky-100 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center shrink-0">
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs sm:text-sm font-bold text-stone-100 flex items-center gap-2">
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-700 flex items-center gap-2">
                     <span>1-Click App Installation</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-300 font-mono">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-700 font-mono">
                       No Play Store Required
                     </span>
                   </h4>
-                  <p className="text-[11px] text-stone-300">
+                  <p className="text-[11px] text-slate-500">
                     Installs directly to your home screen with offline support and zero storage burden.
                   </p>
                 </div>
@@ -190,7 +189,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
 
               <button
                 onClick={handleInstallApp}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-400 to-teal-300 hover:from-sky-500 hover:to-teal-400 text-white font-bold text-xs shadow-md shadow-sky-200/50 transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"
               >
                 <Download className="w-4 h-4 fill-current" />
                 <span>Download &amp; Install Now</span>

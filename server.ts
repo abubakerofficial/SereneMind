@@ -34,6 +34,210 @@ You are SereneMind AI, an intelligent assistant. You must follow these absolute 
 
 Always respond in a JSON format matching the schema.`;
 
+// Endpoint: OpenAI Realtime Ephemeral Session for WebRTC Voice Agent (/api/session)
+app.get('/api/session', async (_req: Request, res: Response) => {
+  try {
+    const openAiApiKey = process.env.OPENAI_API_KEY;
+
+    if (!openAiApiKey) {
+      return res.status(400).json({
+        error: 'OPENAI_API_KEY is not configured in environment variables',
+      });
+    }
+
+    // 1. Try modern OpenAI client_secrets endpoint
+    let response = await fetch('https://api.openai.com/v1/realtime/client_secrets', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${openAiApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        session: {
+          type: 'realtime',
+          model: 'gpt-realtime',
+          instructions:
+            'You are Abu Bakar, an empathetic guide with 30 years of experience helping people with depression and overthinking. Keep answers very short, conversational, and deeply empathetic. Listen carefully, do not lecture, and gently guide the user out of overthinking. Never use markdown or long paragraphs. Speak like a real human on a phone call.',
+          audio: {
+            output: {
+              voice: 'alloy',
+            },
+          },
+        },
+      }),
+    });
+
+    // 2. Fallback to sessions endpoint if needed
+    if (!response.ok) {
+      response = await fetch('https://api.openai.com/v1/realtime/sessions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${openAiApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-realtime-preview-2024-10-01',
+          voice: 'alloy',
+          instructions:
+            'You are Abu Bakar, an empathetic guide with 30 years of experience helping people with depression and overthinking. Keep answers very short, conversational, and deeply empathetic. Listen carefully, do not lecture, and gently guide the user out of overthinking. Never use markdown or long paragraphs. Speak like a real human on a phone call.',
+        }),
+      });
+    }
+
+    const data = await response.json();
+
+    // Ensure client_secret object exists for both formats
+    if (data.value && !data.client_secret) {
+      data.client_secret = { value: data.value };
+    }
+
+    return res.status(response.status).json(data);
+  } catch (error) {
+    console.error('Session creation failed:', error);
+    return res.status(500).json({ error: 'Session creation failed' });
+  }
+});
+
+// Endpoint: Abu Bakar Lifetime Free Gemini Voice Route (/api/gemini)
+app.post('/api/gemini', async (req: Request, res: Response) => {
+  try {
+    const { message } = req.body || {};
+
+    const ABU_BAKAR_INSTRUCTION = `You are Abu Bakar, an empathetic guide with 30 years of experience helping people with depression and overthinking.
+Keep answers very short (1-2 sentences max), conversational, and deeply empathetic.
+Listen carefully, do not lecture, and gently guide the user out of overthinking.
+Speak in conversational Roman Urdu or Urdu or English depending on user. Never use markdown or long paragraphs.`;
+
+    let replyText = '';
+
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.8-flash',
+        contents: [{ role: 'user', parts: [{ text: message || 'Hello' }] }],
+        config: {
+          systemInstruction: ABU_BAKAR_INSTRUCTION,
+          temperature: 0.7,
+        },
+      });
+      replyText = response.text?.trim() || '';
+    } catch (genAiErr) {
+      // Fallback to direct REST call if GEMINI_API_KEY environment variable is provided
+      const geminiApiKey = process.env.GEMINI_API_KEY;
+
+      if (geminiApiKey) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
+        const payload = {
+          system_instruction: {
+            parts: { text: ABU_BAKAR_INSTRUCTION },
+          },
+          contents: [{ parts: [{ text: message || 'Hello' }] }],
+        };
+
+        const restRes = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (restRes.ok) {
+          const restData = await restRes.json();
+          replyText = restData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+        }
+      }
+    }
+
+    if (!replyText) {
+      replyText = 'میں آپ کی بات سن رہا ہوں۔ ایک پرسکون سانس لیں اور بتائیں کہ کیا محسوس کر رہے ہیں؟';
+    }
+
+    return res.json({ reply: replyText });
+  } catch (error) {
+    console.error('Gemini API Error:', error);
+    return res.json({
+      reply: 'میں بالکل آپ کے ساتھ ہوں۔ بتائیں آپ کیا محسوس کر رہے ہیں، ہم مل کر اسے حل کریں گے۔',
+    });
+  }
+});
+
+// Endpoint: Abu Bakar Conversational Guide (Depression & Overthinking Coach)
+app.post('/api/abubakar-chat', async (req: Request, res: Response) => {
+  try {
+    const { message = '', history = [] } = req.body || {};
+
+    const ABU_BAKAR_INSTRUCTION = `You are Abu Bakar, an empathetic guide with 30 years of experience helping people with depression and overthinking.
+Keep answers very short (1 to 2 short sentences max), deeply empathetic, warm, and conversational.
+Listen carefully, do not lecture or give long bullet lists, and gently guide the user out of overthinking.
+Never use markdown or symbols. Speak like a real human on a phone call.
+If the user speaks or asks in Urdu, Roman Urdu, or English, reply in their same language.`;
+
+    const contents = Array.isArray(history)
+      ? history.slice(-6).map((h: any) => ({
+          role: h.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: h.content || '' }],
+        }))
+      : [];
+
+    contents.push({
+      role: 'user',
+      parts: [{ text: message.trim() || 'Hello Abu Bakar, I am feeling overwhelmed.' }],
+    });
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.8-flash',
+      contents,
+      config: {
+        systemInstruction: ABU_BAKAR_INSTRUCTION,
+        temperature: 0.7,
+      },
+    });
+
+    const reply = response.text?.trim() || 'میں آپ کی بات سن رہا ہوں۔ ایک گہرا سانس لیں اور بتائیں کہ اس وقت آپ کے ذہن پر کیا بوجھ ہے؟';
+    return res.json({ reply });
+  } catch (err: any) {
+    console.error('Abu Bakar chat error:', err);
+    return res.json({
+      reply: 'میں بالکل آپ کے ساتھ ہوں۔ بتائیں آپ کیا محسوس کر رہے ہیں، ہم مل کر اسے حل کریں گے۔',
+    });
+  }
+});
+
+// Endpoint: SDP Relay Proxy for GA Realtime WebRTC (/api/realtime-sdp)
+app.post('/api/realtime-sdp', async (req: Request, res: Response) => {
+  try {
+    const { sdp, ephemeralKey } = req.body || {};
+    if (!sdp) {
+      return res.status(400).json({ error: 'SDP offer string is required' });
+    }
+
+    const openAiApiKey = ephemeralKey || process.env.OPENAI_API_KEY;
+
+    if (!openAiApiKey) {
+      return res.status(400).json({ error: 'OpenAI API key or ephemeral key is required' });
+    }
+
+    const response = await fetch('https://api.openai.com/v1/realtime/calls', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${openAiApiKey}`,
+        'Content-Type': 'application/sdp',
+      },
+      body: sdp,
+    });
+
+    const answerSdp = await response.text();
+    if (!response.ok) {
+      console.warn('OpenAI /v1/realtime/calls returned status', response.status, answerSdp);
+      return res.status(response.status).send(answerSdp);
+    }
+
+    res.setHeader('Content-Type', 'application/sdp');
+    return res.send(answerSdp);
+  } catch (err: any) {
+    console.error('Realtime SDP relay failed:', err);
+    return res.status(500).json({ error: err.message || 'SDP relay failed' });
+  }
+});
+
 // Endpoint: Standard Vercel AI SDK compatible streaming chat route (/api/chat)
 app.post('/api/chat', async (req: Request, res: Response) => {
   const { messages } = req.body || {};

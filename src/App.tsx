@@ -1,11 +1,6 @@
 /**
  * SereneMind AI - Mental Wellness & Voice Mindfulness Coach
- * 1. Front: Breathing Practice (سانسوں کی پریکٹس) - with completion celebration music!
- * 2. Calming Soundscapes & Music (پرسکون موسیقی) - 432Hz, Tibetan Bowls, Rain, Ocean
- * 3. Guided Videos (ویڈیوز) - Certified Breathing & Meditation video lessons
- * 4. Mindfulness Exercises & Stress Profile
- * 5. Comprehensive Books Library on Overthinking & Meditation (کتب خانہ)
- * 6. Bottom: Live Voice Coach & Spoken Assistant (لائیو وائس اسسٹنٹ)
+ * Calm Sunrise Theme: Uplifting, Bright, Airy, and Warm.
  */
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -17,16 +12,16 @@ import {
   Wind,
   Eye,
   Zap,
-  SlidersHorizontal,
   Play,
   Square,
-  HelpCircle,
   BookOpen,
   Mic,
   Music,
   Video,
   Brain,
   Download,
+  Sun,
+  Heart,
 } from 'lucide-react';
 import { ChatMessage, CoachAssessment, ExerciseType } from './types';
 import { useVoiceInput } from './hooks/useVoiceInput';
@@ -46,6 +41,8 @@ import { DownloadModal } from './components/DownloadModal';
 import { DownloadHub } from './components/DownloadHub';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { MobileQuickInstallBar } from './components/MobileQuickInstallBar';
+import VoiceAgent from './components/VoiceAgent';
+import { SereneMindLogo } from './components/SereneMindLogo';
 
 const INITIAL_ASSESSMENT: CoachAssessment = {
   spokenResponse: "Ready. Tap the microphone below to speak, start 4-7-8 breathing on front, or explore meditation videos, soundscapes, and books above.",
@@ -75,7 +72,6 @@ export default function App() {
   const [autoSpeakVoice, setAutoSpeakVoice] = useState(true);
   const [activeExercise, setActiveExercise] = useState<ExerciseType>('none');
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
-  const [showInsightsDrawer, setShowInsightsDrawer] = useState(false);
   const [currentAssessment, setCurrentAssessment] = useState<CoachAssessment>(INITIAL_ASSESSMENT);
   const [lastUserSpoken, setLastUserSpoken] = useState<string>('');
 
@@ -179,7 +175,6 @@ export default function App() {
       setMessages((prev) => [...prev, assistantMessage]);
       setCurrentAssessment(data);
 
-      // Auto-play voice if enabled
       if (autoSpeakVoice) {
         setIsSpeaking(true);
         soundEngine.speakFallback(data.spokenResponse, () => {
@@ -251,88 +246,86 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans relative selection:bg-emerald-500 selection:text-stone-950">
-      {/* Serene Ambient Background Gradients */}
-      <div className="fixed top-[-10%] left-[20%] w-[550px] h-[550px] bg-emerald-600/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="fixed top-[45%] right-[10%] w-[500px] h-[500px] bg-teal-600/10 rounded-full blur-[130px] pointer-events-none" />
-      <div className="fixed bottom-[-10%] left-[10%] w-[450px] h-[450px] bg-sky-600/8 rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-screen bg-slate-50 text-slate-700 flex flex-col font-sans relative selection:bg-sky-200 selection:text-slate-800">
+      {/* Calm Sunrise Ambient Gradients */}
+      <div className="fixed top-[-10%] left-[20%] w-[550px] h-[550px] bg-sky-200/40 rounded-full blur-[140px] pointer-events-none" />
+      <div className="fixed top-[45%] right-[10%] w-[500px] h-[500px] bg-amber-100/50 rounded-full blur-[130px] pointer-events-none" />
+      <div className="fixed bottom-[-10%] left-[10%] w-[450px] h-[450px] bg-teal-100/40 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-40 bg-stone-950/85 backdrop-blur-md border-b border-stone-800/80 px-4 sm:px-8 py-3.5">
+      <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3.5 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo & Brand */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 p-0.5 shadow-lg shadow-emerald-500/20 flex items-center justify-center">
-              <div className="w-full h-full bg-stone-950 rounded-[14px] flex items-center justify-center text-emerald-400">
-                <Sparkles className="w-5 h-5" />
-              </div>
+            <div className="w-11 h-11 rounded-2xl bg-white border border-slate-100 shadow-sm shadow-sky-100/50 p-1 flex items-center justify-center">
+              <SereneMindLogo size={36} withContainer={false} />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-bold text-lg text-stone-100 tracking-tight">
-                  SereneMind <span className="text-emerald-400 font-light">AI</span>
+                <h1 className="font-bold text-lg text-slate-700 tracking-tight">
+                  SereneMind <span className="text-sky-600 font-light">AI</span>
                 </h1>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
-                  سانس، موسیقی اور کتب
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
+                  Calm Sunrise
                 </span>
               </div>
-              <div className="flex items-center gap-1.5 text-[11px] text-stone-400 mt-0.5">
-                <span className="font-semibold text-emerald-400">By Abubakar &amp; Mohsin</span>
-                <span className="text-stone-600">•</span>
-                <span className="text-stone-400">Mental Wellness &amp; Mindfulness</span>
+              <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mt-0.5">
+                <span className="font-semibold text-sky-600">By Abubakar &amp; Mohsin</span>
+                <span className="text-slate-300">•</span>
+                <span className="text-slate-500">Mindfulness &amp; Uplifting Peace</span>
               </div>
             </div>
           </div>
 
           {/* Quick Section Navigation Links */}
-          <nav className="hidden xl:flex items-center gap-1 p-1 bg-stone-900/90 rounded-2xl border border-stone-800 text-xs">
+          <nav className="hidden xl:flex items-center gap-1 p-1 bg-slate-100/80 rounded-2xl border border-slate-200/70 text-xs">
             <button
               onClick={() => scrollToSection(breathSectionRef)}
-              className="px-3 py-1.5 rounded-xl font-medium text-stone-300 hover:text-emerald-300 hover:bg-stone-800/80 transition-all flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl font-medium text-slate-600 hover:text-sky-600 hover:bg-white transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <Wind className="w-3.5 h-3.5 text-emerald-400" />
+              <Wind className="w-3.5 h-3.5 text-sky-500" />
               <span>سانس (Breath)</span>
             </button>
             <button
               onClick={() => scrollToSection(musicSectionRef)}
-              className="px-3 py-1.5 rounded-xl font-medium text-stone-300 hover:text-emerald-300 hover:bg-stone-800/80 transition-all flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl font-medium text-slate-600 hover:text-sky-600 hover:bg-white transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <Music className="w-3.5 h-3.5 text-emerald-400" />
+              <Music className="w-3.5 h-3.5 text-teal-500" />
               <span>موسیقی (Music)</span>
             </button>
             <button
               onClick={() => scrollToSection(videosSectionRef)}
-              className="px-3 py-1.5 rounded-xl font-medium text-stone-300 hover:text-emerald-300 hover:bg-stone-800/80 transition-all flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl font-medium text-slate-600 hover:text-sky-600 hover:bg-white transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <Video className="w-3.5 h-3.5 text-emerald-400" />
+              <Video className="w-3.5 h-3.5 text-amber-500" />
               <span>ویڈیوز (Videos)</span>
             </button>
             <button
               onClick={() => scrollToSection(psychologySectionRef)}
-              className="px-3 py-1.5 rounded-xl font-medium text-stone-300 hover:text-emerald-300 hover:bg-stone-800/80 transition-all flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl font-medium text-slate-600 hover:text-sky-600 hover:bg-white transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <Brain className="w-3.5 h-3.5 text-emerald-400" />
+              <Brain className="w-3.5 h-3.5 text-indigo-500" />
               <span>علمِ نفسیات (Psychology)</span>
             </button>
             <button
               onClick={() => scrollToSection(booksSectionRef)}
-              className="px-3 py-1.5 rounded-xl font-medium text-stone-300 hover:text-emerald-300 hover:bg-stone-800/80 transition-all flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl font-medium text-slate-600 hover:text-sky-600 hover:bg-white transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
+              <BookOpen className="w-3.5 h-3.5 text-sky-500" />
               <span>کتب خانہ (Books)</span>
             </button>
             <button
               onClick={() => scrollToSection(voiceSectionRef)}
-              className="px-3 py-1.5 rounded-xl font-medium text-stone-300 hover:text-emerald-300 hover:bg-stone-800/80 transition-all flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl font-medium text-slate-600 hover:text-sky-600 hover:bg-white transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <Mic className="w-3.5 h-3.5 text-emerald-400" />
+              <Mic className="w-3.5 h-3.5 text-rose-500" />
               <span>لائیو وائس (Live Voice)</span>
             </button>
             <button
               onClick={() => setIsDownloadModalOpen(true)}
-              className="px-3 py-1.5 rounded-xl font-medium text-emerald-300 hover:text-emerald-200 hover:bg-emerald-950/60 border border-emerald-500/30 transition-all flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl font-medium text-sky-700 bg-sky-50 hover:bg-sky-100/80 border border-sky-200 transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <Download className="w-3.5 h-3.5 text-emerald-400" />
+              <Download className="w-3.5 h-3.5 text-sky-600" />
               <span>ڈاؤن لوڈ (Download)</span>
             </button>
           </nav>
@@ -349,21 +342,21 @@ export default function App() {
                 setAutoSpeakVoice(nextState);
                 if (!nextState) soundEngine.stopPlayback();
               }}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-medium border transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-medium border transition-all cursor-pointer ${
                 autoSpeakVoice
-                  ? 'bg-emerald-950/60 text-emerald-300 border-emerald-500/40 shadow-sm'
-                  : 'bg-stone-900 text-stone-400 border-stone-800 hover:text-stone-300'
+                  ? 'bg-sky-50 text-sky-700 border-sky-200 shadow-xs'
+                  : 'bg-white text-slate-500 border-slate-200 hover:text-slate-700'
               }`}
               title={autoSpeakVoice ? 'AI Voice will speak responses' : 'AI Voice is muted'}
             >
-              {autoSpeakVoice ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4" />}
+              {autoSpeakVoice ? <Volume2 className="w-4 h-4 text-sky-600" /> : <VolumeX className="w-4 h-4 text-slate-400" />}
               <span className="hidden sm:inline">{autoSpeakVoice ? 'Voice Active' : 'Muted'}</span>
             </button>
 
             {/* Reset Session */}
             <button
               onClick={handleResetSession}
-              className="p-2 rounded-2xl bg-stone-900 hover:bg-stone-800 border border-stone-800 text-stone-400 hover:text-stone-200 transition-colors"
+              className="p-2 rounded-2xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-700 transition-colors cursor-pointer"
               title="Reset conversation and state"
             >
               <RotateCcw className="w-4 h-4" />
@@ -381,19 +374,19 @@ export default function App() {
         <section ref={breathSectionRef} className="scroll-mt-24 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
+              <div className="p-2 rounded-xl bg-sky-100 text-sky-600">
                 <Wind className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-stone-100 tracking-tight">
-                  Guided Breathwork Sanctuary <span className="text-emerald-400 font-light">(سانسوں کی پریکٹس)</span>
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-700 tracking-tight">
+                  Guided Breathwork Sanctuary <span className="text-sky-600 font-light">(سانسوں کی پریکٹس)</span>
                 </h2>
-                <p className="text-xs text-stone-400">
+                <p className="text-xs sm:text-sm text-slate-500">
                   Direct somatic vagus nerve reset to instantly break acute overthinking and anxiety. Celebratory calm music plays upon completion!
                 </p>
               </div>
             </div>
-            <span className="text-xs px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/30 self-start sm:self-auto font-medium">
+            <span className="text-xs px-3 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-100 self-start sm:self-auto font-medium">
               Front &amp; Interactive
             </span>
           </div>
@@ -423,14 +416,14 @@ export default function App() {
         {/* ========================================================================= */}
         <section ref={exercisesSectionRef} className="scroll-mt-24 space-y-4">
           <div className="flex items-center gap-2.5 px-1">
-            <div className="p-2 rounded-xl bg-teal-500/20 text-teal-400">
+            <div className="p-2 rounded-xl bg-teal-100 text-teal-600">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-stone-100 tracking-tight">
-                Somatic Anchors &amp; Mindset Profile <span className="text-teal-400 font-light">(دیگر مشقیں)</span>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-700 tracking-tight">
+                Somatic Anchors &amp; Mindset Profile <span className="text-teal-600 font-light">(دیگر مشقیں)</span>
               </h2>
-              <p className="text-xs text-stone-400">
+              <p className="text-xs sm:text-sm text-slate-500">
                 Sensory grounding, cognitive defusion, and live tension assessment.
               </p>
             </div>
@@ -438,24 +431,24 @@ export default function App() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             {/* Exercise 1: 5-4-3-2-1 Sensory Grounding */}
-            <div className="p-6 rounded-3xl bg-stone-900/60 border border-stone-800/90 backdrop-blur-md flex flex-col justify-between h-full shadow-xl">
+            <div className="p-6 rounded-3xl bg-white border border-slate-100 shadow-sm flex flex-col justify-between h-full">
               <div>
-                <div className="w-10 h-10 rounded-2xl bg-sky-950/80 border border-sky-500/30 flex items-center justify-center text-sky-400 mb-4">
+                <div className="w-10 h-10 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600 mb-4">
                   <Eye className="w-5 h-5" />
                 </div>
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-base font-bold text-stone-100">5-4-3-2-1 Sensory Grounding</h3>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-950 text-sky-300 border border-sky-500/30">
+                  <h3 className="text-base font-bold text-slate-700">5-4-3-2-1 Sensory Grounding</h3>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
                     حسی اینکر
                   </span>
                 </div>
-                <p className="text-xs text-stone-400 leading-relaxed mt-2">
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed mt-2">
                   Anchor attention to 5 sight, 4 touch, 3 sound, 2 smell, and 1 taste objects to physically interrupt the brain's alarm center.
                 </p>
               </div>
               <button
                 onClick={() => setActiveExercise('grounding')}
-                className="mt-6 w-full py-2.5 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/40 text-sky-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+                className="mt-6 w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-400 to-teal-300 hover:from-sky-500 hover:to-teal-400 text-white font-bold text-xs shadow-md shadow-sky-200/50 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
                 <span>Launch 5-4-3-2-1 Practice</span>
@@ -463,24 +456,24 @@ export default function App() {
             </div>
 
             {/* Exercise 2: Thought Defusion (Release Loop) */}
-            <div className="p-6 rounded-3xl bg-stone-900/60 border border-stone-800/90 backdrop-blur-md flex flex-col justify-between h-full shadow-xl">
+            <div className="p-6 rounded-3xl bg-white border border-slate-100 shadow-sm flex flex-col justify-between h-full">
               <div>
-                <div className="w-10 h-10 rounded-2xl bg-purple-950/80 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-4">
+                <div className="w-10 h-10 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center text-teal-600 mb-4">
                   <Zap className="w-5 h-5" />
                 </div>
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-base font-bold text-stone-100">Thought Defusion</h3>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-500/30">
+                  <h3 className="text-base font-bold text-slate-700">Thought Defusion</h3>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-100">
                     خیالات کی رہائی
                   </span>
                 </div>
-                <p className="text-xs text-stone-400 leading-relaxed mt-2">
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed mt-2">
                   Visualize obsessive thought balloons detaching from your mind and floating gently away into the wide open sky.
                 </p>
               </div>
               <button
                 onClick={() => setActiveExercise('defusion')}
-                className="mt-6 w-full py-2.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+                className="mt-6 w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-400 to-teal-300 hover:from-sky-500 hover:to-teal-400 text-white font-bold text-xs shadow-md shadow-sky-200/50 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
                 <span>Launch Release Loop</span>
@@ -521,30 +514,33 @@ export default function App() {
         {/* ========================================================================= */}
         {/* 8. LIVE VOICE COACH & ASSISTANT (لائیو چیٹ / وائس کا ائیکن نیچے لے جاؤ) */}
         {/* ========================================================================= */}
-        <section ref={voiceSectionRef} className="scroll-mt-24 space-y-6 pt-6 border-t border-stone-800/80">
+        <section ref={voiceSectionRef} className="scroll-mt-24 space-y-6 pt-6 border-t border-slate-200">
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
+              <div className="p-2 rounded-xl bg-sky-100 text-sky-600">
                 <Mic className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-stone-100 tracking-tight">
-                  Live Voice Coach &amp; Spoken Support <span className="text-emerald-400 font-light">(لائیو وائس اسسٹنٹ)</span>
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-700 tracking-tight">
+                  Live Voice Coach &amp; Spoken Support <span className="text-sky-600 font-light">(لائیو وائس اسسٹنٹ)</span>
                 </h2>
-                <p className="text-xs text-stone-400">
+                <p className="text-xs sm:text-sm text-slate-500">
                   Tap microphone below to speak naturally. Empathetic guidance spoken back immediately.
                 </p>
               </div>
             </div>
-            <span className="text-[11px] px-3 py-1 rounded-full bg-stone-900 border border-stone-800 text-stone-400">
+            <span className="text-xs px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-600 font-medium">
               Live Voice Station
             </span>
           </div>
 
+          {/* Real-time Voice Agent (Direct Voice Call with Abu Bakar) */}
+          <VoiceAgent />
+
           {/* Central Voice Resonance Box */}
-          <div className="bg-stone-900/50 border border-stone-800/90 rounded-3xl p-6 sm:p-8 backdrop-blur-md relative overflow-hidden flex flex-col items-center text-center shadow-2xl">
+          <div className="bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 relative overflow-hidden flex flex-col items-center text-center shadow-sm">
             {/* Status Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-stone-950/80 border border-stone-800 text-xs text-stone-300 mb-6 shadow-sm">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs text-slate-600 mb-6 shadow-xs">
               <span
                 className={`w-2.5 h-2.5 rounded-full ${
                   currentStatus === 'Listening...'
@@ -552,8 +548,8 @@ export default function App() {
                     : currentStatus === 'Thinking...'
                     ? 'bg-amber-400 animate-pulse'
                     : currentStatus === 'Speaking...'
-                    ? 'bg-emerald-400 animate-bounce'
-                    : 'bg-emerald-500'
+                    ? 'bg-teal-400 animate-bounce'
+                    : 'bg-sky-500'
                 }`}
               />
               <span className="font-semibold">
@@ -572,22 +568,22 @@ export default function App() {
               <div
                 className={`absolute w-44 h-44 rounded-full transition-all duration-700 pointer-events-none ${
                   isListening
-                    ? 'bg-rose-500/20 scale-125 animate-pulse'
+                    ? 'bg-rose-100/60 scale-125 animate-pulse'
                     : isSpeaking
-                    ? 'bg-emerald-500/25 scale-120 animate-ping'
+                    ? 'bg-teal-100/70 scale-120 animate-ping'
                     : isLoading
-                    ? 'bg-amber-500/20 scale-110 animate-spin'
-                    : 'bg-emerald-500/10 scale-100'
+                    ? 'bg-amber-100/60 scale-110 animate-spin'
+                    : 'bg-sky-100/60 scale-100 animate-calm-breathe'
                 }`}
               />
 
               <div
                 className={`absolute w-32 h-32 rounded-full border border-dashed transition-all duration-500 pointer-events-none ${
                   isListening
-                    ? 'border-rose-400/50 animate-spin'
+                    ? 'border-rose-400/60 animate-spin'
                     : isSpeaking
-                    ? 'border-emerald-400/60 animate-pulse'
-                    : 'border-emerald-500/20'
+                    ? 'border-teal-400/60 animate-pulse'
+                    : 'border-sky-300/60'
                 }`}
               />
 
@@ -600,42 +596,42 @@ export default function App() {
               </div>
             </div>
 
-            <p className="text-xs text-stone-400 mt-2 max-w-sm">
+            <p className="text-xs sm:text-sm text-slate-500 mt-2 max-w-sm">
               {isListening
                 ? 'Tap the red button when finished speaking to submit your voice'
                 : 'Tap microphone to speak your question or thoughts. Zero typing needed.'}
             </p>
 
             {voiceError && (
-              <div className="mt-3 p-2.5 rounded-2xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs">
+              <div className="mt-3 p-2.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
                 {voiceError}
               </div>
             )}
 
             {isListening && interimTranscript && (
-              <div className="mt-4 w-full max-w-lg p-3 rounded-2xl bg-emerald-950/50 border border-emerald-500/30 text-emerald-200 text-sm italic animate-fade-in">
+              <div className="mt-4 w-full max-w-lg p-3 rounded-2xl bg-sky-50 border border-sky-200 text-sky-900 text-sm italic animate-fade-in">
                 "{interimTranscript}..."
               </div>
             )}
 
             {lastUserSpoken && !isListening && (
-              <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-stone-950/60 border border-stone-800/80 text-xs text-stone-400">
-                <span className="text-emerald-400 font-medium">You asked:</span>
-                <span className="text-stone-200 truncate max-w-xs">"{lastUserSpoken}"</span>
+              <div className="mt-4 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500">
+                <span className="text-sky-600 font-medium">You asked:</span>
+                <span className="text-slate-700 truncate max-w-xs">"{lastUserSpoken}"</span>
               </div>
             )}
           </div>
 
           {/* Active Spoken Guidance Card */}
-          <div className="bg-stone-900/60 border border-stone-800/90 rounded-3xl p-6 sm:p-7 backdrop-blur-md relative shadow-xl">
-            <div className="flex items-center justify-between pb-3 border-b border-stone-800/80 mb-4">
+          <div className="bg-white border border-slate-100 rounded-3xl p-6 sm:p-7 relative shadow-sm">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-emerald-950/80 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <div className="w-8 h-8 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600">
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-stone-200">Coach Spoken Guidance</h3>
-                  <span className="text-[11px] text-stone-400">Direct response &amp; mindful clarity</span>
+                  <h3 className="text-sm font-semibold text-slate-700">Coach Spoken Guidance</h3>
+                  <span className="text-xs text-slate-500">Direct response &amp; mindful clarity</span>
                 </div>
               </div>
 
@@ -644,7 +640,7 @@ export default function App() {
                 {isSpeaking ? (
                   <button
                     onClick={handleStopAudio}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-950/60 text-rose-300 border border-rose-500/40 text-xs font-medium hover:bg-rose-900/60 transition-colors animate-pulse"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-xs font-medium hover:bg-rose-100 transition-colors animate-pulse cursor-pointer"
                   >
                     <Square className="w-3.5 h-3.5 fill-current" />
                     <span>Stop Audio</span>
@@ -652,23 +648,23 @@ export default function App() {
                 ) : (
                   <button
                     onClick={handleReplayCurrentResponse}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-800 hover:bg-stone-700/80 text-stone-300 hover:text-emerald-300 border border-stone-700/60 text-xs font-medium transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-sky-700 border border-slate-200 text-xs font-medium transition-colors cursor-pointer"
                     title="Listen to response again"
                   >
-                    <Play className="w-3.5 h-3.5 fill-current" />
+                    <Play className="w-3.5 h-3.5 fill-current text-sky-500" />
                     <span>Listen</span>
                   </button>
                 )}
               </div>
             </div>
 
-            <blockquote className="text-stone-100 text-base sm:text-lg font-normal leading-relaxed my-2">
+            <blockquote className="text-slate-700 text-base sm:text-lg font-normal leading-relaxed my-2">
               "{currentAssessment.spokenResponse}"
             </blockquote>
           </div>
 
           {/* Quick Voice Starters */}
-          <div className="bg-stone-900/40 border border-stone-800/80 rounded-3xl p-5 backdrop-blur-sm">
+          <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm">
             <QuickPrompts
               onSelectPrompt={(text) => handleSendPrompt(text)}
               disabled={isLoading}
@@ -679,17 +675,17 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-stone-850/80 bg-stone-950/90 py-6 px-4 text-center text-xs text-stone-500">
-        <p className="flex items-center justify-center gap-2 text-stone-400">
-          <span className="font-medium text-stone-300">SereneMind AI</span>
-          <span className="text-stone-600">•</span>
-          <span className="text-emerald-400 font-semibold">Crafted by Abubakar &amp; Mohsin</span>
-          <span className="text-stone-600">•</span>
-          <span>Peace &amp; Mindfulness Sanctuary</span>
+      <footer className="border-t border-slate-100 bg-white py-6 px-4 text-center text-xs text-slate-500">
+        <p className="flex items-center justify-center gap-2 text-slate-500">
+          <span className="font-medium text-slate-700">SereneMind AI</span>
+          <span className="text-slate-300">•</span>
+          <span className="text-sky-600 font-semibold">Crafted by Abubakar &amp; Mohsin</span>
+          <span className="text-slate-300">•</span>
+          <span>Calm Sunrise Sanctuary</span>
         </p>
       </footer>
 
-      {/* Interactive Mindfulness Modals (if launched from buttons) */}
+      {/* Interactive Mindfulness Modals */}
       {activeExercise === 'breathing' && (
         <BreathingExercise onClose={() => setActiveExercise('none')} />
       )}
@@ -702,7 +698,7 @@ export default function App() {
         <ThoughtDefusion onClose={() => setActiveExercise('none')} />
       )}
 
-      {/* Download Center Modal for All Devices */}
+      {/* Download Center Modal */}
       <DownloadModal
         isOpen={isDownloadModalOpen}
         onClose={() => setIsDownloadModalOpen(false)}
@@ -711,7 +707,7 @@ export default function App() {
       {/* Offline Connectivity Notification */}
       <OfflineIndicator />
 
-      {/* Floating Mobile Install Bar for Infinix / Android / iOS */}
+      {/* Floating Mobile Install Bar */}
       <MobileQuickInstallBar onOpenModal={() => setIsDownloadModalOpen(true)} />
     </div>
   );
