@@ -465,13 +465,13 @@ export default function App() {
               {theme === 'universe' ? (
                 <>
                   <Moon className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-                  <span className="hidden sm:inline">Universe (सितारे)</span>
+                  <span className="hidden sm:inline">Universe (ستارے)</span>
                   <span className="sm:hidden">Cosmic</span>
                 </>
               ) : (
                 <>
                   <Sun className="w-3.5 h-3.5 text-amber-500" />
-                  <span className="hidden sm:inline">Sunrise (दिन)</span>
+                  <span className="hidden sm:inline">Sunrise (طلوعِ آفتاب)</span>
                   <span className="sm:hidden">Day</span>
                 </>
               )}
@@ -525,7 +525,7 @@ export default function App() {
       {/* Main Content Area */}
       <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-12">
         {/* ========================================================================= */}
-        {/* 0. COSMIC UNIVERSE & LIVING STARFIELD SANCTUARY (ब्रह्मांड और सितारे) */}
+        {/* 0. COSMIC UNIVERSE & LIVING STARFIELD SANCTUARY (کائنات اور ستارے) */}
         {/* ========================================================================= */}
         <div ref={cosmicSectionRef} className="scroll-mt-24">
           <CosmicSanctuary
@@ -597,64 +597,114 @@ export default function App() {
         {/* ========================================================================= */}
         <section ref={exercisesSectionRef} className="scroll-mt-24 space-y-4">
           <div className="flex items-center gap-2.5 px-1">
-            <div className="p-2 rounded-xl bg-teal-100 text-teal-600">
+            <div
+              className={`p-2 rounded-xl ${
+                theme === 'universe'
+                  ? 'bg-teal-950 text-teal-300 border border-teal-500/40 shadow-xs'
+                  : 'bg-teal-100 text-teal-600'
+              }`}
+            >
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-700 tracking-tight">
-                Somatic Anchors &amp; Mindset Profile <span className="text-teal-600 font-light">(دیگر مشقیں)</span>
+              <h2
+                className={`text-xl sm:text-2xl font-bold tracking-tight ${
+                  theme === 'universe' ? 'text-white' : 'text-slate-700'
+                }`}
+              >
+                Somatic Anchors &amp; Mindset Profile <span className={theme === 'universe' ? 'text-teal-400 font-light' : 'text-teal-600 font-light'}>(دیگر مشقیں)</span>
               </h2>
-              <p className="text-xs sm:text-sm text-slate-500">
+              <p className={`text-xs sm:text-sm ${theme === 'universe' ? 'text-slate-300' : 'text-slate-500'}`}>
                 Sensory grounding, cognitive defusion, and live tension assessment.
               </p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-            {/* Exercise 1: 5-4-3-2-1 Sensory Grounding */}
-            <div className="p-6 rounded-3xl bg-white border border-slate-100 shadow-sm flex flex-col justify-between h-full">
+            {/* Exercise 1: 5-4-3-2-1 Sensory Grounding (Celestial Sapphire) */}
+            <div
+              className={`p-6 rounded-3xl transition-all duration-300 flex flex-col justify-between h-full ${
+                theme === 'universe'
+                  ? 'bg-gradient-to-br from-[#091f42]/90 via-[#0a2754]/85 to-[#0b1b3b]/90 border border-sky-400/35 text-slate-100 shadow-xl shadow-sky-950/50'
+                  : 'bg-white border border-slate-100 shadow-sm text-slate-700'
+              }`}
+            >
               <div>
-                <div className="w-10 h-10 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600 mb-4">
+                <div
+                  className={`w-10 h-10 rounded-2xl flex items-center justify-center mb-4 ${
+                    theme === 'universe'
+                      ? 'bg-sky-900/60 border border-sky-400/50 text-cyan-300 shadow-xs'
+                      : 'bg-sky-50 border border-sky-100 text-sky-600'
+                  }`}
+                >
                   <Eye className="w-5 h-5" />
                 </div>
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-base font-bold text-slate-700">5-4-3-2-1 Sensory Grounding</h3>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
+                  <h3 className={`text-base font-bold ${theme === 'universe' ? 'text-white' : 'text-slate-700'}`}>
+                    5-4-3-2-1 Sensory Grounding
+                  </h3>
+                  <span
+                    className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                      theme === 'universe'
+                        ? 'bg-sky-950/80 text-cyan-300 border border-sky-400/40'
+                        : 'bg-sky-50 text-sky-700 border border-sky-100'
+                    }`}
+                  >
                     حسی اینکر
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed mt-2">
+                <p className={`text-xs sm:text-sm leading-relaxed mt-2 ${theme === 'universe' ? 'text-slate-200' : 'text-slate-500'}`}>
                   Anchor attention to 5 sight, 4 touch, 3 sound, 2 smell, and 1 taste objects to physically interrupt the brain's alarm center.
                 </p>
               </div>
               <button
                 onClick={() => setActiveExercise('grounding')}
-                className="mt-6 w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-400 to-teal-300 hover:from-sky-500 hover:to-teal-400 text-white font-bold text-xs shadow-md shadow-sky-200/50 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="mt-6 w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-teal-400 hover:from-sky-400 hover:to-teal-300 text-white font-bold text-xs shadow-md shadow-sky-500/25 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
                 <span>Launch 5-4-3-2-1 Practice</span>
               </button>
             </div>
 
-            {/* Exercise 2: Thought Defusion (Release Loop) */}
-            <div className="p-6 rounded-3xl bg-white border border-slate-100 shadow-sm flex flex-col justify-between h-full">
+            {/* Exercise 2: Thought Defusion (Celestial Amethyst) */}
+            <div
+              className={`p-6 rounded-3xl transition-all duration-300 flex flex-col justify-between h-full ${
+                theme === 'universe'
+                  ? 'bg-gradient-to-br from-[#230d3d]/90 via-[#2a104a]/85 to-[#1a0a33]/90 border border-fuchsia-400/35 text-slate-100 shadow-xl shadow-purple-950/50'
+                  : 'bg-white border border-slate-100 shadow-sm text-slate-700'
+              }`}
+            >
               <div>
-                <div className="w-10 h-10 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center text-teal-600 mb-4">
+                <div
+                  className={`w-10 h-10 rounded-2xl flex items-center justify-center mb-4 ${
+                    theme === 'universe'
+                      ? 'bg-purple-900/60 border border-purple-400/50 text-fuchsia-300 shadow-xs'
+                      : 'bg-teal-50 border border-teal-100 text-teal-600'
+                  }`}
+                >
                   <Zap className="w-5 h-5" />
                 </div>
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-base font-bold text-slate-700">Thought Defusion</h3>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-100">
+                  <h3 className={`text-base font-bold ${theme === 'universe' ? 'text-white' : 'text-slate-700'}`}>
+                    Thought Defusion
+                  </h3>
+                  <span
+                    className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                      theme === 'universe'
+                        ? 'bg-purple-950/80 text-fuchsia-300 border border-purple-400/40'
+                        : 'bg-teal-50 text-teal-700 border border-teal-100'
+                    }`}
+                  >
                     خیالات کی رہائی
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed mt-2">
+                <p className={`text-xs sm:text-sm leading-relaxed mt-2 ${theme === 'universe' ? 'text-slate-200' : 'text-slate-500'}`}>
                   Visualize obsessive thought balloons detaching from your mind and floating gently away into the wide open sky.
                 </p>
               </div>
               <button
                 onClick={() => setActiveExercise('defusion')}
-                className="mt-6 w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-400 to-teal-300 hover:from-sky-500 hover:to-teal-400 text-white font-bold text-xs shadow-md shadow-sky-200/50 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="mt-6 w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:from-purple-400 hover:to-fuchsia-400 text-white font-bold text-xs shadow-md shadow-purple-500/25 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
                 <span>Launch Release Loop</span>
@@ -666,6 +716,7 @@ export default function App() {
               <WellnessInsights
                 assessment={currentAssessment}
                 onOpenExercise={(type) => setActiveExercise(type)}
+                theme={theme}
               />
             </div>
           </div>
@@ -675,21 +726,21 @@ export default function App() {
         {/* 5. PSYCHOLOGY & COGNITIVE SCIENCE SANCTUARY (CBT REFRAME & ASSESSMENTS) */}
         {/* ========================================================================= */}
         <div ref={psychologySectionRef} className="scroll-mt-24">
-          <PsychologyHub />
+          <PsychologyHub theme={theme} />
         </div>
 
         {/* ========================================================================= */}
         {/* 6. DOWNLOAD APP & OFFLINE MEDIA HUB (تمام ڈیوائسز کے لیے ڈاؤن لوڈ) */}
         {/* ========================================================================= */}
         <div ref={downloadSectionRef} className="scroll-mt-24">
-          <DownloadHub onOpenDownloadModal={() => setIsDownloadModalOpen(true)} />
+          <DownloadHub onOpenDownloadModal={() => setIsDownloadModalOpen(true)} theme={theme} />
         </div>
 
         {/* ========================================================================= */}
         {/* 7. BOOKS LIBRARY: OVERTHINKING, MEDITATION & MENTAL CLARITY (کتب خانہ) */}
         {/* ========================================================================= */}
         <div ref={booksSectionRef} className="scroll-mt-24">
-          <BooksLibrary />
+          <BooksLibrary theme={theme} />
         </div>
 
         {/* ========================================================================= */}
@@ -698,20 +749,39 @@ export default function App() {
         <section ref={voiceSectionRef} className="scroll-mt-24 space-y-6 pt-6 border-t border-slate-200">
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-sky-100 text-sky-600">
+              <div
+                className={`p-2 rounded-xl border ${
+                  theme === 'universe'
+                    ? 'bg-indigo-950/80 border-indigo-400/40 text-cyan-300'
+                    : 'bg-sky-100 text-sky-600 border-sky-200'
+                }`}
+              >
                 <Mic className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-700 tracking-tight">
-                  Live Voice Coach &amp; Spoken Support <span className="text-sky-600 font-light">(لائیو وائس اسسٹنٹ)</span>
+                <h2
+                  className={`text-xl sm:text-2xl font-bold tracking-tight ${
+                    theme === 'universe' ? 'text-white' : 'text-slate-700'
+                  }`}
+                >
+                  Live Voice Coach &amp; Spoken Support{' '}
+                  <span className={theme === 'universe' ? 'text-cyan-300 font-light' : 'text-sky-600 font-light'}>
+                    (لائیو وائس اسسٹنٹ)
+                  </span>
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-500">
-                  Tap microphone below to speak naturally. Empathetic guidance spoken back immediately.
+                <p className={`text-xs sm:text-sm ${theme === 'universe' ? 'text-slate-300' : 'text-slate-500'}`}>
+                  مائیکروفون پر کلک کریں اور قدرتی انداز میں بات کریں۔ ابو بکر آپ کی رہنمائی کے لیے ہمہ وقت حاضر ہیں۔
                 </p>
               </div>
             </div>
-            <span className="text-xs px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-600 font-medium">
-              Live Voice Station
+            <span
+              className={`text-xs px-3 py-1 rounded-full font-medium border ${
+                theme === 'universe'
+                  ? 'bg-indigo-950/80 border-indigo-400/40 text-cyan-300 shadow-sm'
+                  : 'bg-white border-slate-200 text-slate-600'
+              }`}
+            >
+              وائس اسٹیشن (Live Voice)
             </span>
           </div>
 
@@ -722,16 +792,16 @@ export default function App() {
           <div
             className={`rounded-3xl p-6 sm:p-8 relative overflow-hidden flex flex-col items-center text-center transition-all ${
               theme === 'universe'
-                ? 'bg-slate-900/80 backdrop-blur-xl border border-indigo-500/25 text-slate-100 shadow-xl shadow-indigo-950/50'
+                ? 'bg-gradient-to-br from-[#0c163d]/90 via-[#10204d]/85 to-[#161242]/90 backdrop-blur-xl border border-indigo-400/35 text-slate-100 shadow-2xl shadow-indigo-950/60'
                 : 'bg-white border border-slate-100 text-slate-700 shadow-sm'
             }`}
           >
             {/* Status Badge */}
             <div
-              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs mb-6 shadow-xs ${
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs mb-6 shadow-xs border ${
                 theme === 'universe'
-                  ? 'bg-slate-800/80 border border-slate-700 text-cyan-300'
-                  : 'bg-slate-50 border border-slate-200 text-slate-600'
+                  ? 'bg-slate-950/80 border-indigo-500/40 text-cyan-300'
+                  : 'bg-slate-50 border-slate-200 text-slate-600'
               }`}
             >
               <span
@@ -742,14 +812,14 @@ export default function App() {
                     ? 'bg-amber-400 animate-pulse'
                     : currentStatus === 'Speaking...'
                     ? 'bg-teal-400 animate-bounce'
-                    : 'bg-sky-500'
+                    : 'bg-cyan-400'
                 }`}
               />
               <span className="font-semibold">
                 {currentStatus === 'Listening...'
                   ? 'Listening to your voice... (سن رہا ہوں)'
                   : currentStatus === 'Thinking...'
-                  ? 'Thinking & formulating clear answer...'
+                  ? 'Thinking & formulating clear answer... (سوچ رہا ہوں)'
                   : currentStatus === 'Speaking...'
                   ? 'Coach Speaking... (بول رہا ہے)'
                   : 'Voice Coach Ready (مائیکروفون پر بولیں)'}
@@ -761,12 +831,12 @@ export default function App() {
               <div
                 className={`absolute w-44 h-44 rounded-full transition-all duration-700 pointer-events-none ${
                   isListening
-                    ? 'bg-rose-100/60 scale-125 animate-pulse'
+                    ? 'bg-rose-500/20 scale-125 animate-pulse'
                     : isSpeaking
-                    ? 'bg-teal-100/70 scale-120 animate-ping'
+                    ? 'bg-teal-500/25 scale-120 animate-ping'
                     : isLoading
-                    ? 'bg-amber-100/60 scale-110 animate-spin'
-                    : 'bg-sky-100/60 scale-100 animate-calm-breathe'
+                    ? 'bg-amber-500/20 scale-110 animate-spin'
+                    : 'bg-cyan-500/20 scale-100 animate-calm-breathe'
                 }`}
               />
 
@@ -776,7 +846,7 @@ export default function App() {
                     ? 'border-rose-400/60 animate-spin'
                     : isSpeaking
                     ? 'border-teal-400/60 animate-pulse'
-                    : 'border-sky-300/60'
+                    : 'border-cyan-400/40'
                 }`}
               />
 
@@ -789,42 +859,76 @@ export default function App() {
               </div>
             </div>
 
-            <p className="text-xs sm:text-sm text-slate-500 mt-2 max-w-sm">
+            <p className={`text-xs sm:text-sm mt-2 max-w-sm ${theme === 'universe' ? 'text-slate-300' : 'text-slate-500'}`}>
               {isListening
-                ? 'Tap the red button when finished speaking to submit your voice'
-                : 'Tap microphone to speak your question or thoughts. Zero typing needed.'}
+                ? 'جب آپ بول چکیں تو آواز جمع کروانے کے لیے سرخ بٹن دبائیں'
+                : 'بولنے کے لیے مائیکروفون دبائیں۔ ٹائپنگ کی بالکل ضرورت نہیں۔'}
             </p>
 
             {voiceError && (
-              <div className="mt-3 p-2.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+              <div className="mt-3 p-2.5 rounded-2xl bg-rose-950/70 border border-rose-500/40 text-rose-200 text-xs">
                 {voiceError}
               </div>
             )}
 
             {isListening && interimTranscript && (
-              <div className="mt-4 w-full max-w-lg p-3 rounded-2xl bg-sky-50 border border-sky-200 text-sky-900 text-sm italic animate-fade-in">
+              <div className="mt-4 w-full max-w-lg p-3 rounded-2xl bg-cyan-950/70 border border-cyan-400/40 text-cyan-200 text-sm italic animate-fade-in shadow-md">
                 "{interimTranscript}..."
               </div>
             )}
 
             {lastUserSpoken && !isListening && (
-              <div className="mt-4 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500">
-                <span className="text-sky-600 font-medium">You asked:</span>
-                <span className="text-slate-700 truncate max-w-xs">"{lastUserSpoken}"</span>
+              <div
+                className={`mt-4 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border text-xs ${
+                  theme === 'universe'
+                    ? 'bg-indigo-950/80 border-indigo-500/40 text-slate-200'
+                    : 'bg-slate-50 border-slate-200 text-slate-500'
+                }`}
+              >
+                <span className="text-cyan-400 font-semibold">آپ نے پوچھا:</span>
+                <span className="text-slate-100 truncate max-w-xs">"{lastUserSpoken}"</span>
               </div>
             )}
           </div>
 
           {/* Active Spoken Guidance Card */}
-          <div className="bg-white border border-slate-100 rounded-3xl p-6 sm:p-7 relative shadow-sm">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+          <div
+            className={`rounded-3xl p-6 sm:p-7 relative shadow-xl transition-all duration-300 ${
+              theme === 'universe'
+                ? 'bg-gradient-to-br from-[#120e3a]/92 via-[#19114a]/88 to-[#0f173f]/92 border border-violet-400/40 text-slate-100 shadow-violet-950/60'
+                : 'bg-white border border-slate-100 text-slate-700 shadow-sm'
+            }`}
+          >
+            <div
+              className={`flex items-center justify-between pb-3 border-b mb-4 ${
+                theme === 'universe' ? 'border-violet-500/25' : 'border-slate-100'
+              }`}
+            >
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600">
+                <div
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center border shadow-xs ${
+                    theme === 'universe'
+                      ? 'bg-violet-950/80 border-violet-400/40 text-violet-300'
+                      : 'bg-sky-50 border-sky-100 text-sky-600'
+                  }`}
+                >
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-700">Coach Spoken Guidance</h3>
-                  <span className="text-xs text-slate-500">Direct response &amp; mindful clarity</span>
+                  <h3
+                    className={`text-sm font-semibold ${
+                      theme === 'universe' ? 'text-white' : 'text-slate-700'
+                    }`}
+                  >
+                    Coach Spoken Guidance (رہنمائی و گفتگو)
+                  </h3>
+                  <span
+                    className={`text-xs ${
+                      theme === 'universe' ? 'text-violet-200/80' : 'text-slate-500'
+                    }`}
+                  >
+                    براہِ راست صوتی جواب اور ذہنی یکسوئی
+                  </span>
                 </div>
               </div>
 
@@ -833,34 +937,49 @@ export default function App() {
                 {isSpeaking ? (
                   <button
                     onClick={handleStopAudio}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-xs font-medium hover:bg-rose-100 transition-colors animate-pulse cursor-pointer"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white border border-rose-400 text-xs font-medium transition-colors animate-pulse cursor-pointer shadow-md shadow-rose-500/30"
                   >
                     <Square className="w-3.5 h-3.5 fill-current" />
-                    <span>Stop Audio</span>
+                    <span>آواز بند کریں</span>
                   </button>
                 ) : (
                   <button
                     onClick={handleReplayCurrentResponse}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-sky-700 border border-slate-200 text-xs font-medium transition-colors cursor-pointer"
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-colors cursor-pointer shadow-sm ${
+                      theme === 'universe'
+                        ? 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border-violet-400/40'
+                        : 'bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-sky-700 border-slate-200'
+                    }`}
                     title="Listen to response again"
                   >
-                    <Play className="w-3.5 h-3.5 fill-current text-sky-500" />
-                    <span>Listen</span>
+                    <Play className="w-3.5 h-3.5 fill-current text-cyan-300" />
+                    <span>دوبارہ سنیں</span>
                   </button>
                 )}
               </div>
             </div>
 
-            <blockquote className="text-slate-700 text-base sm:text-lg font-normal leading-relaxed my-2">
+            <blockquote
+              className={`text-base sm:text-lg font-normal leading-relaxed my-2 ${
+                theme === 'universe' ? 'text-slate-100' : 'text-slate-700'
+              }`}
+            >
               "{currentAssessment.spokenResponse}"
             </blockquote>
           </div>
 
           {/* Quick Voice Starters */}
-          <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm">
+          <div
+            className={`rounded-3xl p-5 shadow-xl transition-all duration-300 ${
+              theme === 'universe'
+                ? 'bg-gradient-to-br from-[#0c183d]/92 via-[#0e214d]/88 to-[#15123f]/92 border border-cyan-400/35 text-slate-100 shadow-cyan-950/50'
+                : 'bg-white border border-slate-100 shadow-sm'
+            }`}
+          >
             <QuickPrompts
               onSelectPrompt={(text) => handleSendPrompt(text)}
               disabled={isLoading}
+              theme={theme}
             />
           </div>
         </section>
@@ -868,13 +987,23 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-100 bg-white py-6 px-4 text-center text-xs text-slate-500">
-        <p className="flex items-center justify-center gap-2 text-slate-500">
-          <span className="font-medium text-slate-700">SereneMind AI</span>
-          <span className="text-slate-300">•</span>
-          <span className="text-sky-600 font-semibold">Crafted by Abubakar &amp; Mohsin</span>
-          <span className="text-slate-300">•</span>
-          <span>Calm Sunrise Sanctuary</span>
+      <footer
+        className={`border-t py-6 px-4 text-center text-xs transition-colors duration-500 ${
+          theme === 'universe'
+            ? 'border-indigo-500/25 bg-gradient-to-r from-[#040614] via-[#090e24] to-[#040614] text-slate-300'
+            : 'border-slate-100 bg-white text-slate-500'
+        }`}
+      >
+        <p className="flex items-center justify-center gap-2">
+          <span className={`font-medium ${theme === 'universe' ? 'text-white' : 'text-slate-700'}`}>
+            SereneMind AI (ذہنی سکون)
+          </span>
+          <span className={theme === 'universe' ? 'text-indigo-400' : 'text-slate-300'}>•</span>
+          <span className={theme === 'universe' ? 'text-cyan-300 font-semibold' : 'text-sky-600 font-semibold'}>
+            ابو بکر اور محسن کی تخلیق
+          </span>
+          <span className={theme === 'universe' ? 'text-indigo-400' : 'text-slate-300'}>•</span>
+          <span>{theme === 'universe' ? '🌌 کائناتی وسعت و ستارے (Cosmic Sanctuary)' : '🌅 طلوعِ آفتاب (Sunrise Sanctuary)'}</span>
         </p>
       </footer>
 

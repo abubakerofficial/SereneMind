@@ -174,29 +174,30 @@ export const AmbientMusicPlayer: React.FC = () => {
   };
 
   return (
-    <div className="bg-white border border-slate-100 rounded-3xl p-5 sm:p-7 shadow-sm relative overflow-hidden">
+    <div className="bg-gradient-to-br from-[#160e36]/90 via-[#1b1246]/85 to-[#0e163d]/90 backdrop-blur-xl border border-purple-400/35 rounded-3xl p-5 sm:p-7 shadow-2xl shadow-purple-950/60 text-slate-100 relative overflow-hidden">
       {/* Background ambient light */}
-      <div className="absolute -top-16 -right-16 w-56 h-56 bg-sky-100/50 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-16 -right-16 w-56 h-56 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header with HD Audio Tag */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-100 mb-6">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-purple-500/25 mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-sky-50 border border-sky-100 text-sky-600 shadow-xs">
+          <div className="p-2.5 rounded-2xl bg-purple-950/80 border border-purple-400/40 text-purple-300 shadow-xs">
             <Music className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-bold text-base sm:text-lg text-slate-700 tracking-tight">
+              <h3 className="font-bold text-base sm:text-lg text-white tracking-tight">
                 HD Studio Soundscapes &amp; Music
               </h3>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-purple-950/90 text-purple-300 border border-purple-400/40">
                 ایچ ڈی میوزک
               </span>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-slate-100 text-teal-700 border border-slate-200 hidden sm:inline">
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-indigo-950/80 text-cyan-300 border border-indigo-400/40 hidden sm:inline">
                 Lossless 320 kbps • 48 kHz
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-purple-200/80 mt-0.5">
               High-definition binaural soundscapes, 432 Hz Solfeggio acoustic masters, ambient piano, and Tibetan singing bowls.
             </p>
           </div>
@@ -209,8 +210,8 @@ export const AmbientMusicPlayer: React.FC = () => {
             onClick={() => setSpatialAudioEnabled(!spatialAudioEnabled)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
               spatialAudioEnabled
-                ? 'bg-sky-50 border-sky-200 text-sky-700 shadow-xs'
-                : 'bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-700'
+                ? 'bg-purple-950/90 border-purple-400/50 text-purple-200 shadow-xs'
+                : 'bg-slate-900/80 border-slate-700 text-slate-400 hover:text-slate-200'
             }`}
             title="Spatial 3D Audio Dispersion"
           >
@@ -219,8 +220,8 @@ export const AmbientMusicPlayer: React.FC = () => {
           </button>
 
           {/* Sleep Timer Preset Selector */}
-          <div className="flex items-center gap-1 p-1 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-            <Clock className="w-3.5 h-3.5 text-slate-400 ml-1.5" />
+          <div className="flex items-center gap-1 p-1 bg-[#0b0c26]/90 border border-purple-500/30 rounded-xl text-xs">
+            <Clock className="w-3.5 h-3.5 text-purple-300 ml-1.5" />
             {[
               { label: 'Off', val: null },
               { label: '15m', val: 15 },
@@ -232,8 +233,8 @@ export const AmbientMusicPlayer: React.FC = () => {
                 onClick={() => setSleepTimer(t.val)}
                 className={`px-2 py-1 rounded-lg text-[10px] font-semibold transition-all cursor-pointer ${
                   sleepTimer === t.val
-                    ? 'bg-gradient-to-r from-sky-400 to-teal-300 text-white font-bold shadow-xs'
-                    : 'text-slate-500 hover:text-slate-700'
+                    ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold shadow-xs'
+                    : 'text-slate-300 hover:text-white'
                 }`}
               >
                 {t.label}
@@ -242,11 +243,11 @@ export const AmbientMusicPlayer: React.FC = () => {
           </div>
 
           {/* Volume Control */}
-          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-2xl">
+          <div className="flex items-center gap-2 bg-[#0b0c26]/90 border border-purple-500/30 px-3 py-1.5 rounded-2xl">
             {volume === 0 ? (
               <VolumeX className="w-4 h-4 text-slate-400" />
             ) : (
-              <Volume2 className="w-4 h-4 text-sky-600" />
+              <Volume2 className="w-4 h-4 text-cyan-300" />
             )}
             <input
               type="range"
@@ -255,10 +256,10 @@ export const AmbientMusicPlayer: React.FC = () => {
               step="0.05"
               value={volume}
               onChange={handleVolumeChange}
-              className="w-20 sm:w-24 accent-sky-500 h-1.5 bg-slate-200 rounded-lg cursor-pointer"
+              className="w-20 sm:w-24 accent-purple-400 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
               title={`HD Volume: ${Math.round(volume * 100)}%`}
             />
-            <span className="text-[11px] font-mono text-slate-500 min-w-[2rem] text-right">
+            <span className="text-[11px] font-mono text-purple-300 min-w-[2rem] text-right">
               {Math.round(volume * 100)}%
             </span>
           </div>
@@ -268,8 +269,8 @@ export const AmbientMusicPlayer: React.FC = () => {
             onClick={() => handleTogglePlay(selectedTrack)}
             className={`flex items-center gap-2 px-5 py-2 rounded-2xl text-xs font-bold transition-all shadow-md cursor-pointer ${
               isPlaying
-                ? 'bg-rose-500 hover:bg-rose-600 text-white shadow-rose-200/50'
-                : 'bg-gradient-to-r from-sky-400 to-teal-300 hover:from-sky-500 hover:to-teal-400 text-white shadow-sky-200/50'
+                ? 'bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white shadow-rose-500/30'
+                : 'bg-gradient-to-r from-purple-500 via-indigo-500 to-cyan-500 hover:from-purple-400 hover:to-cyan-400 text-white shadow-purple-500/30'
             }`}
           >
             {isPlaying ? (
@@ -288,21 +289,21 @@ export const AmbientMusicPlayer: React.FC = () => {
       </div>
 
       {/* Active Studio Now-Playing Banner & Live 16-Band Equalizer Spectrum */}
-      <div className="mb-6 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-[#120a2e]/90 to-[#0e1436]/90 border border-purple-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-sky-600 shadow-xs">
+          <div className="w-10 h-10 rounded-xl bg-purple-950/80 border border-purple-400/40 flex items-center justify-center text-cyan-300 shadow-xs">
             <Disc className={`w-5 h-5 ${isPlaying ? 'animate-spin' : ''}`} />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-700">
+              <span className="text-xs font-bold text-white">
                 {selectedTrack.name}
               </span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-white border border-slate-200 text-sky-700 font-mono">
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-950 border border-indigo-400/40 text-cyan-300 font-mono">
                 {selectedTrack.qualityBadge}
               </span>
             </div>
-            <p className="text-[11px] text-teal-600 mt-0.5 font-medium">
+            <p className="text-[11px] text-cyan-300 mt-0.5 font-medium">
               {selectedTrack.nameUrdu} • {selectedTrack.frequencyBadge}
             </p>
           </div>
@@ -310,15 +311,15 @@ export const AmbientMusicPlayer: React.FC = () => {
 
         {/* 16-Band Animated Graphic Equalizer */}
         <div className="flex items-center gap-3">
-          <div className="flex items-end gap-1 h-8 px-2 py-1 rounded-lg bg-white border border-slate-200 shadow-2xs">
+          <div className="flex items-end gap-1 h-8 px-2 py-1 rounded-lg bg-[#070718] border border-purple-500/30 shadow-2xs">
             {eqHeights.map((h, i) => (
               <div
                 key={i}
                 style={{ height: isPlaying ? `${h}%` : '15%' }}
                 className={`w-1 rounded-t transition-all duration-300 ${
                   isPlaying
-                    ? 'bg-gradient-to-t from-sky-400 to-teal-300'
-                    : 'bg-slate-300'
+                    ? 'bg-gradient-to-t from-purple-500 via-pink-400 to-cyan-300'
+                    : 'bg-slate-700'
                 }`}
               />
             ))}
@@ -326,10 +327,10 @@ export const AmbientMusicPlayer: React.FC = () => {
 
           {/* Live Timer */}
           <div className="text-right">
-            <span className="text-xs font-mono font-bold text-slate-700 block">
+            <span className="text-xs font-mono font-bold text-white block">
               {formatTime(elapsedSeconds)}
             </span>
-            <span className="text-[10px] text-slate-500">
+            <span className="text-[10px] text-purple-300">
               {sleepTimer ? `Sleep in ${sleepTimer}m` : 'Continuous HD'}
             </span>
           </div>
@@ -349,8 +350,8 @@ export const AmbientMusicPlayer: React.FC = () => {
               onClick={() => handleTogglePlay(track)}
               className={`p-4 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between group cursor-pointer ${
                 isCurrent
-                  ? 'bg-sky-50/90 border-2 border-sky-300 shadow-sm'
-                  : 'bg-slate-50/60 border-slate-200/70 hover:border-sky-200 hover:bg-sky-50/40'
+                  ? 'bg-gradient-to-br from-purple-950/90 via-indigo-950/80 to-[#120a2e]/90 border-2 border-purple-400 shadow-lg shadow-purple-950/60'
+                  : 'bg-[#100a26]/80 border-purple-500/25 hover:border-purple-300 hover:bg-[#160d36]/80'
               }`}
             >
               <div>
@@ -358,49 +359,49 @@ export const AmbientMusicPlayer: React.FC = () => {
                   <div
                     className={`p-2 rounded-xl border ${
                       isCurrent
-                        ? 'bg-white border-sky-300 text-sky-600 shadow-2xs'
-                        : 'bg-white border-slate-200 text-slate-500'
+                        ? 'bg-purple-900/80 border-purple-400 text-cyan-300 shadow-2xs'
+                        : 'bg-slate-900/80 border-slate-700 text-purple-300'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
                   </div>
 
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-white text-sky-700 border border-slate-200 font-mono shadow-2xs">
+                    <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-950/90 text-cyan-300 border border-indigo-400/40 font-mono shadow-2xs">
                       {track.qualityBadge}
                     </span>
-                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-white text-slate-500 border border-slate-200">
+                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-purple-950/90 text-purple-300 border border-purple-400/40">
                       {track.frequencyBadge}
                     </span>
                   </div>
                 </div>
 
-                <h4 className="text-xs sm:text-sm font-bold text-slate-700 group-hover:text-sky-700 transition-colors">
+                <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
                   {track.name}
                 </h4>
-                <span className="text-[11px] text-teal-600 block font-medium mt-0.5">
+                <span className="text-[11px] text-cyan-300 block font-medium mt-0.5">
                   {track.nameUrdu}
                 </span>
 
-                <p className="text-[11px] text-slate-500 mt-1.5 line-clamp-2 leading-relaxed">
+                <p className="text-[11px] text-slate-300 mt-1.5 line-clamp-2 leading-relaxed">
                   {track.description}
                 </p>
               </div>
 
               {/* Status indicator */}
-              <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-200/80 text-[11px] font-semibold">
+              <div className="flex items-center justify-between pt-3 mt-3 border-t border-purple-500/25 text-[11px] font-semibold">
                 {isCurrentlyPlayingThis ? (
-                  <span className="flex items-center gap-1.5 text-sky-600">
-                    <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
-                    Now Playing in HD
+                  <span className="flex items-center gap-1.5 text-cyan-300">
+                    <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                    Now Playing in HD (جاری ہے)
                   </span>
                 ) : (
-                  <span className="text-slate-500 group-hover:text-sky-600 transition-colors flex items-center gap-1">
-                    <Play className="w-3 h-3 fill-current text-sky-500" /> Play HD Sound
+                  <span className="text-slate-400 group-hover:text-cyan-300 transition-colors flex items-center gap-1">
+                    <Play className="w-3 h-3 fill-current text-purple-400" /> Play HD Sound
                   </span>
                 )}
 
-                <span className="text-[10px] text-slate-400">Lossless</span>
+                <span className="text-[10px] text-purple-300">Lossless</span>
               </div>
             </button>
           );

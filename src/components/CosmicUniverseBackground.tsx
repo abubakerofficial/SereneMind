@@ -44,11 +44,11 @@ const STAR_COLORS = [
 ];
 
 const WISH_AFFIRMATIONS = [
-  'ब्रह्मांड की शांति आपके मन में उतर रही है... (Deep peace within)',
-  'जैसे तारे चमकते हैं, आपका मन भी शांत और स्पष्ट है... (Mind clear as starlight)',
-  'हर सांस के साथ ओवरथिंकिंग दूर हो रही है... (Letting go of overthinking)',
-  'आप इस विशाल ब्रह्मांड का एक सुंदर, सुरक्षित हिस्सा हैं... (You are safe in the cosmos)',
-  'चिंताएं बादलों की तरह बह जाएंगी, सितारे हमेशा चमकेंगे... (Calm persists forever)',
+  'کائنات کا سکون آپ کے دل و دماغ میں اتر رہا ہے... (Deep peace within)',
+  'جیسے ستارے چمکتے ہیں، آپ کا ذہن بھی روشن اور پرسکون ہے... (Mind clear as starlight)',
+  'ہر گہرے سانس کے ساتھ تمام وسوسے اور الجھنیں ختم ہو رہی ہیں... (Letting go of overthinking)',
+  'آپ اس وسیع کائنات کا ایک خوبصورت، محفوظ حصہ ہیں... (You are safe in the cosmos)',
+  'پریشانیاں بادلوں کی طرح گزر جائیں گی، امید کے ستارے ہمیشہ چمکیں گے... (Calm persists forever)',
 ];
 
 export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> = ({
@@ -282,7 +282,7 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
         }
       }
 
-      // 5. Update & Draw Shooting Stars (उल्कापिंड)
+      // 5. Update & Draw Shooting Stars (شہابِ ثاقب / ٹوٹتے ستارے)
       if (Date.now() > nextShootingStarTime) {
         launchShootingStar();
         nextShootingStarTime = Date.now() + Math.random() * 5000 + 4000;
@@ -428,10 +428,10 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
           <button
             onClick={() => launchShootingStar()}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-semibold transition-all shadow-md shadow-sky-500/25 active:scale-95 cursor-pointer"
-            title="Launch a shooting star & make a mindful wish (सितारा चमकाएं)"
+            title="Launch a shooting star & make a mindful wish (خواہش کا تارا چمکائیں)"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-            <span className="hidden sm:inline">Make a Wish (सितारा)</span>
+            <span className="hidden sm:inline">خواہش کا تارا (Wish)</span>
             <span className="sm:hidden">Wish</span>
           </button>
 
@@ -443,7 +443,7 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
                 ? 'bg-indigo-950/80 text-cyan-300 border border-indigo-500/40'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
-            title={constellationsEnabled ? 'Constellations: ON (तारामंडल चालू)' : 'Constellations: OFF'}
+            title={constellationsEnabled ? 'Constellations: ON (ستاروں کے جھرمٹ فعال ہیں)' : 'Constellations: OFF (جھرمٹ بند)'}
             aria-label="Toggle Constellations"
           >
             <Compass className="w-4 h-4" />
@@ -453,7 +453,7 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
           <button
             onClick={() => setSpeedMultiplier((prev) => (prev === 1 ? 2.5 : prev === 2.5 ? 0.4 : 1))}
             className="p-2 rounded-xl text-slate-300 hover:text-white transition-all cursor-pointer"
-            title={`Cosmic Motion Speed: ${speedMultiplier === 0.4 ? 'Zen (धीमा)' : speedMultiplier === 1 ? 'Normal (सामान्य)' : 'Warp (तेज़)'}`}
+            title={`Cosmic Motion Speed: ${speedMultiplier === 0.4 ? 'Zen (پرسکون و دھیما)' : speedMultiplier === 1 ? 'Normal (معمول)' : 'Warp (تیز کائناتی رفتار)'}`}
             aria-label="Toggle Cosmic Motion Speed"
           >
             <Zap className={`w-4 h-4 ${speedMultiplier > 1 ? 'text-amber-400' : 'text-slate-400'}`} />
@@ -467,7 +467,7 @@ export const CosmicUniverseBackground: React.FC<CosmicUniverseBackgroundProps> =
                 ? 'bg-cyan-950/80 text-cyan-300 border border-cyan-500/40 animate-pulse'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
-            title={cosmicSoundActive ? 'Cosmic 432Hz Sound: ON (ब्रह्मांडीय ध्वनि)' : 'Play Cosmic 432Hz Sound'}
+            title={cosmicSoundActive ? 'Cosmic 432Hz Sound: ON (کائناتی آواز جاری ہے)' : 'Play Cosmic 432Hz Sound (کائناتی آواز چلائیں)'}
             aria-label="Toggle Cosmic Sound Frequency"
           >
             {cosmicSoundActive ? <Volume2 className="w-4 h-4 text-cyan-300" /> : <VolumeX className="w-4 h-4" />}

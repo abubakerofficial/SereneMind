@@ -222,25 +222,25 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
   const orb = getOrbState();
 
   const content = (
-    <div className={`relative w-full ${embedded ? 'max-w-2xl' : 'max-w-lg'} bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm text-slate-700 flex flex-col items-center overflow-hidden`}>
+    <div className={`relative w-full ${embedded ? 'max-w-2xl' : 'max-w-lg'} bg-gradient-to-br from-[#081e33]/90 via-[#0a2942]/85 to-[#0b1c38]/90 backdrop-blur-xl border border-cyan-400/35 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-cyan-950/60 text-slate-100 flex flex-col items-center overflow-hidden`}>
       {/* Ambient background glow */}
-      <div className="absolute -top-24 -left-24 w-64 h-64 bg-sky-100/60 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-amber-50/70 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-24 -left-24 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-teal-500/20 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header */}
-      <div className="w-full flex items-center justify-between pb-4 border-b border-slate-100 z-10">
+      <div className="w-full flex items-center justify-between pb-4 border-b border-cyan-500/25 z-10">
         <div className="flex items-center gap-2.5">
-          <span className="p-2 rounded-xl bg-sky-50 text-sky-600 border border-sky-100">
+          <span className="p-2 rounded-xl bg-cyan-950/80 text-cyan-300 border border-cyan-400/40 shadow-xs">
             <Sparkles className="w-4 h-4" />
           </span>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-bold text-slate-700 text-base sm:text-lg">Mindful Breath Oasis</h3>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
+              <h3 className="font-bold text-white text-base sm:text-lg">Mindful Breath Oasis</h3>
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-cyan-950/90 text-cyan-300 border border-cyan-400/40">
                 سانسوں کی پریکٹس
               </span>
             </div>
-            <p className="text-xs text-slate-500">Step-by-step vagus nerve reset &amp; acute overthinking relief</p>
+            <p className="text-xs text-cyan-200/80">Step-by-step vagus nerve reset &amp; acute overthinking relief</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -278,8 +278,8 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
               }}
               className={`flex-1 py-2 px-2 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
                 isSelected
-                  ? 'bg-white text-sky-700 border border-slate-200 shadow-xs'
-                  : 'text-slate-500 hover:text-slate-700 hover:bg-white/60'
+                  ? 'bg-gradient-to-r from-cyan-500 to-sky-500 text-white shadow-md shadow-cyan-500/30'
+                  : 'text-slate-300 hover:text-white hover:bg-cyan-950/40'
               }`}
             >
               {pattern.name.split(' ')[0]} {pattern.id === '4-7-8' ? '(Deep Calm)' : ''}
@@ -292,24 +292,24 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
       <div className="relative my-6 sm:my-8 flex items-center justify-center w-60 h-60 sm:w-64 sm:h-64 z-10">
         {/* Outer Pulsing Aura */}
         <div
-          className={`absolute inset-0 rounded-full bg-gradient-to-br ${orb.color} blur-xl opacity-70 transition-all ${orb.scale}`}
+          className={`absolute inset-0 rounded-full bg-gradient-to-br ${orb.color} blur-2xl opacity-80 transition-all ${orb.scale}`}
         />
 
         {/* Main Breathing Orb */}
         <div
-          className={`relative w-44 h-44 sm:w-48 sm:h-48 rounded-full border-2 bg-white flex flex-col items-center justify-center shadow-lg transition-all ${orb.scale} ${orb.color}`}
+          className={`relative w-44 h-44 sm:w-48 sm:h-48 rounded-full border-2 bg-gradient-to-br from-[#0c2b47] to-[#071d33] flex flex-col items-center justify-center shadow-2xl transition-all ${orb.scale} ${orb.color}`}
         >
           {phase === 'completed' ? (
             <div className="flex flex-col items-center text-center p-3 animate-fade-in">
-              <CheckCircle2 className="w-12 h-12 text-teal-500 mb-1" />
-              <span className="text-sm font-semibold text-teal-700">Refreshed</span>
+              <CheckCircle2 className="w-12 h-12 text-teal-400 mb-1" />
+              <span className="text-sm font-semibold text-teal-300">Refreshed</span>
             </div>
           ) : (
             <>
-              <span className="text-4xl font-light tracking-tight text-slate-700 font-mono">
+              <span className="text-4xl font-light tracking-tight text-white font-mono">
                 {phase === 'ready' ? selectedPattern.inhale : secondsRemaining}
               </span>
-              <span className="text-xs uppercase font-semibold tracking-wider text-sky-600 mt-1">
+              <span className="text-xs uppercase font-semibold tracking-wider text-cyan-300 mt-1">
                 {phase === 'ready' ? 'SEC' : phase}
               </span>
             </>
@@ -319,10 +319,10 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
 
       {/* Verbal Instruction */}
       <div className="text-center min-h-[4rem] z-10 px-4">
-        <h4 className="text-lg font-semibold text-slate-700 transition-all">
+        <h4 className="text-lg font-bold text-white transition-all">
           {orb.title}
         </h4>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-sm mx-auto">
+        <p className="text-xs sm:text-sm text-cyan-200/90 mt-1 max-w-sm mx-auto">
           {orb.subtitle}
         </p>
       </div>
@@ -350,7 +350,7 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
       <div className="w-full flex items-center justify-center gap-4 mt-2 z-10">
         <button
           onClick={handleReset}
-          className="p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-700 transition-all cursor-pointer"
+          className="p-3 rounded-2xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white transition-all cursor-pointer shadow-xs"
           title="Reset exercise"
         >
           <RotateCcw className="w-5 h-5" />
@@ -360,8 +360,8 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({
           onClick={handleStartPause}
           className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl font-bold transition-all cursor-pointer ${
             isActive
-              ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 shadow-sm'
-              : 'bg-gradient-to-r from-sky-400 to-teal-300 hover:from-sky-500 hover:to-teal-400 text-white shadow-lg shadow-sky-200/50 hover:shadow-xl'
+              ? 'bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 shadow-sm'
+              : 'bg-gradient-to-r from-cyan-500 via-sky-500 to-teal-400 hover:from-cyan-400 hover:to-teal-300 text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl'
           }`}
         >
           {isActive ? (
