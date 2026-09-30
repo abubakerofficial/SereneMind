@@ -46,7 +46,7 @@ export const CosmicSanctuary: React.FC<CosmicSanctuaryProps> = ({
   };
 
   return (
-    <section className="relative overflow-hidden rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-[#0c1236]/90 via-[#121a44]/85 to-[#1a103c]/90 backdrop-blur-xl border border-indigo-400/30 shadow-2xl shadow-indigo-950/60 text-slate-100 transition-all duration-500">
+    <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-8 bg-gradient-to-br from-[#0c1236]/90 via-[#121a44]/85 to-[#1a103c]/90 backdrop-blur-xl border border-indigo-400/30 shadow-2xl shadow-indigo-950/60 text-slate-100 transition-all duration-500">
       {/* Dynamic Cosmic Aurora Glow */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-80 h-80 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />

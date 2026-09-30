@@ -299,28 +299,28 @@ export default function App() {
 
       {/* Top Navigation Bar */}
       <header
-        className={`sticky top-0 z-40 transition-colors duration-500 backdrop-blur-md px-4 sm:px-8 py-3.5 shadow-sm ${
+        className={`sticky top-0 z-40 transition-colors duration-500 backdrop-blur-md px-3 sm:px-8 py-2.5 sm:py-3.5 shadow-sm ${
           theme === 'universe'
-            ? 'bg-[#0b0f24]/85 border-b border-indigo-500/20 text-slate-100 shadow-indigo-950/40'
-            : 'bg-white/85 border-b border-slate-100 text-slate-700 shadow-slate-200/40'
+            ? 'bg-[#0b0f24]/90 border-b border-indigo-500/20 text-slate-100 shadow-indigo-950/40'
+            : 'bg-white/90 border-b border-slate-100 text-slate-700 shadow-slate-200/40'
         }`}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
           {/* Logo & Brand */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <div
-              className={`w-11 h-11 rounded-2xl p-1 flex items-center justify-center transition-all ${
+              className={`w-9 h-9 sm:w-11 sm:h-11 rounded-2xl p-1 flex items-center justify-center shrink-0 transition-all ${
                 theme === 'universe'
                   ? 'bg-slate-900 border border-indigo-500/40 shadow-md shadow-indigo-500/20'
                   : 'bg-white border border-slate-100 shadow-sm shadow-sky-100/50'
               }`}
             >
-              <SereneMindLogo size={36} withContainer={false} />
+              <SereneMindLogo size={30} withContainer={false} />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <h1
-                  className={`font-bold text-lg tracking-tight ${
+                  className={`font-bold text-sm sm:text-lg tracking-tight truncate ${
                     theme === 'universe' ? 'text-white' : 'text-slate-700'
                   }`}
                 >
@@ -330,26 +330,26 @@ export default function App() {
                   </span>
                 </h1>
                 {theme === 'universe' ? (
-                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-950 text-cyan-300 border border-indigo-500/40 flex items-center gap-1 shadow-xs">
+                  <span className="hidden sm:flex text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-950 text-cyan-300 border border-indigo-500/40 items-center gap-1 shadow-xs">
                     <Stars className="w-3 h-3 text-amber-300 animate-spin" />
                     Cosmic Universe
                   </span>
                 ) : (
-                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
+                  <span className="hidden sm:inline text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
                     Calm Sunrise
                   </span>
                 )}
               </div>
               <div
-                className={`flex items-center gap-1.5 text-[11px] mt-0.5 ${
+                className={`flex items-center gap-1 text-[10px] sm:text-[11px] truncate ${
                   theme === 'universe' ? 'text-slate-400' : 'text-slate-500'
                 }`}
               >
                 <span className={theme === 'universe' ? 'font-semibold text-cyan-400' : 'font-semibold text-sky-600'}>
-                  By Abubakar &amp; Mohsin
+                  Abubakar &amp; Mohsin
                 </span>
                 <span className="opacity-40">•</span>
-                <span>Mindfulness &amp; Cosmic Serenity</span>
+                <span className="truncate">ذہنی سکون و کائناتی رہنمائی</span>
               </div>
             </div>
           </div>
@@ -524,8 +524,14 @@ export default function App() {
         </div>
       </header>
 
+      {/* Auto-Fitting Mobile Real App Status & Indicator Bar */}
+      <MobileRealAppIndicator
+        onOpenModal={() => setIsDownloadModalOpen(true)}
+        theme={theme}
+      />
+
       {/* Main Content Area */}
-      <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-12">
+      <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 space-y-6 sm:space-y-12 pb-28 lg:pb-12 overflow-x-hidden">
         {/* ========================================================================= */}
         {/* 0. COSMIC UNIVERSE & LIVING STARFIELD SANCTUARY (کائنات اور ستارے) */}
         {/* ========================================================================= */}
@@ -1032,7 +1038,20 @@ export default function App() {
       <OfflineIndicator />
 
       {/* Floating Mobile Install Bar */}
-      <MobileQuickInstallBar onOpenModal={() => setIsDownloadModalOpen(true)} />
+      <MobileQuickInstallBar
+        onOpenModal={() => setIsDownloadModalOpen(true)}
+        theme={theme}
+      />
+
+      {/* Mobile Native App Bottom Navigation Dock (اصلی موبائل ایپ ڈاک بار) */}
+      <MobileNativeDock
+        onOpenDownloadModal={() => setIsDownloadModalOpen(true)}
+        onScrollToChat={() => scrollToSection(voiceSectionRef)}
+        onScrollToBreathing={() => scrollToSection(breathSectionRef)}
+        onScrollToPsychology={() => scrollToSection(psychologySectionRef)}
+        onScrollToBooks={() => scrollToSection(booksSectionRef)}
+        theme={theme}
+      />
     </div>
   );
 }
