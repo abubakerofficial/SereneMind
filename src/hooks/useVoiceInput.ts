@@ -1,10 +1,40 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-export type SpeechLanguage = 'ur-PK' | 'en-US' | 'hi-IN';
+export type SpeechLanguage = 'ur-PK' | 'en-US' | 'auto';
+export type DetectedLanguage = 'ur' | 'en' | 'roman-ur';
 
 interface UseVoiceInputOptions {
   language?: SpeechLanguage;
-  onResult?: (finalTranscript: string) => void;
+  onResult?: (finalTranscript: string, detectedLang: DetectedLanguage) => void;
+}
+
+// Client-side fast language identification helper
+export function detectScriptLanguage(text: string): DetectedLanguage {
+  const trimmed = text.trim();
+  if (!trimmed) return 'ur';
+
+  // 1. Check for Urdu / Arabic Unicode script
+  if (/[\u0600-\u06FF]/.test(trimmed)) {
+    return 'ur';
+  }
+
+  // 2. Check for common Roman Urdu / Hindi keywords
+  const romanUrduKeywords = [
+    'kya', 'hai', 'hain', 'mein', 'main', 'mujhe', 'mera', 'meri', 'mere',
+    'nahi', 'nahin', 'hota', 'hoti', 'hote', 'raha', 'rahi', 'rahe',
+    'kaise', 'kaisay', 'bohot', 'bohat', 'bhot', 'tension', 'pareshan',
+    'pareshani', 'sukoon', 'dil', 'dimag', 'dimagh', 'neend', 'aati',
+    'shukriya', 'karein', 'karo', 'batayein', 'batao', 'soch', 'overthinking'
+  ];
+
+  const words = trimmed.toLowerCase().split(/\s+/);
+  const matchedWords = words.filter((w) => romanUrduKeywords.includes(w));
+
+  if (matchedWords.length >= 2 || (matchedWords.length === 1 && words.length <= 3)) {
+    return 'roman-ur';
+  }
+
+  return 'en';
 }
 
 export function useVoiceInput(options?: UseVoiceInputOptions) {
@@ -16,6 +46,7 @@ export function useVoiceInput(options?: UseVoiceInputOptions) {
   const [selectedLanguage, setSelectedLanguage] = useState<SpeechLanguage>(
     options?.language || 'ur-PK'
   );
+  const [detectedLanguage, setDetectedLanguage] = useState<DetectedLanguage>('ur');
 
   const recognitionRef = useRef<any>(null);
   const isListeningRef = useRef(false);
@@ -67,9 +98,10 @@ export function useVoiceInput(options?: UseVoiceInputOptions) {
         recognition.continuous = true;
         recognition.interimResults = true;
         recognition.maxAlternatives = 1;
-        // Accurate BCP 47 language code: 'ur-PK' for Urdu, 'en-US' for English
-        const activeLang = langOverride || selectedLanguage || 'ur-PK';
-        recognition.lang = activeLang;
+
+        // Determine recognition language: if auto, prefer 'ur-PK' which also captures English phonemes well
+        const prefLang = langOverride || selectedLanguage || 'ur-PK';
+        recognition.lang = prefLang === 'auto' ? 'ur-PK' : prefLang;
 
         recognition.onstart = () => {
           isListeningRef.current = true;
@@ -90,11 +122,19 @@ export function useVoiceInput(options?: UseVoiceInputOptions) {
             }
           }
 
+          const currentText = final || interim;
+          if (currentText) {
+            const detected = detectScriptLanguage(currentText);
+            setDetectedLanguage(detected);
+          }
+
           if (final) {
             setTranscript((prev) => {
               const updated = prev ? `${prev} ${final.trim()}` : final.trim();
+              const lang = detectScriptLanguage(updated);
+              setDetectedLanguage(lang);
               if (options?.onResult) {
-                options.onResult(updated);
+                options.onResult(updated, lang);
               }
               return updated;
             });
@@ -109,7 +149,7 @@ export function useVoiceInput(options?: UseVoiceInputOptions) {
             isListeningRef.current = false;
             setIsListening(false);
           } else if (event.error === 'no-speech') {
-            // Normal brief pause: do NOT abort listening, keep waiting for speech
+            // Brief pause: keep waiting
             return;
           } else if (event.error === 'language-not-supported') {
             // Fallback to English
@@ -126,9 +166,14 @@ export function useVoiceInput(options?: UseVoiceInputOptions) {
         };
 
         recognition.onend = () => {
-          isListeningRef.current = false;
-          setIsListening(false);
-          setInterimTranscript('');
+          if (isListeningRef.current) {
+            try {
+              recognition.start();
+            } catch (_) {}
+          } else {
+            setIsListening(false);
+            setInterimTranscript('');
+          }
         };
 
         recognitionRef.current = recognition;
@@ -165,6 +210,7 @@ export function useVoiceInput(options?: UseVoiceInputOptions) {
     isListening,
     transcript,
     interimTranscript,
+    detectedLanguage,
     error,
     isSupported,
     selectedLanguage,
@@ -175,3 +221,4 @@ export function useVoiceInput(options?: UseVoiceInputOptions) {
     setTranscript,
   };
 }
+export default useVoiceInput;

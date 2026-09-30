@@ -27,16 +27,77 @@ const ai = new GoogleGenAI({
 
 const DYNAMIC_COACH_INSTRUCTION = `You are Abu Bakar / SereneMind AI, an intelligent, deeply empathetic, and wise mental wellness guide with 30 years of experience helping people overcome depression, stress, overthinking, and anxiety.
 
-CRITICAL LANGUAGE & CONVERSATION DIRECTIVES:
-1. STRICT LANGUAGE MATCHING:
-   - If the user speaks or writes in Urdu script (اردو), e.g. "مجھے بہت پریشانی ہو رہی ہے", "اوورتھنکنگ کیسے ختم کروں؟", or "کیا حال ہے؟", you MUST reply in authentic, fluent, comforting URDU script (اردو).
-   - If the user speaks or writes in English, e.g. "How to stop overthinking?" or "I feel overwhelmed", you MUST reply in clear, natural, empathetic ENGLISH.
-   - If the user speaks in Roman Urdu (e.g. "mujhe tension ho rahi hai"), reply in warm, supportive Roman Urdu or Urdu.
-2. DIRECT RELEVANCE & ACTIVE LISTENING:
-   - Answer their specific question or situation directly. Never output generic or canned text. Listen carefully to what they actually said and respond thoughtfully to their exact words.
-3. VOICE-OPTIMIZED CONVERSATIONAL TONE:
+CRITICAL DIRECTIVES:
+1. DIRECT RELEVANCE & ACTIVE LISTENING:
+   - Answer the user's specific question or situation directly. Never output generic or canned text. Listen carefully to what they actually said and respond thoughtfully to their exact words.
+2. VOICE-OPTIMIZED CONVERSATIONAL TONE:
    - Keep answers warm, comforting, and concise (1 to 3 short sentences max) so that spoken audio is crisp, clear, and soothing like a caring friend on a phone call.
    - Never use markdown formatting, asterisks, or long bullet lists in spoken voice responses.`;
+
+export type DetectedLanguage = 'ur' | 'en' | 'roman-ur';
+
+export interface LanguageContext {
+  code: DetectedLanguage;
+  name: string;
+  systemInstructionSupplement: string;
+}
+
+// Server-side language identification step
+export function identifyLanguage(message: string, clientPreference?: string): LanguageContext {
+  const text = (message || '').trim();
+
+  // 1. Explicit user-selected language preference (if not 'auto')
+  if (clientPreference === 'ur-PK' || clientPreference === 'ur') {
+    return {
+      code: 'ur',
+      name: 'Urdu',
+      systemInstructionSupplement: `MANDATORY LANGUAGE DIRECTIVE: The user selected Urdu (اردو). You MUST respond EXCLUSIVELY in authentic, natural, comforting Urdu script (اردو). Do NOT reply in English.`,
+    };
+  }
+
+  if (clientPreference === 'en-US' || clientPreference === 'en') {
+    return {
+      code: 'en',
+      name: 'English',
+      systemInstructionSupplement: `MANDATORY LANGUAGE DIRECTIVE: The user selected English. You MUST respond EXCLUSIVELY in clear, empathetic English. Do NOT reply in Urdu.`,
+    };
+  }
+
+  // 2. Automatic script detection (Urdu / Arabic characters)
+  if (/[\u0600-\u06FF]/.test(text)) {
+    return {
+      code: 'ur',
+      name: 'Urdu',
+      systemInstructionSupplement: `MANDATORY LANGUAGE DIRECTIVE: The input is in Urdu script (اردو). You MUST respond EXCLUSIVELY in authentic, natural, comforting Urdu script (اردو).`,
+    };
+  }
+
+  // 3. Roman Urdu keywords detection
+  const romanUrduKeywords = [
+    'kya', 'hai', 'hain', 'mein', 'main', 'mujhe', 'mera', 'meri', 'mere',
+    'nahi', 'nahin', 'hota', 'hoti', 'hote', 'raha', 'rahi', 'rahe',
+    'kaise', 'kaisay', 'bohot', 'bohat', 'bhot', 'tension', 'pareshan',
+    'pareshani', 'sukoon', 'dil', 'dimag', 'dimagh', 'neend', 'aati',
+    'shukriya', 'karein', 'karo', 'batayein', 'batao', 'soch', 'overthinking'
+  ];
+
+  const words = text.toLowerCase().split(/\s+/);
+  const matches = words.filter((w) => romanUrduKeywords.includes(w));
+  if (matches.length >= 2 || (matches.length === 1 && words.length <= 4)) {
+    return {
+      code: 'roman-ur',
+      name: 'Roman Urdu',
+      systemInstructionSupplement: `MANDATORY LANGUAGE DIRECTIVE: The input is in Roman Urdu. You MUST reply in conversational, comforting Roman Urdu or Urdu script.`,
+    };
+  }
+
+  // 4. Default to English
+  return {
+    code: 'en',
+    name: 'English',
+    systemInstructionSupplement: `MANDATORY LANGUAGE DIRECTIVE: The input is in English. You MUST respond EXCLUSIVELY in clear, empathetic English.`,
+  };
+}
 
 const SYSTEM_INSTRUCTION = `${DYNAMIC_COACH_INSTRUCTION}
 
@@ -154,7 +215,8 @@ function generateContextualMentalHealthResponse(message: string): string {
 
 // Endpoint: Abu Bakar Lifetime Free Gemini Voice Route (/api/gemini)
 app.post('/api/gemini', async (req: Request, res: Response) => {
-  const { message = '' } = req.body || {};
+  const { message = '', language } = req.body || {};
+  const langContext = identifyLanguage(message, language);
 
   try {
     if (process.env.GEMINI_API_KEY) {
@@ -162,29 +224,30 @@ app.post('/api/gemini', async (req: Request, res: Response) => {
         model: 'gemini-3.8-flash',
         contents: [{ role: 'user', parts: [{ text: message || 'Hello Abu Bakar' }] }],
         config: {
-          systemInstruction: DYNAMIC_COACH_INSTRUCTION,
+          systemInstruction: `${DYNAMIC_COACH_INSTRUCTION}\n\n${langContext.systemInstructionSupplement}`,
           temperature: 0.7,
         },
       });
 
       const replyText = response.text?.trim();
       if (replyText) {
-        return res.json({ reply: replyText });
+        return res.json({ reply: replyText, detectedLanguage: langContext.code });
       }
     }
   } catch (genAiErr) {
-    // Graceful fallback without throwing unhandled exceptions
+    // Graceful fallback
   }
 
   // Reliable, instant contextual reply
   const fallbackReply = generateContextualMentalHealthResponse(message);
-  return res.json({ reply: fallbackReply });
+  return res.json({ reply: fallbackReply, detectedLanguage: langContext.code });
 });
 
 // Endpoint: Abu Bakar Conversational Guide (Depression & Overthinking Coach)
 app.post('/api/abubakar-chat', async (req: Request, res: Response) => {
   try {
-    const { message = '', history = [] } = req.body || {};
+    const { message = '', history = [], language } = req.body || {};
+    const langContext = identifyLanguage(message, language);
 
     const contents = Array.isArray(history)
       ? history.slice(-6).map((h: any) => ({
@@ -202,23 +265,25 @@ app.post('/api/abubakar-chat', async (req: Request, res: Response) => {
       model: 'gemini-3.8-flash',
       contents,
       config: {
-        systemInstruction: DYNAMIC_COACH_INSTRUCTION,
+        systemInstruction: `${DYNAMIC_COACH_INSTRUCTION}\n\n${langContext.systemInstructionSupplement}`,
         temperature: 0.7,
       },
     });
 
-    const isUrduInput = /[\u0600-\u06FF]/.test(message || '');
+    const isUrduInput = langContext.code === 'ur';
     const reply = response.text?.trim() || (isUrduInput
       ? 'میں آپ کی بات سن رہا ہوں۔ ایک گہرا سانس لیں اور بتائیں کہ اس وقت آپ کے ذہن پر کیا بوجھ ہے؟'
       : "I'm listening with care. What thoughts are weighing on your mind right now?");
-    return res.json({ reply });
+    return res.json({ reply, detectedLanguage: langContext.code });
   } catch (err: any) {
     console.error('Abu Bakar chat error:', err);
-    const isUrdu = /[\u0600-\u06FF]/.test(req.body?.message || '');
+    const { message = '', language } = req.body || {};
+    const langContext = identifyLanguage(message, language);
     return res.json({
-      reply: isUrdu
+      reply: langContext.code === 'ur'
         ? 'میں بالکل آپ کے ساتھ ہوں۔ بتائیں آپ کیا محسوس کر رہے ہیں، ہم مل کر اسے حل کریں گے۔'
         : "I'm here with you. Tell me what you're feeling and we'll take it one step at a time.",
+      detectedLanguage: langContext.code,
     });
   }
 });
@@ -349,11 +414,14 @@ You are SereneMind AI, an intelligent assistant. You must follow these absolute 
 
 // Endpoint: AI Coaching Chat with Personality & Wellness Assessment
 app.post('/api/coach', async (req: Request, res: Response) => {
-  const { messages, userState } = req.body || {};
+  const { messages, userState, language } = req.body || {};
   try {
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return res.status(400).json({ error: 'Messages array is required.' });
     }
+
+    const lastUserMsg = messages[messages.length - 1]?.content || '';
+    const langContext = identifyLanguage(lastUserMsg, language);
 
     // Format conversation history for Gemini
     const contents = messages.map((m: { role: string; content: string }) => ({
@@ -374,7 +442,7 @@ app.post('/api/coach', async (req: Request, res: Response) => {
       model: 'gemini-3.8-flash',
       contents: contents,
       config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
+        systemInstruction: `${SYSTEM_INSTRUCTION}\n\n${langContext.systemInstructionSupplement}`,
         temperature: 0.7,
         responseMimeType: 'application/json',
         responseSchema: {
@@ -382,7 +450,11 @@ app.post('/api/coach', async (req: Request, res: Response) => {
           properties: {
             spokenResponse: {
               type: Type.STRING,
-              description: 'Conversational, empathetic voice-first response in 2-4 short sentences suitable for TTS spoken audio.',
+              description: 'Conversational, empathetic voice-first response in 2-4 short sentences suitable for TTS spoken audio matching the exact input language.',
+            },
+            detectedLanguage: {
+              type: Type.STRING,
+              description: 'The language code of the response: "ur", "en", or "roman-ur".',
             },
             detectedArchetype: {
               type: Type.STRING,
@@ -427,75 +499,36 @@ app.post('/api/coach', async (req: Request, res: Response) => {
     });
 
     const parsed = JSON.parse(response.text || '{}');
+    if (!parsed.detectedLanguage) {
+      parsed.detectedLanguage = langContext.code;
+    }
     return res.json(parsed);
   } catch (error: any) {
     const lastUserMessage = (messages && messages.length > 0)
-      ? String(messages[messages.length - 1]?.content || '').toLowerCase()
+      ? String(messages[messages.length - 1]?.content || '')
       : '';
+    const langContext = identifyLanguage(lastUserMessage, language);
+    const isUrdu = langContext.code === 'ur';
 
-    let directAnswer = "I'm ready to answer any questions directly. What topic or concept would you like to explore?";
+    let directAnswer = isUrdu
+      ? generateContextualMentalHealthResponse(lastUserMessage)
+      : "I'm listening closely. What thoughts or questions would you like to explore together?";
     let exercise = 'None';
-    let stress = 2;
+    let stress = 3;
     let tendency: 'Mild' | 'Moderate' | 'High' | 'Critical' | 'Balanced' = 'Balanced';
-    let observation = 'Logical response provided.';
-
-    // Typo / Concept handling: "what is our thing thinking" or overthinking questions
-    if (
-      lastUserMessage.includes('our thing thinking') ||
-      lastUserMessage.includes('what is overthinking') ||
-      lastUserMessage.includes('meaning of overthinking') ||
-      lastUserMessage.includes('define overthinking')
-    ) {
-      directAnswer = "Overthinking is the habit of repeatedly analyzing, second-guessing, and worrying about thoughts or decisions beyond what is helpful.";
-      exercise = 'None';
-      stress = 2;
-      tendency = 'Balanced';
-      observation = 'Clarified and defined overthinking concept.';
-    } else if (lastUserMessage.includes('2-minute reset') || lastUserMessage.includes('give me an exercise') || lastUserMessage.includes('help me relax')) {
-      directAnswer = "Here is a 2-minute reset: close your eyes, drop your shoulders away from your ears, and take three slow four-second inhales and six-second exhales.";
-      exercise = '4-7-8 Breathing';
-      stress = 5;
-      tendency = 'Moderate';
-      observation = 'Executed requested relaxation practice.';
-    } else if (lastUserMessage.includes('joke')) {
-      directAnswer = "Why don't scientists trust atoms? Because they make up everything!";
-    } else if (lastUserMessage.includes('prioritize') || lastUserMessage.includes('busy schedule')) {
-      directAnswer = "Use the Eisenhower Matrix to separate urgent from important, pick your single 'Must-Do' task first each morning, and timeblock 45-minute sprints.";
-    } else if (lastUserMessage.includes('book') || lastUserMessage.includes('focus')) {
-      directAnswer = "Read 'Deep Work' by Cal Newport; it gives actionable blueprints for eliminating distractions and building deep focus.";
-    } else if (lastUserMessage.includes('capital of france')) {
-      directAnswer = 'The capital of France is Paris.';
-    } else if (lastUserMessage.includes('api')) {
-      directAnswer = 'An API (Application Programming Interface) is a set of rules and protocols that allows different software programs to communicate and share data.';
-    } else if (
-      lastUserMessage.includes('i am stressed') ||
-      lastUserMessage.includes('i am anxious') ||
-      lastUserMessage.includes('panic attack') ||
-      lastUserMessage.includes('give me an exercise') ||
-      lastUserMessage.includes('help me relax')
-    ) {
-      directAnswer = "Inhale deeply through your nose for four seconds, hold for four, and release slowly through your mouth. We will take this one piece at a time.";
-      exercise = '4-7-8 Breathing';
-      stress = 7;
-      tendency = 'High';
-      observation = 'Immediate grounding provided upon explicit distress request.';
-    } else if (lastUserMessage.startsWith('what is') || lastUserMessage.startsWith("what's") || lastUserMessage.includes('explain')) {
-      directAnswer = "Could you specify what concept or term you'd like me to define? I'll explain it directly and logically.";
-    } else if (lastUserMessage.includes('how are you')) {
-      directAnswer = "I'm doing well, ready to answer questions or help with tasks!";
-    } else if (/\b(hello|hey|hi|greetings|morning|evening)\b/.test(lastUserMessage)) {
-      directAnswer = "Hey! What question can I answer for you?";
-    }
+    let observation = isUrdu ? 'پرسکون ذہنی رہنمائی فراہم کی گئی۔' : 'Mindful guidance provided.';
+    let affirmation = isUrdu ? 'ہر سانس کے ساتھ ذہن پرسکون ہو رہا ہے۔' : 'One clear step at a time.';
 
     return res.status(200).json({
       spokenResponse: directAnswer,
-      detectedArchetype: 'Mindful Companion',
+      detectedLanguage: langContext.code,
+      detectedArchetype: isUrdu ? 'ذہین متلاشی (Mindful Seeker)' : 'Mindful Companion',
       stressLevel: stress,
       overthinkingTendency: tendency,
       mindfulObservation: observation,
       suggestedExercise: exercise,
-      exerciseInstruction: exercise === 'None' ? '' : 'Inhale 4s, hold 7s, exhale 8s.',
-      soothingAffirmation: 'One clear step at a time.',
+      exerciseInstruction: exercise === 'None' ? '' : 'Follow the breathing guide.',
+      soothingAffirmation: affirmation,
     });
   }
 });

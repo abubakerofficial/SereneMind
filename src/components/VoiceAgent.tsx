@@ -15,7 +15,7 @@ const SAMPLE_VOICE_PROMPTS = [
 
 export function VoiceAgent({ theme = 'universe' }: { theme?: 'universe' | 'sunrise' }) {
   const [isActive, setIsActive] = useState(false);
-  const [selectedLang, setSelectedLang] = useState<'ur-PK' | 'en-US'>('ur-PK');
+  const [selectedLang, setSelectedLang] = useState<'ur-PK' | 'en-US' | 'auto'>('ur-PK');
   const [statusText, setStatusText] = useState("مائیکروفون پر ٹیپ کریں اور بولیں (Tap to Speak)");
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
@@ -91,15 +91,16 @@ export function VoiceAgent({ theme = 'universe' }: { theme?: 'universe' | 'sunri
         const res = await fetch('/api/gemini', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: cleanText }),
+          body: JSON.stringify({ message: cleanText, language: selectedLang }),
         });
         const data = await res.json();
 
         setIsThinking(false);
         if (data.reply) {
           setLastReply(data.reply);
+          const isUrdu = data.detectedLanguage === 'ur' || /[\u0600-\u06FF]/.test(data.reply);
           setStatusText(
-            selectedLang === 'ur-PK'
+            isUrdu
               ? 'ابوبکر بول رہا ہے... (Speaking Urdu)'
               : 'Abu Bakar is speaking... (Speaking English)'
           );
@@ -107,7 +108,7 @@ export function VoiceAgent({ theme = 'universe' }: { theme?: 'universe' | 'sunri
           soundEngine.speakFallback(data.reply, () => {
             setIsSpeaking(false);
             setStatusText(
-              selectedLang === 'ur-PK'
+              isUrdu
                 ? 'مدد کے لیے دوبارہ مائیک دبائیں (Ready)'
                 : 'Tap mic to talk again (Ready)'
             );
@@ -369,6 +370,19 @@ export function VoiceAgent({ theme = 'universe' }: { theme?: 'universe' | 'sunri
             }`}
           >
             🌐 English
+          </button>
+          <button
+            onClick={() => {
+              setSelectedLang('auto');
+              if (isActive) stopAudioCapture();
+            }}
+            className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+              selectedLang === 'auto'
+                ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-xs'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            ⚡ آٹو (Auto)
           </button>
         </div>
       </div>

@@ -183,6 +183,7 @@ export default function App() {
             role: m.role,
             content: m.content,
           })),
+          language: selectedLanguage,
           userState: {
             currentMood: currentAssessment.detectedArchetype,
             activeExercise: activeExercise,
@@ -215,10 +216,13 @@ export default function App() {
       }
     } catch (err: any) {
       console.error('Coaching request error:', err);
+      const isUrduInput = selectedLanguage === 'ur-PK' || /[\u0600-\u06FF]/.test(text);
       const fallbackMsg: ChatMessage = {
         id: `fallback-${Date.now()}`,
         role: 'assistant',
-        content: "Could you repeat that? I'm ready to answer directly.",
+        content: isUrduInput
+          ? "میں آپ کی بات سن رہا ہوں۔ براہِ کرم دوبارہ بتائیں کہ آپ کیا محسوس کر رہے ہیں؟"
+          : "Could you repeat that? I'm listening closely and ready to help.",
         timestamp: Date.now(),
         assessment: {
           ...currentAssessment,
@@ -861,6 +865,18 @@ export default function App() {
                 }`}
               >
                 🌐 English
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedLanguage('auto')}
+                className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                  selectedLanguage === 'auto'
+                    ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-md shadow-cyan-500/25'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title="Auto Detect: Automatically detect Urdu, English, or Roman Urdu"
+              >
+                ⚡ آٹو (Auto)
               </button>
             </div>
 
